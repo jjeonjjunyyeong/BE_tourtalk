@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.4.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.ssafy.trip</groupId>
-	<artifactId>trip_Spring_Gwangu_04_jeongsuhyeong</artifactId>
+	<groupId>world.ssafy.tourtalk</groupId>
+	<artifactId>tourtalk</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>trip_Spring_Gwangu_04_jeongsuhyeong</name>
-	<description>Demo project for Spring Boot</description>
+	<name>tourtalk</name>
+	<description>ssafy final project for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
