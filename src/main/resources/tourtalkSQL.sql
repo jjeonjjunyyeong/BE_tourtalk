@@ -44,15 +44,12 @@ CREATE TABLE `curator` (
 );
 
 -- 게시판 관련 테이블
--- *****************************************************************************************************
 -- 4. 게시판 카테고리
 CREATE TABLE `board_categories` (
   `category_id` INT NOT NULL,
-  `main_category` VARCHAR(50) NOT NULL,
-  `sub_category` VARCHAR(50) NULL,
+  `main_category` VARCHAR(10) NOT NULL,
   PRIMARY KEY (`category_id`)
 );
--- *****************************************************************************************************
 
 -- 5. 게시글
 CREATE TABLE `board` (
