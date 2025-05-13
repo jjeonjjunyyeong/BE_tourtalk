@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import world.ssafy.tourtalk.model.dto.Member.Role;
 
 @Component
@@ -46,7 +48,7 @@ public class JwtTokenProvider {
             .compact();
     }
     
-    // 토큰에서 사용자 정보 꺼내기
+    // 토큰에서 사용자 ID 꺼내기
     public String getUserId(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(key)
@@ -67,28 +69,33 @@ public class JwtTokenProvider {
     }
 
     // 권한 추출
-    public List<String> getRoles(String token) {
+    public String getRole(String token) {
         Claims claims = Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
             .parseClaimsJws(token)
             .getBody();
 
-        Object rawRoles = claims.get("roles");
-        if (rawRoles instanceof List<?> list) {
-            return list.stream().map(Object::toString).collect(Collectors.toList());
-        }
-        return List.of(); // 없으면 빈 리스트
+        Object rawRole = claims.get("role");
+        return rawRole != null ? rawRole.toString() : null;
     }
 
     public Authentication getAuthentication(String token) {
         String userId = getUserId(token);
-        List<String> roles = getRoles(token);
+        String role = getRole(token);
 
-        List<GrantedAuthority> authorities = roles.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
-
-        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
+        GrantedAuthority authority = new SimpleGrantedAuthority(role);
+        return new UsernamePasswordAuthenticationToken(userId, null, List.of(authority));
+    }
+    
+    public String resolveToken(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

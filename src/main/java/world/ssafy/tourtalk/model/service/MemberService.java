@@ -2,9 +2,14 @@ package world.ssafy.tourtalk.model.service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.model.dto.Member;
+import world.ssafy.tourtalk.model.dto.MemberDetails;
+import world.ssafy.tourtalk.model.dto.reqeust.MemberRegistRequest;
+import world.ssafy.tourtalk.model.dto.reqeust.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.mapper.MemberMapper;
 
 @Service
@@ -12,35 +17,70 @@ import world.ssafy.tourtalk.model.mapper.MemberMapper;
 public class MemberService {
 
 	private final MemberMapper memberMapper;
-	private BCryptPasswordEncoder passwordEncoder;
+	private final BCryptPasswordEncoder passwordEncoder;
 	
 	// 회원가입
-	public int regist(Member member) {
+	@Transactional
+	public int regist(MemberRegistRequest request) {
+		Member member = request.getMember();
+		MemberDetails details = request.getMemberDetails();
+		
 		member.setPassword(passwordEncoder.encode(member.getPassword()));
-		return memberMapper.insert(member);
+		
+		int result = memberMapper.insertMember(member);
+		details.setMno(member.getMno());
+		result += memberMapper.insertMemberDetails(details);
+		return result;
 	}
 
 	// 로그인
 	public Member login(String id, String password) {
-		password = passwordEncoder.encode(password);
-		return memberMapper.login(id, password);
-	}
-
-	public int modify(Member member) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public Member memberInfo(String id) {
-		// TODO Auto-generated method stub
+		Member member = memberMapper.findById(id, Member.Status.DELETED);
+		if(member != null && passwordEncoder.matches(password, member.getPassword())) return member;
 		return null;
 	}
 	
-	public int delete(String id) {
-		// TODO Auto-generated method stub
-		return 0;
+	// 회원 정보
+	public MemberResponse me(String id) {
+		Member member = memberMapper.me(id);
+		if(member == null) return null;
+		
+		MemberDetails details = memberMapper.getDetailsByMno(member.getMno());
+		return MemberResponse.builder().member(member).memberDetails(details).build();
 	}
 
-
+	// 회원 상세 정보
+	public MemberDetails getDetails(int mno) {
+		return memberMapper.getDetailsByMno(mno);
+	}	
 	
+	// 회원정보수정
+	@Transactional
+	public int update(MemberUpdateRequest request) {
+		Member member = request.getMember();
+		MemberDetails details = request.getMemberDetails();
+		
+		Member origin = memberMapper.findById(member.getId(), Member.Status.DELETED);
+		
+	    if (member.getPassword() != null && !member.getPassword().isBlank()) {
+	        member.setPassword(passwordEncoder.encode(member.getPassword()));
+	    } else {
+	        member.setPassword(origin.getPassword());
+	    }
+	    
+	    // 테스트를 위한 코드 추후 삭제
+	    if (member.getRole() == null) member.setRole(origin.getRole());
+	    if (member.getStatus() == null) member.setStatus(origin.getStatus());
+	    if (member.getPoints() == 0) member.setPoints(origin.getPoints());
+		
+		int result = memberMapper.update(member);
+		result += memberMapper.updateDetails(details);
+		return result;
+	}
+	
+	// 회원탈퇴
+	@Transactional
+	public int delete(String id) {
+		return memberMapper.delete(id, Member.Status.DELETED);
+	}
 }

@@ -1,1 +1,91 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="world.ssafy.tourtalk.model.mapper.MemberMapper">
+ 
+	<!-- 회원 기본 정보 입력 -->
+    <insert id="insertMember" parameterType="world.ssafy.tourtalk.model.dto.Member" useGeneratedKeys="true" keyProperty="mno">
+        INSERT INTO member (id, password, nickname, role, status, points)
+        VALUES (
+        #{id}, 
+        #{password}, 
+        #{nickname}, 
+        #{role, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Role},
+        #{status, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Status}, 
+        #{points})
+    </insert>
+
+    <!-- 회원 상세 정보 입력 -->
+    <insert id="insertMemberDetails" parameterType="world.ssafy.tourtalk.model.dto.MemberDetails">
+        INSERT INTO member_details (mno, email, phone, gender, address, postal_code, birth_date, profile_img_path)
+        VALUES (
+        #{mno}, 
+        #{email}, 
+        #{phone}, 
+        #{gender, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.MemberDetails$Gender},
+        #{address}, 
+        #{postalCode}, 
+        #{birthDate},
+        #{profileImgPath})
+    </insert>
+
+    <!-- ID로 회원 조회 (로그인 등) -->
+    <select id="findById" resultType="world.ssafy.tourtalk.model.dto.Member" parameterType="String">
+        SELECT mno, id, password, nickname, role, status, points
+        FROM member
+        WHERE id = #{id} 
+        AND status != #{status, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Status}
+    </select>
+
+    <!-- 본인 정보 조회 -->
+    <select id="me" resultType="world.ssafy.tourtalk.model.dto.Member" parameterType="String">
+        SELECT mno, id, password, nickname, role, status, points
+        FROM member
+        WHERE id = #{id}
+    </select>
+
+    <!-- 상세 정보 조회 -->
+    <select id="getDetailsByMno" resultType="world.ssafy.tourtalk.model.dto.MemberDetails" parameterType="int">
+        SELECT mno, email, phone, gender, address, postal_code AS postalCode,
+               birth_date AS birthDate, profile_img_path AS profileImgPath,
+               created_at, updated_at, last_login
+        FROM member_details
+        WHERE mno = #{mno}
+    </select>
+
+    <!-- 회원 정보 수정 -->
+    <update id="update" parameterType="world.ssafy.tourtalk.model.dto.Member">
+        UPDATE member
+        SET password = #{password},
+            nickname = #{nickname},
+       		role = #{role, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Role},
+        	status = #{status, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Status},
+            points = #{points}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 회원 상세 정보 수정 -->
+    <update id="updateDetails" parameterType="world.ssafy.tourtalk.model.dto.MemberDetails">
+        UPDATE member_details
+        SET email = #{email},
+            phone = #{phone},
+            gender = #{gender, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.MemberDetails$Gender},
+            address = #{address},
+            postal_code = #{postalCode},
+            birth_date = #{birthDate},
+            profile_img_path = #{profileImgPath},
+            updated_at = NOW(),
+            last_login = #{lastLogin}
+        WHERE mno = #{mno}
+    </update>
+
+    <!-- 회원 탈퇴 처리 (is_deleted = true) -->
+    <update id="delete" parameterType="String">
+        UPDATE member
+        SET status = #{status, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Status}
+        WHERE id = #{id}
+    </update>
+ 
+  </mapper>

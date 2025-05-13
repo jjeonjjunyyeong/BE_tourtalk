@@ -45,5 +45,4 @@ public class Member {
 	private Role role;
 	private Status status;
 	private int points;
-	private boolean isDeleted;
 }
