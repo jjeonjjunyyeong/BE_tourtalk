@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="world.ssafy.tourtalk.attraction.dao.AttractionDAO">
+<mapper namespace="world.ssafy.tourtalk.model.mapper.AttractionMapper">
 	<!-- 공통 SQL 조각 정의 -->
 	<sql id="attractionColumns">
 		a.no, c.content_type_id, a.content_id, a.title, c.content_type_name, 
@@ -126,11 +126,11 @@
 		<include refid="joinSidoGugun" />
 		<where>
 			a.first_image1 IS NOT NULL AND a.first_image1 != ''
-			<if test="contentTypeName != null">
-				AND c.content_type_id = #{contentTypeName}
+			<if test="contentTypeId != null">
+				AND c.content_type_id = #{contentTypeId}
 			</if>
-			<if test="areaCode != null">
-				AND sido_name = #{areaCode}
+			<if test="sidoCode != null">
+				AND a.area_code = #{sidoCode}
 			</if>
 		</where>
 		ORDER BY RAND()
@@ -190,10 +190,114 @@
 		LIMIT #{offset}, #{limit}
 	</select>
 	
-	<resultMap id="AttractionMap" type="world.ssafy.tourtalk.attraction.dto.Attraction">
+	<!-- Mapper 인터페이스에 추가된 메서드들에 대한 SQL 구현 -->
+	<select id="getAttractionByDirectCodes" resultMap="AttractionMap">
+		SELECT <include refid="attractionColumns" />
+		FROM attractions a
+		JOIN contenttypes c ON a.content_type_id = c.content_type_id
+		<include refid="joinSidoGugun" />
+		WHERE c.content_type_id = #{contentTypeId}
+		AND a.area_code = #{sidoCode}
+		AND a.si_gun_gu_code = #{gugunCode}
+	</select>
+	
+	<select id="getAttractionByDirectCodesWithPaging" resultMap="AttractionMap">
+		SELECT <include refid="attractionColumns" />
+		FROM attractions a
+		JOIN contenttypes c ON a.content_type_id = c.content_type_id
+		<include refid="joinSidoGugun" />
+		WHERE c.content_type_id = #{contentTypeId}
+		AND a.area_code = #{sidoCode}
+		AND a.si_gun_gu_code = #{gugunCode}
+		ORDER BY a.no
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="getTotalCountByDirectCodes" resultType="int">
+		SELECT COUNT(*) 
+		FROM attractions a
+		JOIN contenttypes c ON a.content_type_id = c.content_type_id
+		WHERE c.content_type_id = #{contentTypeId}
+		AND a.area_code = #{sidoCode}
+		AND a.si_gun_gu_code = #{gugunCode}
+	</select>
+	
+	<select id="searchAttractionsByCodes" resultMap="AttractionMap">
+		SELECT <include refid="attractionColumns" />
+		FROM attractions a
+		JOIN contenttypes c ON a.content_type_id = c.content_type_id
+		<include refid="joinSidoGugun" />
+		<where>
+			<if test="keyword != null and keyword != ''">
+				(a.title LIKE CONCAT('%', #{keyword}, '%')
+				OR a.addr1 LIKE CONCAT('%', #{keyword}, '%')
+				OR a.overview LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="contentTypeId != null">
+				AND c.content_type_id = #{contentTypeId}
+			</if>
+			<if test="sidoCode != null">
+				AND a.area_code = #{sidoCode}
+			</if>
+			<if test="gugunCode != null">
+				AND a.si_gun_gu_code = #{gugunCode}
+			</if>
+			<if test="minViewCount != null and minViewCount > 0">
+				AND a.view_cnt >= #{minViewCount}
+			</if>
+			<if test="onlyWithImage != null and onlyWithImage">
+				AND a.first_image1 IS NOT NULL AND a.first_image1 != ''
+			</if>
+		</where>
+		ORDER BY 
+		<choose>
+			<when test="orderBy != null and orderBy == 'viewCount'">
+				a.view_cnt DESC
+			</when>
+			<when test="orderBy != null and orderBy == 'title'">
+				a.title <if test="orderDirection != null">${orderDirection}</if>
+			</when>
+			<otherwise>
+				a.no
+			</otherwise>
+		</choose>
+		LIMIT #{offset}, #{pageSize}
+	</select>
+	
+	<select id="countAttractionsByCodes" resultType="int">
+		SELECT COUNT(*) 
+		FROM attractions a
+		JOIN contenttypes c ON a.content_type_id = c.content_type_id
+		<include refid="joinSidoGugun" />
+		<where>
+			<if test="keyword != null and keyword != ''">
+				(a.title LIKE CONCAT('%', #{keyword}, '%')
+				OR a.addr1 LIKE CONCAT('%', #{keyword}, '%')
+				OR a.overview LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="contentTypeId != null">
+				AND c.content_type_id = #{contentTypeId}
+			</if>
+			<if test="sidoCode != null">
+				AND a.area_code = #{sidoCode}
+			</if>
+			<if test="gugunCode != null">
+				AND a.si_gun_gu_code = #{gugunCode}
+			</if>
+			<if test="minViewCount != null and minViewCount > 0">
+				AND a.view_cnt >= #{minViewCount}
+			</if>
+			<if test="onlyWithImage != null and onlyWithImage">
+				AND a.first_image1 IS NOT NULL AND a.first_image1 != ''
+			</if>
+		</where>
+	</select>
+	
+	<resultMap id="AttractionMap" type="world.ssafy.tourtalk.model.dto.Attraction">
 		<result property="no" column="no"/>
 		<result property="contentId" column="content_id"/>
 		<result property="title" column="title"/>
+		<result property="contentTypeId" column="content_type_id"/>
 		<result property="contentTypeName" column="content_type_name"/>
 		<result property="sido" column="sido_name"/>
 		<result property="gugun" column="gugun_name"/>
