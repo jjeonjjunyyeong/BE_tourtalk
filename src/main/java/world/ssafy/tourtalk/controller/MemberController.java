@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.Member;
-import world.ssafy.tourtalk.model.dto.MemberDetails;
 import world.ssafy.tourtalk.model.dto.reqeust.MemberRegistRequest;
 import world.ssafy.tourtalk.model.dto.reqeust.MemberUpdateRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
