@@ -1,0 +1,32 @@
+package world.ssafy.tourtalk.model.service;
+
+import java.util.List;
+import java.util.Map;
+
+import world.ssafy.tourtalk.model.dto.Attraction;
+import world.ssafy.tourtalk.model.dto.Page;
+import world.ssafy.tourtalk.model.dto.SearchCondition;
+
+public interface AttractionService {
+    // 기본 조회 메서드
+    List<Map<String, Object>> getContent();
+    List<Map<String, Object>> getSido();
+    List<Map<String, Object>> getGugun(String code);
+    Attraction getAttractionByNo(int no);
+    
+    // 랜덤 관광지 조회
+    List<Attraction> getRandomAttractions(int count);
+    List<Attraction> getRandomAttractionsByTheme(int count, int contentTypeId);
+    List<Attraction> getRandomAttractionsByRegion(int count, int sidoCode);
+    
+    // 조회수 관련
+    void updateViewCount(int no);
+    List<Map<String, Object>> allCountView();
+    
+    // 코드 값 기반 직접 조회
+    List<Attraction> getAttractionsByDirectCodes(int contentTypeId, int sidoCode, int gugunCode);
+    Page<Attraction> getAttractionsByDirectCodesWithPaging(int contentTypeId, int sidoCode, int gugunCode, int pageNumber, int pageSize);
+    
+    // SearchCondition 기반 검색
+    Page<Attraction> searchAttractionsByCodes(SearchCondition condition);
+}
