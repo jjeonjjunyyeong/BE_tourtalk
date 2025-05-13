@@ -38,6 +38,42 @@ public class BasicAttractionService implements AttractionService {
     }
     
     @Override
+    public int getContentTypeIdByName(String contentTypeName) {
+        // 컨텐츠 타입 이름으로 ID 조회 로직
+        List<Map<String, Object>> contents = attractionMapper.getContent();
+        for (Map<String, Object> content : contents) {
+            if (contentTypeName.equals(content.get("name"))) {
+                return Integer.parseInt(content.get("id").toString());
+            }
+        }
+        return 0; // 기본값 또는 예외 처리
+    }
+
+    @Override
+    public int getSidoCodeByName(String sidoName) {
+        // 시도 이름으로 코드 조회 로직
+        List<Map<String, Object>> sidos = attractionMapper.getSido();
+        for (Map<String, Object> sido : sidos) {
+            if (sidoName.equals(sido.get("name"))) {
+                return Integer.parseInt(sido.get("id").toString());
+            }
+        }
+        return 0; // 기본값 또는 예외 처리
+    }
+
+    @Override
+    public int getGugunCodeByName(String gugunName, int sidoCode) {
+        // 구군 이름과 시도 코드로 구군 코드 조회 로직
+        List<Map<String, Object>> guguns = attractionMapper.getGugun(String.valueOf(sidoCode));
+        for (Map<String, Object> gugun : guguns) {
+            if (gugunName.equals(gugun.get("name"))) {
+                return Integer.parseInt(gugun.get("id").toString());
+            }
+        }
+        return 0; // 기본값 또는 예외 처리
+    }
+    
+    @Override
     public List<Attraction> getRandomAttractions(int count) {
         return attractionMapper.getRandomAttractions(count, null, null);
     }

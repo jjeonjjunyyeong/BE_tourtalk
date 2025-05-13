@@ -14,6 +14,11 @@ public interface AttractionService {
     List<Map<String, Object>> getGugun(String code);
     Attraction getAttractionByNo(int no);
     
+    // 이름으로 코드 조회 메서드
+    int getContentTypeIdByName(String contentTypeName);
+    int getSidoCodeByName(String sidoName);
+    int getGugunCodeByName(String gugunName, int sidoCode);
+    
     // 랜덤 관광지 조회
     List<Attraction> getRandomAttractions(int count);
     List<Attraction> getRandomAttractionsByTheme(int count, int contentTypeId);
