@@ -1,4 +1,4 @@
-package world.ssafy.tourtalk.model.dto;
+package world.ssafy.tourtalk.model.dto.request;
 
 import java.time.LocalDateTime;
 
@@ -11,10 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Curator {
+public class PostLikesRequest {
+	private int postId;
 	private int mno;
-	private String curatorNo;
-	private String curatorImg;
-	private int adGrade;
-	private LocalDateTime approvedAt;
+	private LocalDateTime createdAt;
 }

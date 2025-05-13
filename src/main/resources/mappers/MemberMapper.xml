@@ -31,6 +31,12 @@
         #{profileImgPath})
     </insert>
 
+	<insert id="insertCurator" parameterType="world.ssafy.tourtalk.model.dto.Curator">
+    INSERT INTO curator (mno, curator_no, curator_img) 
+    VALUES (#{mno}, #{curatorNo}, #{curatorImg})
+	</insert>
+	
+
     <!-- ID로 회원 조회 (로그인 등) -->
     <select id="findById" resultType="world.ssafy.tourtalk.model.dto.Member" parameterType="String">
         SELECT mno, id, password, nickname, role, status, points

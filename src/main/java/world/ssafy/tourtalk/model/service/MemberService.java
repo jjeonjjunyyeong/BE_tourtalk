@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import world.ssafy.tourtalk.model.dto.Curator;
 import world.ssafy.tourtalk.model.dto.Member;
 import world.ssafy.tourtalk.model.dto.MemberDetails;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberRegistRequest;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberRegistRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberUpdateRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.mapper.MemberMapper;
 
@@ -26,10 +27,15 @@ public class MemberService {
 		MemberDetails details = request.getMemberDetails();
 		
 		member.setPassword(passwordEncoder.encode(member.getPassword()));
-		
 		int result = memberMapper.insertMember(member);
 		details.setMno(member.getMno());
 		result += memberMapper.insertMemberDetails(details);
+		
+		if(member.getRole().equals(Member.Role.CURATOR)) {
+			Curator curator = request.getCurator();
+			curator.setMno(member.getMno());
+			result += memberMapper.insertCurator(curator);
+		} 
 		return result;
 	}
 

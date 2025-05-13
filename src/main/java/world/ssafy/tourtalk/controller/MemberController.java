@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.Member;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberRegistRequest;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberRegistRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberUpdateRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.service.MemberService;
 import world.ssafy.tourtalk.security.jwt.JwtTokenProvider;
@@ -40,8 +40,14 @@ public class MemberController {
 	public ResponseEntity<?> regist(@RequestBody MemberRegistRequest request) {
 		try {
 			int result = mService.regist(request);
-			return result > 1 ? ResponseEntity.status(HttpStatus.OK).body("회원가입 성공 !")
-					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
+			
+			if (request.getCurator() != null) {
+				return result > 2 ? ResponseEntity.status(HttpStatus.OK).body("회원가입 성공 !")
+						: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
+			} else {
+				return result > 1 ? ResponseEntity.status(HttpStatus.OK).body("회원가입 성공 !")
+						: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
+			}
 		} catch (DataAccessException e) {
 			log.error("회원가입 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
@@ -54,7 +60,7 @@ public class MemberController {
 		try {
 			Member member = mService.login(id, password);
 			if(member != null) {
-				String jwtToken = jwtTokenProvider.createToken(member.getId(), member.getRole());
+				String jwtToken = jwtTokenProvider.createToken(member.getMno(), member.getId(), member.getNickname(),member.getRole());
 				
 				Cookie token = new Cookie("token", jwtToken);
 				token.setHttpOnly(true);

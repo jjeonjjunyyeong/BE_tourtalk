@@ -16,10 +16,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.Cookie;
+import world.ssafy.tourtalk.model.dto.Curator;
 import world.ssafy.tourtalk.model.dto.Member;
 import world.ssafy.tourtalk.model.dto.MemberDetails;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberRegistRequest;
-import world.ssafy.tourtalk.model.dto.reqeust.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberRegistRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberUpdateRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.service.MemberService;
 import world.ssafy.tourtalk.security.jwt.JwtTokenProvider;
@@ -86,6 +87,47 @@ public class MemberControllerTest {
 		int result = mService.regist(request);
 		assertThat(result).isEqualTo(2);
 	}
+	
+	@Test
+	void regist_with_curator() {
+	    // 1. Member 생성 (큐레이터 역할)
+	    Member member = Member.builder()
+	        .id("CuratorUser")
+	        .password("1234")
+	        .nickname("큐레이터")
+	        .role(Member.Role.CURATOR) // 꼭 CURATOR로 설정해야 curator insert 됨
+	        .status(Member.Status.ACTIVE)
+	        .points(0)
+	        .build();
+
+	    // 2. MemberDetails 생성
+	    MemberDetails details = MemberDetails.builder()
+	        .email("curator@test.com")
+	        .phone("01098765432")
+	        .gender(MemberDetails.Gender.WOMAN)
+	        .address("서울특별시 강남구")
+	        .postalCode("12345")
+	        .birthDate(LocalDate.of(1990, 1, 1))
+	        .build();
+
+	    // 3. Curator 추가 정보
+	    Curator curator = Curator.builder()
+	        .curatorNo("C-2025-001")
+	        .curatorImg("profile_img.png")
+	        .build();
+
+	    // 4. 요청 객체 조립
+	    MemberRegistRequest request = MemberRegistRequest.builder()
+	        .member(member)
+	        .memberDetails(details)
+	        .curator(curator)
+	        .build();
+
+	    // 5. 서비스 호출 및 검증
+	    int result = mService.regist(request);
+	    assertThat(result).isEqualTo(3); // Member + MemberDetails + Curator = 3건
+	}
+
 	
 	@Test
 	void login_success_and_failure() {

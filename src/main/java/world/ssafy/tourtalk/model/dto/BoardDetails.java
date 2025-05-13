@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Curator {
-	private int mno;
-	private String curatorNo;
-	private String curatorImg;
-	private int adGrade;
-	private LocalDateTime approvedAt;
+public class BoardDetails {
+	private int postId;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+	private LocalDateTime deletedAt;
+	private String filePath;
 }

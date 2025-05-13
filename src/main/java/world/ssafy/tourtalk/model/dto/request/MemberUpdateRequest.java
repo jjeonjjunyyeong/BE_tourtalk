@@ -1,4 +1,4 @@
-package world.ssafy.tourtalk.model.dto.reqeust;
+package world.ssafy.tourtalk.model.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -33,10 +33,12 @@ public class JwtTokenProvider {
         this.key = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
     
-    public String createToken(String userId, Role role) {
-        Claims claims = Jwts.claims().setSubject(userId);
-        claims.put("role", role);
-
+    public String createToken(int mno, String userId, String nickname, Role role) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(mno));
+        claims.put("id", userId);
+        claims.put("nickname", nickname);
+        claims.put("role", role.name());
+        
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMs);
 
@@ -49,13 +51,14 @@ public class JwtTokenProvider {
     }
     
     // 토큰에서 사용자 ID 꺼내기
-    public String getUserId(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getSubject();
+    public int getUserMno(String token) {
+        return Integer.parseInt(
+        		Jwts.parserBuilder()
+		            .setSigningKey(key)
+		            .build()
+		            .parseClaimsJws(token)
+		            .getBody()
+		            .getSubject());
     }
     
     // 토큰 유효성 검증
@@ -67,25 +70,44 @@ public class JwtTokenProvider {
             return false;
         }
     }
+    
+    // 로그인 ID 
+    public String getUserId(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("id", String.class);
+    }
 
-    // 권한 추출
-    public String getRole(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+    // 닉네임
+    public String getNickname(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("nickname", String.class);
+    }
 
-        Object rawRole = claims.get("role");
-        return rawRole != null ? rawRole.toString() : null;
+    // 권한
+    public Role getRole(String token) {
+        String roleName = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+        return Role.valueOf(roleName);
     }
 
     public Authentication getAuthentication(String token) {
-        String userId = getUserId(token);
-        String role = getRole(token);
+    	int mno = getUserMno(token); 
+        Role role = getRole(token);
 
-        GrantedAuthority authority = new SimpleGrantedAuthority(role);
-        return new UsernamePasswordAuthenticationToken(userId, null, List.of(authority));
+        GrantedAuthority authority = new SimpleGrantedAuthority(role.name());
+        return new UsernamePasswordAuthenticationToken(mno, null, List.of(authority));
     }
     
     public String resolveToken(HttpServletRequest request) {
