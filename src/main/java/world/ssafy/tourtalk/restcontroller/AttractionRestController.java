@@ -2,6 +2,7 @@ package world.ssafy.tourtalk.restcontroller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,11 @@ import world.ssafy.tourtalk.model.dto.AttractionDetail;
 import world.ssafy.tourtalk.model.dto.AttractionForm;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.SearchCondition;
+import world.ssafy.tourtalk.model.dto.request.SearchConditionRequestDto;
+import world.ssafy.tourtalk.model.dto.response.AttractionDetailResponseDto;
+import world.ssafy.tourtalk.model.dto.response.AttractionFormResponseDto;
+import world.ssafy.tourtalk.model.dto.response.AttractionResponseDto;
+import world.ssafy.tourtalk.model.dto.response.PageResponseDto;
 import world.ssafy.tourtalk.model.service.AttractionService;
 
 @RestController
@@ -82,9 +88,14 @@ public class AttractionRestController implements RestControllerHelper {
                 nearAttractionArr = nearAttractionList.subList(0, size).toArray(new Attraction[0]);
             }
             
-            AttractionDetail response = new AttractionDetail(detailAttraction, nearAttractionArr);
+            // 기존 동작 유지 (호환성 유지)
+            AttractionDetail originalResponse = new AttractionDetail(detailAttraction, nearAttractionArr);
             
-            return ResponseEntity.ok(response);
+            // 새로운 방식 (ResponseDto 사용)
+            AttractionDetailResponseDto responseDto = AttractionDetailResponseDto.from(originalResponse);
+            
+            // 응답은 새로운 DTO 사용
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -96,7 +107,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 목록 조회 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @GetMapping("/codes")
     public ResponseEntity<?> getAttractionsByDirectCodes(
@@ -106,10 +117,16 @@ public class AttractionRestController implements RestControllerHelper {
             @RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="10") int size) {
         try {
+            // 기존 로직 유지 (호환성)
             Page<Attraction> result = attractionService.getAttractionsByDirectCodesWithPaging(
                 contentTypeId, sidoCode, gugunCode, page, size);
             
-            return ResponseEntity.ok(result);
+            // 새로운 방식 (ResponseDto 사용)
+            // Attraction을 AttractionResponseDto로 변환
+            PageResponseDto<AttractionResponseDto> responseDto = 
+                PageResponseDto.from(result, AttractionResponseDto::from);
+            
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -121,13 +138,22 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 검색 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @GetMapping("/search")
-    public ResponseEntity<?> searchAttractions(SearchCondition condition) {
+    public ResponseEntity<?> searchAttractions(SearchConditionRequestDto requestDto) {
         try {
+            // 기존 SearchCondition으로 변환 (호환성 유지)
+            SearchCondition condition = requestDto.toSearchCondition();
+            
+            // 기존 로직 사용
             Page<Attraction> result = attractionService.searchAttractionsByCodes(condition);
-            return ResponseEntity.ok(result);
+            
+            // 새로운 ResponseDto로 변환
+            PageResponseDto<AttractionResponseDto> responseDto = 
+                PageResponseDto.from(result, AttractionResponseDto::from);
+                
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -139,7 +165,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 목록 조회 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @Deprecated
     @GetMapping
@@ -165,8 +191,12 @@ public class AttractionRestController implements RestControllerHelper {
             // 코드 기반 검색 호출
             Page<Attraction> result = attractionService.getAttractionsByDirectCodesWithPaging(
                 contentTypeId, sidoCode, gugunCode, page, size);
+                
+            // 새로운 ResponseDto로 변환
+            PageResponseDto<AttractionResponseDto> responseDto = 
+                PageResponseDto.from(result, AttractionResponseDto::from);
             
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -178,7 +208,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="데이터 조회 성공",
-        content=@Content(schema=@Schema(implementation=AttractionForm.class))
+        content=@Content(schema=@Schema(implementation=AttractionFormResponseDto.class))
     )
     @GetMapping("/form-data")
     public ResponseEntity<?> getAttractionFormData() {
@@ -187,9 +217,13 @@ public class AttractionRestController implements RestControllerHelper {
             List<Map<String, Object>> sidoList = attractionService.getSido();
             List<Attraction> randomAttractions = attractionService.getRandomAttractions(6);
             
-            AttractionForm response = new AttractionForm(contentList, sidoList, randomAttractions);
+            // 기존 DTO 유지 (호환성)
+            AttractionForm originalForm = new AttractionForm(contentList, sidoList, randomAttractions);
             
-            return ResponseEntity.ok(response);
+            // 새로운 ResponseDto로 변환
+            AttractionFormResponseDto responseDto = AttractionFormResponseDto.from(originalForm);
+            
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -240,8 +274,15 @@ public class AttractionRestController implements RestControllerHelper {
             @PathVariable Integer contentTypeId,
             @RequestParam(defaultValue="6") int count) {
         try {
+            // 기존 로직 유지
             List<Attraction> attractions = attractionService.getRandomAttractionsByTheme(count, contentTypeId);
-            return ResponseEntity.ok(attractions);
+            
+            // 새로운 ResponseDto로 변환
+            List<AttractionResponseDto> responseDtos = attractions.stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+                    
+            return ResponseEntity.ok(responseDtos);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -256,8 +297,15 @@ public class AttractionRestController implements RestControllerHelper {
             @PathVariable Integer sidoCode,
             @RequestParam(defaultValue="6") int count) {
         try {
+            // 기존 로직 유지
             List<Attraction> attractions = attractionService.getRandomAttractionsByRegion(count, sidoCode);
-            return ResponseEntity.ok(attractions);
+            
+            // 새로운 ResponseDto로 변환
+            List<AttractionResponseDto> responseDtos = attractions.stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+                    
+            return ResponseEntity.ok(responseDtos);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
