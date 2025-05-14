@@ -4,7 +4,6 @@ import java.util.Date;
 import java.security.Key;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -20,7 +19,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import world.ssafy.tourtalk.model.dto.Member.Role;
+import world.ssafy.tourtalk.model.dto.enums.Role;
+
 
 @Component
 public class JwtTokenProvider {
@@ -50,17 +50,6 @@ public class JwtTokenProvider {
             .compact();
     }
     
-    // 토큰에서 사용자 ID 꺼내기
-    public int getUserMno(String token) {
-        return Integer.parseInt(
-        		Jwts.parserBuilder()
-		            .setSigningKey(key)
-		            .build()
-		            .parseClaimsJws(token)
-		            .getBody()
-		            .getSubject());
-    }
-    
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
@@ -71,6 +60,17 @@ public class JwtTokenProvider {
         }
     }
     
+    // 토큰에서 사용자 ID 꺼내기
+    public int getUserMno(String token) {
+        return Integer.parseInt(
+        		Jwts.parserBuilder()
+		            .setSigningKey(key)
+		            .build()
+		            .parseClaimsJws(token)
+		            .getBody()
+		            .getSubject());
+    }
+        
     // 로그인 ID 
     public String getUserId(String token) {
         return Jwts.parserBuilder()

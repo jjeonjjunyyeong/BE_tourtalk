@@ -3,28 +3,23 @@ package world.ssafy.tourtalk.controller;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import world.ssafy.tourtalk.model.dto.Member;
-import world.ssafy.tourtalk.model.dto.request.MemberRegistRequest;
-import world.ssafy.tourtalk.model.dto.request.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.request.MemberRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.service.MemberService;
-import world.ssafy.tourtalk.security.jwt.JwtTokenProvider;
+import world.ssafy.tourtalk.security.auth.CustomMemberPrincipal;
+
 
 @Slf4j
 @RestController
@@ -33,20 +28,17 @@ import world.ssafy.tourtalk.security.jwt.JwtTokenProvider;
 public class MemberController {
 
 	private final MemberService mService;
-	private final JwtTokenProvider jwtTokenProvider;
 
 	// 회원가입
 	@PostMapping
-	public ResponseEntity<?> regist(@RequestBody MemberRegistRequest request) {
+	public ResponseEntity<?> regist(@RequestBody MemberRequest request) {
 		try {
-			int result = mService.regist(request);
+			boolean success = mService.regist(request);
 			
-			if (request.getCurator() != null) {
-				return result > 2 ? ResponseEntity.status(HttpStatus.OK).body("회원가입 성공 !")
-						: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
+			if (success) {
+				return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공 !");
 			} else {
-				return result > 1 ? ResponseEntity.status(HttpStatus.OK).body("회원가입 성공 !")
-						: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패!!!");
 			}
 		} catch (DataAccessException e) {
 			log.error("회원가입 중 오류 발생", e);
@@ -56,16 +48,13 @@ public class MemberController {
 	
 	// 회원 정보 조회(본인)
 	@GetMapping("/me")
-	public ResponseEntity<?> me(HttpServletRequest request) {
+	public ResponseEntity<?> me(@AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
-			String token = jwtTokenProvider.resolveToken(request);
-			if(token == null || !jwtTokenProvider.validateToken(token)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않습니다.");
-			
-			String id = jwtTokenProvider.getUserId(token);
-			MemberResponse response = mService.me(id);
-			
-			if(response == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원을 찾을 수 없습니다.");
-			return ResponseEntity.ok(response);
+			int mno = principal.getMno();
+			MemberResponse response = mService.me(mno);
+			return response != null
+					? ResponseEntity.ok(response)
+					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원을 찾을 수 없습니다.");
 		} catch (DataAccessException e) {
 			log.error("회원정보 조회 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
@@ -74,10 +63,13 @@ public class MemberController {
 	
 	// 회원 정보 수정
 	@PutMapping("/me")
-	public ResponseEntity<?> update(@RequestBody MemberUpdateRequest  request) {
+	public ResponseEntity<?> update(@RequestBody MemberRequest request, @AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
-			int result = mService.update(request);
-			return result > 1 ? ResponseEntity.status(HttpStatus.OK).body("회원정보 수정 성공 !")
+			request.setMno(principal.getMno());
+			boolean success = mService.update(request);
+			
+			return success
+					? ResponseEntity.status(HttpStatus.CREATED).body("회원정보 수정 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원정보 수정 실패!!!");
 		} catch (DataAccessException e) {
 			log.error("회원정보 수정 중 오류 발생", e);
@@ -87,14 +79,18 @@ public class MemberController {
 	
 	// 회원 탈퇴
 	@DeleteMapping("/me")
-	public ResponseEntity<?> softDelete(HttpServletRequest request) {
+	public ResponseEntity<?> softDelete(@AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
-			String token = jwtTokenProvider.resolveToken(request);
-			if(token == null || !jwtTokenProvider.validateToken(token)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않습니다.");
-			String id = jwtTokenProvider.getUserId(token);
-			int result = mService.softDelete(id);
-			return result > 0 ? ResponseEntity.status(HttpStatus.OK).body("회원탈퇴 성공 !")
-					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원탈퇴 실패!!!");
+			Integer mno = principal.getMno();
+			String nickname = principal.getNickname();
+			
+			boolean success = mService.softDelete(mno);
+			
+			if (success) {
+				return ResponseEntity.status(HttpStatus.CREATED).body(nickname + "님 회원탈퇴 성공 !");
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원탈퇴 실패!!!");
+			}
 		} catch(DataAccessException e) {
 			log.error("회원정보 수정 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
