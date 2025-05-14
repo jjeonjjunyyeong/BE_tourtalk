@@ -8,8 +8,9 @@ import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.model.dto.Curator;
 import world.ssafy.tourtalk.model.dto.Member;
 import world.ssafy.tourtalk.model.dto.MemberDetails;
-import world.ssafy.tourtalk.model.dto.request.MemberRegistRequest;
-import world.ssafy.tourtalk.model.dto.request.MemberUpdateRequest;
+import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
+import world.ssafy.tourtalk.model.dto.enums.Role;
+import world.ssafy.tourtalk.model.dto.request.MemberRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.mapper.MemberMapper;
 
@@ -22,37 +23,56 @@ public class MemberService {
 	
 	// 회원가입
 	@Transactional
-	public int regist(MemberRegistRequest request) {
-		Member member = request.getMember();
-		MemberDetails details = request.getMemberDetails();
+	public boolean regist(MemberRequest request) {
+		request.setPassword(passwordEncoder.encode(request.getPassword()));
+		int memberResult = memberMapper.insertMember(request);
+		int memberDetailResult = memberMapper.insertMemberDetails(request);
 		
-		member.setPassword(passwordEncoder.encode(member.getPassword()));
-		int result = memberMapper.insertMember(member);
-		details.setMno(member.getMno());
-		result += memberMapper.insertMemberDetails(details);
-		
-		if(member.getRole().equals(Member.Role.CURATOR)) {
-			Curator curator = request.getCurator();
-			curator.setMno(member.getMno());
-			result += memberMapper.insertCurator(curator);
-		} 
-		return result;
+		if (memberResult == 1 && memberDetailResult == 1) {
+			if (request.getRole() == MemberRequest.Role.CURATOR) {
+				int curatorResult = memberMapper.insertCurator(request);
+				return curatorResult == 1;
+			}
+			return true;
+		}
+		return false;
 	}
 
-	// 로그인
-	public Member login(String id, String password) {
-		Member member = memberMapper.findById(id, Member.Status.DELETED);
-		if(member != null && passwordEncoder.matches(password, member.getPassword())) return member;
-		return null;
-	}
-	
 	// 회원 정보
 	public MemberResponse me(String id) {
-		Member member = memberMapper.me(id);
+		MemberResponse member = memberMapper.getMemberById(id, MemberStatus.DELETED);
 		if(member == null) return null;
 		
-		MemberDetails details = memberMapper.getDetailsByMno(member.getMno());
-		return MemberResponse.builder().member(member).memberDetails(details).build();
+		MemberResponse details = memberMapper.getDetailsByMno(member.getMno());
+		
+		MemberResponse.MemberResponseBuilder builder = MemberResponse.builder()
+		        .mno(member.getMno())
+		        .id(member.getId())
+		        .nickname(member.getNickname())
+		        .role(member.getRole())
+		        .status(member.getStatus())
+		        .points(member.getPoints())
+		        .createdAt(member.getCreatedAt())
+		        .updatedAt(member.getUpdatedAt())
+		        .lastLogin(member.getLastLogin())
+		        .email(details.getEmail())
+		        .phone(details.getPhone())
+		        .gender(details.getGender())
+		        .address(details.getAddress())
+		        .postalCode(details.getPostalCode())
+		        .birthDate(details.getBirthDate())
+		        .profileImgPath(details.getProfileImgPath());
+		
+		 if (member.getRole() == Role.CURATOR) {
+		        MemberResponse curator = memberMapper.getCuratorByMno(member.getMno());
+		        builder
+		            .curatorNo(curator.getCuratorNo())
+		            .curatorImg(curator.getCuratorImg())
+		            .adGrade(curator.getAdGrade())
+		            .approvedAt(curator.getApprovedAt());
+		    }
+		 
+		return builder.build();
 	}
 
 	// 회원 상세 정보

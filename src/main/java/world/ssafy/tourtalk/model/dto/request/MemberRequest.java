@@ -129,4 +129,9 @@ public class MemberRequest {
 		this.adGrade = adGrade;
 		this.approvedAt = approvedAt;
 	}
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 }

@@ -3,24 +3,24 @@ package world.ssafy.tourtalk.model.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import world.ssafy.tourtalk.model.dto.Curator;
-import world.ssafy.tourtalk.model.dto.Member;
-import world.ssafy.tourtalk.model.dto.MemberDetails;
+import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
+import world.ssafy.tourtalk.model.dto.request.MemberRequest;
+import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 
 @Mapper
 public interface MemberMapper {
 
-	int insertMember(Member member);
-	int insertMemberDetails(MemberDetails details);
-	int insertCurator(Curator curator);
+	int insertMember(MemberRequest request);
+	int insertMemberDetails(MemberRequest request);
+	int insertCurator(MemberRequest request);
+		
+	MemberResponse me(String id);
+	MemberResponse getMemberById(@Param("id") String id, @Param("status") MemberStatus status);
+	MemberResponse getDetailsByMno(int mno);
+	MemberResponse getCuratorByMno(int mno);
 	
-	Member findById(@Param("id") String id, @Param("status") Member.Status status);
-	
-	Member me(String id);
-	MemberDetails getDetailsByMno(int mno);
-	
-	int update(Member member);
-	int updateDetails(MemberDetails details);
+	int update(MemberRequest request);
+	int updateDetails(MemberRequest request);
 
-	int softDelete(@Param("id") String id, @Param("status") Member.Status status);
+	int softDelete(@Param("id") String id, @Param("status") MemberStatus status);
 }
