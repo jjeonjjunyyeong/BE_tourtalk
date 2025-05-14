@@ -29,7 +29,7 @@ public class MemberService {
 		int memberDetailResult = memberMapper.insertMemberDetails(request);
 		
 		if (memberResult == 1 && memberDetailResult == 1) {
-			if (request.getRole() == MemberRequest.Role.CURATOR) {
+			if (request.getRole() == Role.CURATOR) {
 				int curatorResult = memberMapper.insertCurator(request);
 				return curatorResult == 1;
 			}
@@ -39,6 +39,11 @@ public class MemberService {
 	}
 
 	// 회원 정보
+	public MemberResponse getDetails(int mno) {
+		return memberMapper.getDetailsByMno(mno);
+	}	
+	
+	// 회원 상세 정보
 	public MemberResponse me(String id) {
 		MemberResponse member = memberMapper.getMemberById(id, MemberStatus.DELETED);
 		if(member == null) return null;
@@ -75,14 +80,11 @@ public class MemberService {
 		return builder.build();
 	}
 
-	// 회원 상세 정보
-	public MemberDetails getDetails(int mno) {
-		return memberMapper.getDetailsByMno(mno);
-	}	
+
 	
 	// 회원정보수정
 	@Transactional
-	public int update(MemberUpdateRequest request) {
+	public int update(MemberRequest request) {
 		Member member = request.getMember();
 		MemberDetails details = request.getMemberDetails();
 		

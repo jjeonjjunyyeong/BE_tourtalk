@@ -6,60 +6,21 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.ssafy.tourtalk.model.dto.enums.Gender;
+import world.ssafy.tourtalk.model.dto.enums.Role;
+import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
 
 @Getter
 @NoArgsConstructor
 @Builder
-public class MemberRequest {
-	public enum Role {
-		USER("일반회원"), CURATOR("학예사"), ADMIN("관리자");
-		
-		private final String desc;
-
-	    Role(String desc) {
-	        this.desc = desc;
-	    }
-
-	    public String getDesc() {
-	        return desc;
-	    }
-	}
-	
-	public enum Status {
-		ACTIVE("정상"), SUSPENDED("정지"), PENDING("대기"), DELETED("탈퇴");
-		
-		private final String desc;
-
-	    Status(String desc) {
-	        this.desc = desc;
-	    }
-
-	    public String getDescription() {
-	        return desc;
-	    }
-	}
-	
-	public enum Gender{
-		UNKNOWN("비공개"), MAN("남자"), WOMAN("여자");
-		
-		private final String desc;
-
-	    Gender(String desc) {
-	        this.desc = desc;
-	    }
-
-	    public String getDesc() {
-	        return desc;
-	    }
-	}
-	
+public class MemberRequest {	
 	// Member
 	private int mno;
 	private String id;
 	private String password;
 	private String nickname;
 	private Role role;
-	private Status status;
+	private MemberStatus status;
 	private int points;
 	
 	//MemberDetails
@@ -80,7 +41,7 @@ public class MemberRequest {
 	private int adGrade;
 	private LocalDateTime approvedAt;
 	
-	public MemberRequest(int mno, String id, String password, String nickname, Role role, Status status, int points,
+	public MemberRequest(int mno, String id, String password, String nickname, Role role, MemberStatus status, int points,
 			String email, String phone, Gender gender, String address, String postalCode, LocalDate birthDate,
 			String profileImgPath, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime lastLogin) {
 		this.mno = mno;
@@ -102,7 +63,7 @@ public class MemberRequest {
 		this.lastLogin = lastLogin;
 	}
 
-	public MemberRequest(int mno, String id, String password, String nickname, Role role, Status status, int points,
+	public MemberRequest(int mno, String id, String password, String nickname, Role role, MemberStatus status, int points,
 			String email, String phone, Gender gender, String address, String postalCode, LocalDate birthDate,
 			String profileImgPath, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime lastLogin,
 			String curatorNo, String curatorImg, int adGrade, LocalDateTime approvedAt) {
