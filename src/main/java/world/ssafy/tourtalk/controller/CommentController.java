@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import world.ssafy.tourtalk.model.dto.request.CommentUpdateRequest;
-import world.ssafy.tourtalk.model.dto.request.CommentWriteRequest;
+import world.ssafy.tourtalk.model.dto.request.CommentRequest;
 import world.ssafy.tourtalk.model.service.CommentService;
 
 @Slf4j
@@ -29,7 +28,7 @@ public class CommentController {
 	private final CommentService cService;
 	
 	@PostMapping
-	public ResponseEntity<?> write(@RequestBody CommentWriteRequest request) {
+	public ResponseEntity<?> write(@RequestBody CommentRequest request) {
 		try {
 	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	        Integer mno = (Integer) auth.getPrincipal();
@@ -45,7 +44,7 @@ public class CommentController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> update(@RequestBody CommentUpdateRequest request) {
+	public ResponseEntity<?> update(@RequestBody CommentRequest request) {
 		try {
 	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	        Integer mno = (Integer) auth.getPrincipal();

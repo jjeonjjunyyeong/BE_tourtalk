@@ -4,18 +4,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import world.ssafy.tourtalk.model.dto.Member;
 import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 import world.ssafy.tourtalk.model.mapper.MemberMapper;
-import world.ssafy.tourtalk.security.jwt.JwtTokenProvider;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 	
     private final MemberMapper memberMapper;
-    private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder passwordEncoder;
 	
 	public MemberResponse login(String id, String password) {

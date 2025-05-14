@@ -91,6 +91,10 @@ public class MemberRequest {
 		this.approvedAt = approvedAt;
 	}
 	
+	public void setMno(int mno) {
+		this.mno = mno;
+	}
+	
 	public void setPassword(String password) {
 		this.password = password;
 	}

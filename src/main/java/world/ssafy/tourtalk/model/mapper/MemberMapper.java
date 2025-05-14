@@ -10,17 +10,19 @@ import world.ssafy.tourtalk.model.dto.response.MemberResponse;
 @Mapper
 public interface MemberMapper {
 
+	// 회원가입
 	int insertMember(MemberRequest request);
 	int insertMemberDetails(MemberRequest request);
 	int insertCurator(MemberRequest request);
 		
-	MemberResponse me(String id);
-	MemberResponse getMemberById(@Param("id") String id, @Param("status") MemberStatus status);
-	MemberResponse getDetailsByMno(int mno);
-	MemberResponse getCuratorByMno(int mno);
+	MemberResponse getMemberById(@Param("id") String id, @Param("status") MemberStatus deleted);
+	MemberResponse getMemberByMno(@Param("mno") int mno, @Param("status") MemberStatus status);
+	MemberResponse getDetailsByMno(@Param("mno") int mno);
+	MemberResponse getCuratorByMno(@Param("mno") int mno);
 	
 	int update(MemberRequest request);
 	int updateDetails(MemberRequest request);
+	int updateCurator(MemberRequest corrected);
 
-	int softDelete(@Param("id") String id, @Param("status") MemberStatus status);
+	int softDelete(@Param("mno") Integer mno, @Param("status") MemberStatus deleted);
 }

@@ -5,9 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import world.ssafy.tourtalk.model.dto.Curator;
-import world.ssafy.tourtalk.model.dto.Member;
-import world.ssafy.tourtalk.model.dto.MemberDetails;
 import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
 import world.ssafy.tourtalk.model.dto.enums.Role;
 import world.ssafy.tourtalk.model.dto.request.MemberRequest;
@@ -44,8 +41,8 @@ public class MemberService {
 	}	
 	
 	// 회원 상세 정보
-	public MemberResponse me(String id) {
-		MemberResponse member = memberMapper.getMemberById(id, MemberStatus.DELETED);
+	public MemberResponse me(int mno) {
+		MemberResponse member = memberMapper.getMemberByMno(mno, MemberStatus.DELETED);
 		if(member == null) return null;
 		
 		MemberResponse details = memberMapper.getDetailsByMno(member.getMno());
@@ -80,35 +77,64 @@ public class MemberService {
 		return builder.build();
 	}
 
-
+	// 회원정보 수정 시 값이 없으면 기존값 사용
+	private String nonNullOr(String value, String fallback) {
+	    return (value != null && !value.isBlank()) ? value : fallback;
+	}
 	
 	// 회원정보수정
 	@Transactional
-	public int update(MemberRequest request) {
-		Member member = request.getMember();
-		MemberDetails details = request.getMemberDetails();
+	public boolean update(MemberRequest request) {
+		MemberResponse origin = memberMapper.getMemberByMno(request.getMno(), MemberStatus.DELETED);
+		if(origin == null) return false;
 		
-		Member origin = memberMapper.findById(member.getId(), Member.Status.DELETED);
-		
-	    if (member.getPassword() != null && !member.getPassword().isBlank()) {
-	        member.setPassword(passwordEncoder.encode(member.getPassword()));
-	    } else {
-	        member.setPassword(origin.getPassword());
-	    }
+	    String password = (request.getPassword() != null && !request.getPassword().isBlank())
+	            ? passwordEncoder.encode(request.getPassword())
+	            : origin.getPassword();
 	    
-	    // 테스트를 위한 코드 추후 삭제
-	    if (member.getRole() == null) member.setRole(origin.getRole());
-	    if (member.getStatus() == null) member.setStatus(origin.getStatus());
-	    if (member.getPoints() == 0) member.setPoints(origin.getPoints());
-		
-		int result = memberMapper.update(member);
-		result += memberMapper.updateDetails(details);
-		return result;
+	    boolean isCurator = origin.getRole() == Role.CURATOR;
+	    
+	    MemberRequest.MemberRequestBuilder builder = MemberRequest.builder()
+	            .mno(request.getMno())
+	            .id(origin.getId())
+	            .password(password)
+	            .nickname(nonNullOr(request.getNickname(), origin.getNickname()))
+	            .role(origin.getRole())
+	            .status(origin.getStatus())
+	            .points(origin.getPoints())
+	            .email(nonNullOr(request.getEmail(), origin.getEmail()))
+	            .phone(nonNullOr(request.getPhone(), origin.getPhone()))
+	            .gender(request.getGender() != null ? request.getGender() : origin.getGender())
+	            .address(nonNullOr(request.getAddress(), origin.getAddress()))
+	            .postalCode(nonNullOr(request.getPostalCode(), origin.getPostalCode()))
+	            .birthDate(request.getBirthDate() != null ? request.getBirthDate() : origin.getBirthDate())
+	            .profileImgPath(nonNullOr(request.getProfileImgPath(), origin.getProfileImgPath()));
+
+	    if (isCurator) {
+	        builder.curatorNo(nonNullOr(request.getCuratorNo(), origin.getCuratorNo()))
+	               .curatorImg(nonNullOr(request.getCuratorImg(), origin.getCuratorImg()))
+	               .adGrade(origin.getAdGrade())
+	               .approvedAt(origin.getApprovedAt());
+	    }
+
+	    MemberRequest corrected = builder.build();
+
+	    int memberResult = memberMapper.update(corrected);
+	    int memberDetailResult = memberMapper.updateDetails(corrected);
+
+		if (memberResult == 1 && memberDetailResult == 1) {
+			if (origin.getRole() == Role.CURATOR) {
+				int curatorResult = memberMapper.updateCurator(corrected);
+				return curatorResult == 1;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	// 회원탈퇴
 	@Transactional
-	public int softDelete(String id) {
-		return memberMapper.softDelete(id, Member.Status.DELETED);
+	public boolean softDelete(Integer mno) {
+		return memberMapper.softDelete(mno, MemberStatus.DELETED) == 1;
 	}
 }
