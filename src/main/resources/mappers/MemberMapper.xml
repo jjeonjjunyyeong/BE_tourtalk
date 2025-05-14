@@ -88,7 +88,7 @@
     </update>
 
     <!-- 회원 탈퇴 처리 (is_deleted = true) -->
-    <update id="delete" parameterType="String">
+    <update id="softDelete" parameterType="String">
         UPDATE member
         SET status = #{status, typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler, javaType=world.ssafy.tourtalk.model.dto.Member$Status}
         WHERE id = #{id}

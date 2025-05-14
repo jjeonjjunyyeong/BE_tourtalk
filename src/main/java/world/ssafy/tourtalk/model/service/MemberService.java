@@ -86,7 +86,7 @@ public class MemberService {
 	
 	// 회원탈퇴
 	@Transactional
-	public int delete(String id) {
-		return memberMapper.delete(id, Member.Status.DELETED);
+	public int softDelete(String id) {
+		return memberMapper.softDelete(id, Member.Status.DELETED);
 	}
 }

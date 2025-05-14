@@ -53,46 +53,6 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
 		}
 	}
-
-	// 로그인
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestParam String id, @RequestParam String password, HttpServletResponse response) {
-		try {
-			Member member = mService.login(id, password);
-			if(member != null) {
-				String jwtToken = jwtTokenProvider.createToken(member.getMno(), member.getId(), member.getNickname(),member.getRole());
-				
-				Cookie token = new Cookie("token", jwtToken);
-				token.setHttpOnly(true);
-				token.setSecure(false);
-				token.setPath("/");
-				token.setMaxAge(60 * 60);
-				
-				response.addCookie(token);
-				
-				return ResponseEntity.status(HttpStatus.OK).body("로그인 성공 !");
-			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다!");				
-			}
-		} catch (DataAccessException e) {
-			log.error("로그인 중 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
-		}
-	}
-	
-	// 로그아웃
-	@PostMapping("/logout")
-	public ResponseEntity<?> logout(HttpServletResponse response) {
-		Cookie token = new Cookie("token", null);
-		token.setHttpOnly(true);
-		token.setSecure(false);
-		token.setPath("/");
-		token.setMaxAge(0);
-		
-		response.addCookie(token);
-		
-		return ResponseEntity.ok("로그아웃 완료");
-	}
 	
 	// 회원 정보 조회(본인)
 	@GetMapping("/me")
@@ -127,12 +87,12 @@ public class MemberController {
 	
 	// 회원 탈퇴
 	@DeleteMapping("/me")
-	public ResponseEntity<?> delete(HttpServletRequest request) {
+	public ResponseEntity<?> softDelete(HttpServletRequest request) {
 		try {
 			String token = jwtTokenProvider.resolveToken(request);
 			if(token == null || !jwtTokenProvider.validateToken(token)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않습니다.");
 			String id = jwtTokenProvider.getUserId(token);
-			int result = mService.delete(id);
+			int result = mService.softDelete(id);
 			return result > 0 ? ResponseEntity.status(HttpStatus.OK).body("회원탈퇴 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원탈퇴 실패!!!");
 		} catch(DataAccessException e) {

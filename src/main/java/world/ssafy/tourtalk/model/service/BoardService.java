@@ -1,22 +1,35 @@
 package world.ssafy.tourtalk.model.service;
 
-import world.ssafy.tourtalk.model.dto.request.BoardUpdateRequest;
-import world.ssafy.tourtalk.model.dto.request.BoardWriteRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import world.ssafy.tourtalk.model.dto.request.BoardRequest;
+import world.ssafy.tourtalk.model.dto.response.BoardResponse;
+import world.ssafy.tourtalk.model.mapper.BoardMapper;
+
+@Service
+@RequiredArgsConstructor
 public class BoardService {
 
-	public int write(BoardWriteRequest request, Integer mno) {
-		// TODO Auto-generated method stub
+	private final BoardMapper boardMapper;
+	
+	@Transactional
+	public int write(BoardRequest request, Integer mno) {
+		//if (mno != null && mno.equals(request.getWriterId())) return boardMapper.write(request);
 		return 0;
 	}
 
-	public int update(BoardUpdateRequest request, Integer mno) {
-		// TODO Auto-generated method stub
+	@Transactional
+	public int update(BoardRequest request, Integer mno) {
+		//if (mno != null && mno.equals(request.getWriterId())) return boardMapper.update(request);
 		return 0;
 	}
 
+	@Transactional
 	public int delete(int postId, Integer mno) {
-		// TODO Auto-generated method stub
+		//BoardResponse board = boardMapper.findById(postId);
+
 		return 0;
 	}
 

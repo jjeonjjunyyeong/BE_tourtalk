@@ -42,6 +42,7 @@ public class MemberControllerTest {
 	
 	private Member makeMember(String id) {
 	    return Member.builder()
+	    	.mno(123)
 	        .id(id).password("1234").nickname("test")
 	        .role(Member.Role.USER).status(Member.Status.ACTIVE)
 	        .points(0)
@@ -58,7 +59,6 @@ public class MemberControllerTest {
 	        .build();
 	}
 
-	
 	@Test
 	void regist() {
 		Member member = Member.builder()
@@ -128,61 +128,6 @@ public class MemberControllerTest {
 	    assertThat(result).isEqualTo(3); // Member + MemberDetails + Curator = 3건
 	}
 
-	
-	@Test
-	void login_success_and_failure() {
-	    // given
-	    String id = "TestUser2";
-	    String pw = "1234";
-	    Member member = Member.builder()
-	            .id(id)
-	            .password(pw)
-	            .nickname("로그인계정")
-	            .role(Member.Role.USER)
-	            .status(Member.Status.ACTIVE)
-	            .points(0)
-	            .build();
-
-	    MemberDetails details = MemberDetails.builder()
-	            .email("login@test.com")
-	            .phone("012345679")
-				.gender(MemberDetails.Gender.MAN)
-				.address("광주광역시")
-				.postalCode("12345")
-				.birthDate(LocalDate.of(2025, 5, 5))
-				.build();
-
-	    mService.regist(MemberRegistRequest.builder().member(member).memberDetails(details).build());
-
-	    // when - 성공
-	    Member success = mService.login(id, pw);
-	    assertThat(success).isNotNull();
-
-	    // when - 실패 (잘못된 비밀번호)
-	    Member fail = mService.login(id, "wrongpass");
-	    assertThat(fail).isNull();
-	}
-
-	@Test
-	void logout_sets_token_cookie_null() {
-	    MockHttpServletResponse response = new MockHttpServletResponse();
-
-	    // when
-	    ResponseEntity<?> result = memberController.logout(response);
-
-	    // then
-	    Cookie[] cookies = response.getCookies();
-	    assertThat(cookies).isNotEmpty();
-
-	    Optional<Cookie> tokenCookie = Arrays.stream(cookies)
-	        .filter(c -> c.getName().equals("token"))
-	        .findFirst();
-
-	    assertThat(tokenCookie).isPresent();
-	    assertThat(tokenCookie.get().getValue()).isNull();
-	    assertThat(tokenCookie.get().getMaxAge()).isEqualTo(0); // 삭제 확인
-	}
-
 	@Test
 	void me_returns_member_response() {
 	    String id = "infoUser";
@@ -199,7 +144,7 @@ public class MemberControllerTest {
 	    String id = "tokenUser";
 	    Member member = makeMember(id);
 	    mService.regist(new MemberRegistRequest(member, makeDetails()));
-	    String token = jwtTokenProvider.createToken(id, member.getRole());
+	    String token = jwtTokenProvider.createToken(member.getMno(), member.getId(), member.getNickname(), member.getRole());
 
 	    MockHttpServletRequest request = new MockHttpServletRequest();
 	    request.setCookies(new Cookie("token", token));
@@ -210,8 +155,7 @@ public class MemberControllerTest {
 	    MemberResponse body = (MemberResponse) response.getBody();
 	    assertThat(body.getMember().getId()).isEqualTo(id);
 	}
-
-
+	
 	@Test
 	void update_member_info() {
 	    String id = "updateUser";
@@ -236,7 +180,7 @@ public class MemberControllerTest {
 	    String id = "deleteUser";
 	    mService.regist(new MemberRegistRequest(makeMember(id), makeDetails()));
 
-	    int result = mService.delete(id);
+	    int result = mService.softDelete(id);
 	    assertThat(result).isEqualTo(1);
 
 	    Member deleted = mService.login(id, "1234");

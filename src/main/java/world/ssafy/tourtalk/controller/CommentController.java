@@ -61,7 +61,7 @@ public class CommentController {
 	}
 	
 	@DeleteMapping("/{commentId}")
-	public ResponseEntity<?> delete(@PathVariable int commentId) {
+	public ResponseEntity<?> softDelete(@PathVariable int commentId) {
 		try {
 	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	        Integer mno = (Integer) auth.getPrincipal();

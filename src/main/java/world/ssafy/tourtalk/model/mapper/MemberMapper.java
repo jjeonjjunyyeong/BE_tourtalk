@@ -22,5 +22,5 @@ public interface MemberMapper {
 	int update(Member member);
 	int updateDetails(MemberDetails details);
 
-	int delete(@Param("id") String id, @Param("status") Member.Status status);
+	int softDelete(@Param("id") String id, @Param("status") Member.Status status);
 }
