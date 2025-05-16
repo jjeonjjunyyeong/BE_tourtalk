@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import world.ssafy.tourtalk.model.dto.Board;
 import world.ssafy.tourtalk.model.dto.BoardDetails;
+import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 
 @Mapper
 public interface BoardMapper {
@@ -19,5 +20,9 @@ public interface BoardMapper {
 	Board findById(int postId);
 
 	int softDelete(int postId);
+
+	int write(BoardRequest request);
+
+	int update(BoardRequest request);
 
 }

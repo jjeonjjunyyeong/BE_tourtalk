@@ -20,6 +20,11 @@ public class BoardService {
 		return 0;
 	}
 
+	public BoardResponse selectById(int postId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	@Transactional
 	public int update(BoardRequest request, Integer mno) {
 		//if (mno != null && mno.equals(request.getWriterId())) return boardMapper.update(request);
@@ -32,5 +37,6 @@ public class BoardService {
 
 		return 0;
 	}
+
 
 }

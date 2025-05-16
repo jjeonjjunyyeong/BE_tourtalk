@@ -2,12 +2,14 @@ package world.ssafy.tourtalk.model.dto.request;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class BoardRequest {
 	public enum Status {
@@ -37,21 +39,5 @@ public class BoardRequest {
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
 	private String filePath;
-	
-	public BoardRequest(int postId, int categoryId, int writerId, String title, String content, Status status,
-			int viewCount, int commentCount, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt,
-			String filePath) {
-		this.postId = postId;
-		this.categoryId = categoryId;
-		this.writerId = writerId;
-		this.title = title;
-		this.content = content;
-		this.status = status;
-		this.viewCount = viewCount;
-		this.commentCount = commentCount;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.deletedAt = deletedAt;
-		this.filePath = filePath;
-	}
+
 }

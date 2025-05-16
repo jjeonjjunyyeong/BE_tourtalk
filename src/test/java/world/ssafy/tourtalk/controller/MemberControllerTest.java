@@ -107,6 +107,9 @@ public class MemberControllerTest {
         MemberRequest request = makeUser(4321);
         mService.regist(request);
 
+        MemberResponse saved = mService.getMemberById(request.getId()); // id로 다시 조회
+        int mno = saved.getMno();
+        
         MemberRequest updated = MemberRequest.builder()
                 .mno(request.getMno())
                 .nickname("업데이트된닉")
