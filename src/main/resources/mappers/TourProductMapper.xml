@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="world.ssafy.tourtalk.model.mapper.TourProductMapper">
+
+	<!-- 상품 등록 -->
+	<insert id="insert" parameterType="map">
+		INSERT INTO tour_product (
+		mno,
+		location_no,
+		title,
+		description,
+		max_participants,
+		min_participants,
+		price_type,
+		price,
+		start_date,
+		status,
+		thumbnail_img,
+		tags,
+		meeting_place,
+		meeting_time,
+		duration,
+		created_at,
+		updated_at
+		) VALUES (
+		#{mno},
+		#{request.locationNo},
+		#{request.title},
+		#{request.description},
+		#{request.maxParticipants},
+		#{request.minParticipants},
+		#{request.priceType,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.PriceType},
+		#{request.price},
+		#{request.startDate},
+		#{request.status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.ProductStatus},
+		#{request.thumbnailImg},
+		#{request.tags},
+		#{request.meetingPlace},
+		#{request.meetingTime},
+		#{request.duration},
+		NOW(),
+		NOW()
+		)
+	</insert>
+
+	<!-- 상품 수정 -->
+	<update id="update" parameterType="map">
+		UPDATE tour_product
+		SET
+		location_no = #{request.locationNo},
+		title = #{request.title},
+		description = #{request.description},
+		max_participants =
+		#{request.maxParticipants},
+		min_participants =
+		#{request.minParticipants},
+		price_type = #{request.priceType,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.PriceType},
+		price =
+		#{request.price},
+		start_date = #{request.startDate},
+		status =
+		#{request.status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.ProductStatus},
+		thumbnail_img = #{request.thumbnailImg},
+		tags = #{request.tags},
+		meeting_place = #{request.meetingPlace},
+		meeting_time =
+		#{request.meetingTime},
+		duration = #{request.duration},
+		updated_at =
+		NOW()
+		WHERE product_id = #{productId}
+	</update>
+
+	<!-- 상품 삭제 -->
+	<update id="softDeleted" parameterType="int">
+		UPDATE tour_product
+		SET
+		status = 'DELETED',
+		updated_at = NOW()
+		WHERE product_id = #{productId}
+	</update>
+
+</mapper>
