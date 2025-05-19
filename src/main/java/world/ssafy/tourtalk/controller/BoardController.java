@@ -98,7 +98,6 @@ public class BoardController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
 		}
 	}
-
 	
 	// 게시글 목록 및 검색
 	@GetMapping("/search")
