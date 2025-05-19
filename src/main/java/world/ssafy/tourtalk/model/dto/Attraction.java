@@ -63,4 +63,3 @@ public class Attraction {
                (overview != null && overview.toLowerCase().contains(keyword));
     }
 }
-

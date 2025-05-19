@@ -19,78 +19,6 @@
 		) sg ON a.area_code = sg.sido AND a.si_gun_gu_code = sg.gugun
 	</sql>
 	
-	<sql id="whereConditions">
-		<where>
-			<if test="contentTypeName != null and contentTypeName != ''">
-				c.content_type_id = #{contentTypeName}
-			</if>
-			<if test="areaCode != null and areaCode != ''">
-				AND sido_name = #{areaCode}
-			</if>
-			<if test="siGunGuCode != null and siGunGuCode != ''">
-				AND gugun_name = #{siGunGuCode}
-			</if>
-			<if test="no != null">
-				AND a.no = #{no}
-			</if>
-			<if test="title != null and title != ''">
-				AND a.title LIKE CONCAT('%', #{title}, '%')
-			</if>
-		</where>
-	</sql>
-	
-	<select id="mappingContent" resultType="int">
-		SELECT content_type_id 
-		FROM contenttypes 
-		WHERE content_type_name = #{content}
-	</select>
-	
-	<select id="mappingSido" resultType="String">
-		SELECT DISTINCT s.sido_name
-		FROM sidos s 
-		JOIN guguns g ON (s.sido_code = g.sido_code)
-		WHERE s.sido_code = #{sido}
-	</select>
-	
-	<select id="mappingGugun" resultType="String">
-		SELECT g.gugun_name
-		FROM sidos s 
-		JOIN guguns g ON (s.sido_code = g.sido_code)
-		WHERE s.sido_code = #{sido} 
-		AND g.gugun_code = #{gugun}
-	</select>
-	
-	<select id="getAttractionByAddress" resultMap="AttractionMap">
-		SELECT <include refid="attractionColumns" />
-		FROM attractions a
-		JOIN contenttypes c ON a.content_type_id = c.content_type_id
-		<include refid="joinSidoGugun" />
-		<include refid="whereConditions" />
-	</select>
-	
-	<select id="getAttractionByAddressWithPaging" resultMap="AttractionMap">
-		SELECT <include refid="attractionColumns" />
-		FROM attractions a
-		JOIN contenttypes c ON a.content_type_id = c.content_type_id
-		<include refid="joinSidoGugun" />
-		<include refid="whereConditions" />
-		<if test="orderBy != null">
-			ORDER BY ${orderBy}
-		</if>
-		<if test="orderBy == null">
-			ORDER BY a.no
-		</if>
-		LIMIT #{offset}, #{limit}
-	</select>
-	
-	<select id="getTotalAttractionCount" resultType="int">
-		SELECT COUNT(*) as total
-		FROM attractions a
-		JOIN contenttypes c ON a.content_type_id = c.content_type_id
-		<include refid="joinSidoGugun" />
-		<include refid="whereConditions" />
-	</select>
-	
 	<select id="getContent" resultType="map">
 		SELECT content_type_id AS id, content_type_name AS name
 		FROM contenttypes
@@ -149,48 +77,10 @@
 		JOIN sidos s ON (a.area_code = s.sido_code) 
 		<where>
 			a.view_cnt >= 1
-			<if test="limit != null">
-				ORDER BY a.view_cnt DESC
-				LIMIT #{limit}
-			</if>
 		</where>
+		ORDER BY a.view_cnt DESC
 	</select>
 	
-	<!-- 검색 기능 추가 -->
-	<select id="searchAttractions" resultMap="AttractionMap">
-		SELECT <include refid="attractionColumns" />
-		FROM attractions a
-		JOIN contenttypes c ON a.content_type_id = c.content_type_id
-		<include refid="joinSidoGugun" />
-		<where>
-			<if test="keyword != null and keyword != ''">
-				(a.title LIKE CONCAT('%', #{keyword}, '%')
-				OR a.addr1 LIKE CONCAT('%', #{keyword}, '%')
-				OR a.overview LIKE CONCAT('%', #{keyword}, '%'))
-			</if>
-			<if test="contentTypeId != null">
-				AND c.content_type_id = #{contentTypeId}
-			</if>
-			<if test="sidoCode != null">
-				AND a.area_code = #{sidoCode}
-			</if>
-			<if test="gugunCode != null">
-				AND a.si_gun_gu_code = #{gugunCode}
-			</if>
-		</where>
-		ORDER BY 
-		<choose>
-			<when test="sortBy != null and sortBy == 'popular'">
-				a.view_cnt DESC
-			</when>
-			<otherwise>
-				a.no
-			</otherwise>
-		</choose>
-		LIMIT #{offset}, #{limit}
-	</select>
-	
-	<!-- Mapper 인터페이스에 추가된 메서드들에 대한 SQL 구현 -->
 	<select id="getAttractionByDirectCodes" resultMap="AttractionMap">
 		SELECT <include refid="attractionColumns" />
 		FROM attractions a
@@ -291,6 +181,65 @@
 				AND a.first_image1 IS NOT NULL AND a.first_image1 != ''
 			</if>
 		</where>
+	</select>
+	
+	<!-- 관광지 생성 -->
+	<insert id="insertAttraction" parameterType="Attraction" useGeneratedKeys="true" keyProperty="no">
+		INSERT INTO attractions (
+			content_id, title, content_type_id, area_code, si_gun_gu_code,
+			first_image1, first_image2, map_level, latitude, longitude,
+			tel, addr1, addr2, homepage, overview, view_cnt
+		) VALUES (
+			#{contentId}, #{title}, #{contentTypeId}, #{sidoCode}, #{gugunCode},
+			#{firstImage1}, #{firstImage2}, #{mapLevel}, #{latitude}, #{longitude},
+			#{tel}, #{addr}, #{addr2}, #{homepage}, #{overview}, 0
+		)
+	</insert>
+	
+	<!-- 관광지 수정 -->
+	<update id="updateAttraction" parameterType="Attraction">
+		UPDATE attractions SET
+			content_id = #{contentId},
+			title = #{title},
+			content_type_id = #{contentTypeId},
+			area_code = #{sidoCode},
+			si_gun_gu_code = #{gugunCode},
+			first_image1 = #{firstImage1},
+			first_image2 = #{firstImage2},
+			map_level = #{mapLevel},
+			latitude = #{latitude},
+			longitude = #{longitude},
+			tel = #{tel},
+			addr1 = #{addr},
+			addr2 = #{addr2},
+			homepage = #{homepage},
+			overview = #{overview}
+		WHERE no = #{no}
+	</update>
+	
+	<!-- 관광지 삭제 -->
+	<delete id="deleteAttraction">
+		DELETE FROM attractions WHERE no = #{no}
+	</delete>
+	
+	<!-- 관광지 중복 체크 (제목 기준) -->
+	<select id="countAttractionByTitle" resultType="int">
+		SELECT COUNT(*) FROM attractions WHERE title = #{title}
+	</select>
+	
+	<!-- 컨텐츠 타입 존재 여부 확인 -->
+	<select id="countContentTypeById" resultType="int">
+		SELECT COUNT(*) FROM contenttypes WHERE content_type_id = #{contentTypeId}
+	</select>
+	
+	<!-- 시도 존재 여부 확인 -->
+	<select id="countSidoByCode" resultType="int">
+		SELECT COUNT(*) FROM sidos WHERE no = #{areaCode}
+	</select>
+	
+	<!-- 구군 존재 여부 확인 -->
+	<select id="countGugunByCode" resultType="int">
+		SELECT COUNT(*) FROM guguns WHERE `key` = #{siGunGuCode}
 	</select>
 	
 	<resultMap id="AttractionMap" type="world.ssafy.tourtalk.model.dto.Attraction">

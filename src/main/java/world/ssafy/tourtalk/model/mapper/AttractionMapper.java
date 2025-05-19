@@ -55,4 +55,21 @@ public interface AttractionMapper {
             @Param("count") int count, 
             @Param("contentTypeId") Integer contentTypeId, 
             @Param("sidoCode") Integer sidoCode);
+    
+    // 관광지 생성/수정/삭제 (관리자용)
+    int insertAttraction(Attraction attraction);
+    int updateAttraction(Attraction attraction);
+    int deleteAttraction(@Param("no") int no);
+    
+    // 관광지 존재 여부 확인 (중복 체크용)
+    int countAttractionByTitle(@Param("title") String title);
+    
+    // 컨텐츠 타입 존재 여부 확인
+    int countContentTypeById(@Param("contentTypeId") int contentTypeId);
+    
+    // 시도 존재 여부 확인  
+    int countSidoByCode(@Param("areaCode") int areaCode);
+    
+    // 구군 존재 여부 확인
+    int countGugunByCode(@Param("siGunGuCode") int siGunGuCode);
 }

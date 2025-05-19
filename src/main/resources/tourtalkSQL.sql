@@ -44,7 +44,6 @@ CREATE TABLE `curator` (
 );
 
 -- 게시판 관련 테이블
--- *****************************************************************************************************
 -- 4. 게시판 카테고리
 CREATE TABLE `board_categories` (
   `category_id` INT NOT NULL,
@@ -52,7 +51,6 @@ CREATE TABLE `board_categories` (
   `sub_category` VARCHAR(50) NULL,
   PRIMARY KEY (`category_id`)
 );
--- *****************************************************************************************************
 
 -- 5. 게시글
 CREATE TABLE `board` (
@@ -95,7 +93,6 @@ CREATE TABLE `comments` (
   FOREIGN KEY (`post_id`) REFERENCES `board` (`post_id`),
   FOREIGN KEY (`writer_id`) REFERENCES `member` (`mno`)
 );
-
 
 -- 8. 게시글 좋아요
 CREATE TABLE `post_likes` (
@@ -151,7 +148,6 @@ CREATE TABLE `user_rooms` (
 );
 
 -- 12. 메시지
--- message_type은 좀 고려해보기
 CREATE TABLE `messages` (
   `message_id` INT NOT NULL AUTO_INCREMENT,
   `mno` INT NOT NULL,
@@ -243,6 +239,7 @@ CREATE TABLE `attractions` (
   `addr2` VARCHAR(100) NULL,
   `homepage` VARCHAR(1000) NULL,
   `overview` VARCHAR(10000) NULL,
+  `view_cnt` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`no`),
   FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
   FOREIGN KEY (`area_code`) REFERENCES `sidos` (`no`),
@@ -294,4 +291,39 @@ CREATE TABLE `tour_booking` (
   PRIMARY KEY (`booking_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),
   FOREIGN KEY (`product_id`) REFERENCES `tour_product` (`product_id`)
+);
+
+-- 사용자 등록 hotplace 테이블 (신규 추가)
+-- 22. 사용자 등록 hotplace 테이블
+CREATE TABLE `hotplaces` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(200) NOT NULL,
+  `latitude` DECIMAL(20,17) NOT NULL,
+  `longitude` DECIMAL(20,17) NOT NULL,
+  `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  `content_type_id` INT NOT NULL,
+  `description` TEXT NULL,
+  `review` TEXT NULL,
+  `recommendation_reason` TEXT NULL,
+  `view_count` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
+  INDEX `idx_user_id` (`user_id`),
+  INDEX `idx_created_at` (`created_at`),
+  INDEX `idx_rating` (`rating`)
+);
+
+-- 23. hotplace 이미지 테이블
+CREATE TABLE `hotplace_images` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `hotplace_id` BIGINT NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `image_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`hotplace_id`) REFERENCES `hotplaces` (`id`) ON DELETE CASCADE,
+  INDEX `idx_hotplace_id` (`hotplace_id`)
 );

@@ -16,13 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.controller.RestControllerHelper;
 import world.ssafy.tourtalk.model.dto.Attraction;
-import world.ssafy.tourtalk.model.dto.AttractionDetail;
-import world.ssafy.tourtalk.model.dto.AttractionForm;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.SearchCondition;
 import world.ssafy.tourtalk.model.dto.request.attraction.AttractionSearchRequestDto;
-import world.ssafy.tourtalk.model.dto.response.attraction.AttractionDetailResponseDto;
-import world.ssafy.tourtalk.model.dto.response.attraction.AttractionFormResponseDto;
 import world.ssafy.tourtalk.model.dto.response.attraction.AttractionResponseDto;
 import world.ssafy.tourtalk.model.dto.response.common.PageResponseDto;
 import world.ssafy.tourtalk.model.service.AttractionService;
@@ -85,10 +81,18 @@ public class AttractionRestController implements RestControllerHelper {
                 nearAttractionArr = nearAttractionList.subList(0, size).toArray(new Attraction[0]);
             }
             
-            AttractionDetail response = new AttractionDetail(detailAttraction, nearAttractionArr);
-            AttractionDetailResponseDto responseDto = AttractionDetailResponseDto.from(response);
+            // 응답 DTO로 변환
+            AttractionResponseDto mainDto = AttractionResponseDto.from(detailAttraction);
+            List<AttractionResponseDto> nearbyDtos = List.of(nearAttractionArr).stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
             
-            return ResponseEntity.ok(responseDto);
+            Map<String, Object> response = Map.of(
+                "attraction", mainDto,
+                "nearbyAttractions", nearbyDtos
+            );
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -175,68 +179,8 @@ public class AttractionRestController implements RestControllerHelper {
         }
     }
     
-    @Operation(summary="기존 방식으로 관광지 목록 조회", description="이름 기반 관광지 목록 조회")
-    @ApiResponse(
-        responseCode="200", 
-        description="관광지 목록 조회 성공",
-        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
-    )
-    @Deprecated
-    @GetMapping
-    public ResponseEntity<?> getAttractionByAddress(
-            @RequestParam String contentTypeName,
-            @RequestParam("sido") String areaCode,
-            @RequestParam("gugun") String siGunGuCode,
-            @RequestParam(defaultValue="1") int page,
-            @RequestParam(defaultValue="10") int size) {
-        
-        try {
-            // 검색 조건 생성
-            SearchCondition condition = new SearchCondition();
-            condition.setPageNumber(page);
-            condition.setPageSize(size);
-            condition.setKeyword(null);
-            
-            // 코드 변환 후 직접 코드 기반 검색 (변환 로직은 서비스에서 처리)
-            int contentTypeId = attractionService.getContentTypeIdByName(contentTypeName);
-            int sidoCode = attractionService.getSidoCodeByName(areaCode);
-            int gugunCode = attractionService.getGugunCodeByName(siGunGuCode, sidoCode);
-            
-            // 코드 기반 검색 호출
-            Page<Attraction> pageResult = attractionService.getAttractionsByDirectCodesWithPaging(
-                contentTypeId, sidoCode, gugunCode, page, size);
-            
-            // Page<Attraction>을 Page<AttractionResponseDto>로 변환
-            List<AttractionResponseDto> dtoContent = pageResult.getContent().stream()
-                    .map(AttractionResponseDto::from)
-                    .collect(Collectors.toList());
-            
-            PageResponseDto<AttractionResponseDto> response = PageResponseDto.<AttractionResponseDto>builder()
-                    .content(dtoContent)
-                    .pageNumber(pageResult.getPageNumber())
-                    .pageSize(pageResult.getPageSize())
-                    .totalPages(pageResult.getTotalPages())
-                    .totalElements(pageResult.getTotalElements())
-                    .first(pageResult.isFirst())
-                    .last(pageResult.isLast())
-                    .startPage(pageResult.getStartPage())
-                    .endPage(pageResult.getEndPage())
-                    .build();
-            
-            return ResponseEntity.ok(response);
-        } catch(Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("관광지 목록 조회 중 오류가 발생했습니다: " + e.getMessage());
-        }
-    }
-    
     @Operation(summary="관광지 폼 데이터 조회", description="컨텐츠 유형, 시도 목록, 랜덤 관광지 반환")
-    @ApiResponse(
-        responseCode="200", 
-        description="데이터 조회 성공",
-        content=@Content(schema=@Schema(implementation=AttractionFormResponseDto.class))
-    )
+    @ApiResponse(responseCode="200", description="데이터 조회 성공")
     @GetMapping("/form-data")
     public ResponseEntity<?> getAttractionFormData() {
         try {
@@ -244,8 +188,15 @@ public class AttractionRestController implements RestControllerHelper {
             List<Map<String, Object>> sidoList = attractionService.getSido();
             List<Attraction> randomAttractions = attractionService.getRandomAttractions(6);
             
-            AttractionForm form = new AttractionForm(contentList, sidoList, randomAttractions);
-            AttractionFormResponseDto response = AttractionFormResponseDto.from(form);
+            List<AttractionResponseDto> randomDtos = randomAttractions.stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            Map<String, Object> response = Map.of(
+                "contentList", contentList,
+                "sidoList", sidoList,
+                "randomAttractions", randomDtos
+            );
             
             return ResponseEntity.ok(response);
         } catch(Exception e) {

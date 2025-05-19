@@ -6,6 +6,7 @@ import java.util.Map;
 import world.ssafy.tourtalk.model.dto.Attraction;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.SearchCondition;
+import world.ssafy.tourtalk.model.dto.request.attraction.AttractionCreateUpdateRequestDto;
 
 public interface AttractionService {
     // 기본 조회 메서드
@@ -34,4 +35,15 @@ public interface AttractionService {
     
     // SearchCondition 기반 검색
     Page<Attraction> searchAttractionsByCodes(SearchCondition condition);
+    
+    // 관광지 생성/수정/삭제 (관리자용)
+    Attraction createAttraction(AttractionCreateUpdateRequestDto requestDto);
+    Attraction updateAttraction(int no, AttractionCreateUpdateRequestDto requestDto);
+    boolean deleteAttraction(int no);
+    
+    // 관광지 존재 여부 확인
+    boolean existsAttractionByTitle(String title);
+    
+    // 참조 데이터 존재 여부 확인
+    boolean validateReferences(int contentTypeId, int areaCode, int siGunGuCode);
 }
