@@ -1,16 +1,10 @@
 package world.ssafy.tourtalk.restcontroller;
 
-import java.util.List;
-import java.util.Map;
-
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +20,16 @@ import world.ssafy.tourtalk.model.dto.AttractionDetail;
 import world.ssafy.tourtalk.model.dto.AttractionForm;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.SearchCondition;
+import world.ssafy.tourtalk.model.dto.request.attraction.AttractionSearchRequestDto;
+import world.ssafy.tourtalk.model.dto.response.attraction.AttractionDetailResponseDto;
+import world.ssafy.tourtalk.model.dto.response.attraction.AttractionFormResponseDto;
+import world.ssafy.tourtalk.model.dto.response.attraction.AttractionResponseDto;
+import world.ssafy.tourtalk.model.dto.response.common.PageResponseDto;
 import world.ssafy.tourtalk.model.service.AttractionService;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/attractions")
@@ -83,8 +86,9 @@ public class AttractionRestController implements RestControllerHelper {
             }
             
             AttractionDetail response = new AttractionDetail(detailAttraction, nearAttractionArr);
+            AttractionDetailResponseDto responseDto = AttractionDetailResponseDto.from(response);
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(responseDto);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -96,7 +100,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 목록 조회 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @GetMapping("/codes")
     public ResponseEntity<?> getAttractionsByDirectCodes(
@@ -106,10 +110,27 @@ public class AttractionRestController implements RestControllerHelper {
             @RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="10") int size) {
         try {
-            Page<Attraction> result = attractionService.getAttractionsByDirectCodesWithPaging(
+            Page<Attraction> pageResult = attractionService.getAttractionsByDirectCodesWithPaging(
                 contentTypeId, sidoCode, gugunCode, page, size);
             
-            return ResponseEntity.ok(result);
+            // Page<Attraction>을 Page<AttractionResponseDto>로 변환
+            List<AttractionResponseDto> dtoContent = pageResult.getContent().stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            PageResponseDto<AttractionResponseDto> response = PageResponseDto.<AttractionResponseDto>builder()
+                    .content(dtoContent)
+                    .pageNumber(pageResult.getPageNumber())
+                    .pageSize(pageResult.getPageSize())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .first(pageResult.isFirst())
+                    .last(pageResult.isLast())
+                    .startPage(pageResult.getStartPage())
+                    .endPage(pageResult.getEndPage())
+                    .build();
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -121,13 +142,32 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 검색 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @GetMapping("/search")
-    public ResponseEntity<?> searchAttractions(SearchCondition condition) {
+    public ResponseEntity<?> searchAttractions(@Valid AttractionSearchRequestDto requestDto) {
         try {
-            Page<Attraction> result = attractionService.searchAttractionsByCodes(condition);
-            return ResponseEntity.ok(result);
+            SearchCondition condition = requestDto.toSearchCondition();
+            Page<Attraction> pageResult = attractionService.searchAttractionsByCodes(condition);
+            
+            // Page<Attraction>을 Page<AttractionResponseDto>로 변환
+            List<AttractionResponseDto> dtoContent = pageResult.getContent().stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            PageResponseDto<AttractionResponseDto> response = PageResponseDto.<AttractionResponseDto>builder()
+                    .content(dtoContent)
+                    .pageNumber(pageResult.getPageNumber())
+                    .pageSize(pageResult.getPageSize())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .first(pageResult.isFirst())
+                    .last(pageResult.isLast())
+                    .startPage(pageResult.getStartPage())
+                    .endPage(pageResult.getEndPage())
+                    .build();
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -139,7 +179,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="관광지 목록 조회 성공",
-        content=@Content(schema=@Schema(implementation=Page.class))
+        content=@Content(schema=@Schema(implementation=PageResponseDto.class))
     )
     @Deprecated
     @GetMapping
@@ -163,10 +203,27 @@ public class AttractionRestController implements RestControllerHelper {
             int gugunCode = attractionService.getGugunCodeByName(siGunGuCode, sidoCode);
             
             // 코드 기반 검색 호출
-            Page<Attraction> result = attractionService.getAttractionsByDirectCodesWithPaging(
+            Page<Attraction> pageResult = attractionService.getAttractionsByDirectCodesWithPaging(
                 contentTypeId, sidoCode, gugunCode, page, size);
             
-            return ResponseEntity.ok(result);
+            // Page<Attraction>을 Page<AttractionResponseDto>로 변환
+            List<AttractionResponseDto> dtoContent = pageResult.getContent().stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            PageResponseDto<AttractionResponseDto> response = PageResponseDto.<AttractionResponseDto>builder()
+                    .content(dtoContent)
+                    .pageNumber(pageResult.getPageNumber())
+                    .pageSize(pageResult.getPageSize())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .first(pageResult.isFirst())
+                    .last(pageResult.isLast())
+                    .startPage(pageResult.getStartPage())
+                    .endPage(pageResult.getEndPage())
+                    .build();
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -178,7 +235,7 @@ public class AttractionRestController implements RestControllerHelper {
     @ApiResponse(
         responseCode="200", 
         description="데이터 조회 성공",
-        content=@Content(schema=@Schema(implementation=AttractionForm.class))
+        content=@Content(schema=@Schema(implementation=AttractionFormResponseDto.class))
     )
     @GetMapping("/form-data")
     public ResponseEntity<?> getAttractionFormData() {
@@ -187,7 +244,8 @@ public class AttractionRestController implements RestControllerHelper {
             List<Map<String, Object>> sidoList = attractionService.getSido();
             List<Attraction> randomAttractions = attractionService.getRandomAttractions(6);
             
-            AttractionForm response = new AttractionForm(contentList, sidoList, randomAttractions);
+            AttractionForm form = new AttractionForm(contentList, sidoList, randomAttractions);
+            AttractionFormResponseDto response = AttractionFormResponseDto.from(form);
             
             return ResponseEntity.ok(response);
         } catch(Exception e) {
@@ -241,7 +299,12 @@ public class AttractionRestController implements RestControllerHelper {
             @RequestParam(defaultValue="6") int count) {
         try {
             List<Attraction> attractions = attractionService.getRandomAttractionsByTheme(count, contentTypeId);
-            return ResponseEntity.ok(attractions);
+            
+            List<AttractionResponseDto> response = attractions.stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -257,7 +320,12 @@ public class AttractionRestController implements RestControllerHelper {
             @RequestParam(defaultValue="6") int count) {
         try {
             List<Attraction> attractions = attractionService.getRandomAttractionsByRegion(count, sidoCode);
-            return ResponseEntity.ok(attractions);
+            
+            List<AttractionResponseDto> response = attractions.stream()
+                    .map(AttractionResponseDto::from)
+                    .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(response);
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
