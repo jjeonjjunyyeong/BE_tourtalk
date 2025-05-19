@@ -19,13 +19,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
+import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
+import world.ssafy.tourtalk.model.dto.response.PageResponse;
 import world.ssafy.tourtalk.model.service.BoardService;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/board")
+@RequestMapping("/api/v1/boards")
 public class BoardController {
 
 	private final BoardService bService;
@@ -98,11 +100,35 @@ public class BoardController {
 	}
 
 	
-	// 게시글 검색
-	@GetMapping("/")
-	public ResponseEntity<?> searchPost(@RequestParam(required = false) String keyword, @RequestParam(required = false) int ) {
+	// 게시글 목록 및 검색
+	@GetMapping("/search")
+	public ResponseEntity<?> searchOrList( @RequestParam(required = false) String keyword,
+	        @RequestParam(required = false) String keywordType,
+	        @RequestParam(required = false) Integer categoryId,
+	        @RequestParam(required = false) Integer writerId,
+	        @RequestParam(defaultValue = "1") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam(required = false) String orderBy,
+	        @RequestParam(required = false) String orderDirection) {
 		try {
+			SearchConditionRequest condition = SearchConditionRequest.builder()
+	                .pageNumber(page)
+	                .pageSize(size)
+	                .keyword(keyword)
+	                .keywordType(keywordType)
+	                .categoryId(categoryId != null ? categoryId : 0)
+	                .writerId(writerId != null ? writerId : 0)
+	                .orderBy(orderBy)
+	                .orderDirection(orderDirection)
+	                .build();
 			
+			condition.setDefaults();
+
+            PageResponse<BoardResponse> result = bService.searchWithConditions(condition);
+
+            return result.getContent().isEmpty()
+                ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.")
+                : ResponseEntity.ok(result);
 		} catch(DataAccessException e) {
 			log.error("게시글 검색 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
@@ -111,9 +137,19 @@ public class BoardController {
 	
 	// 게시글 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> selectAll() {
+	public ResponseEntity<?> selectAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
 		try {
+			SearchConditionRequest condition = SearchConditionRequest.builder()
+					.pageNumber(page)
+					.pageSize(size)
+					.build();
 			
+			condition.setDefaults();
+			
+			PageResponse<BoardResponse> result = bService.searchWithConditions(condition);
+			
+			return result != null ? ResponseEntity.ok(result)
+					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.");
 		} catch(DataAccessException e) {
 			log.error("게시글 목록 조회 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());

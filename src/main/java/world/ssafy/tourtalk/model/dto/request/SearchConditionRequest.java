@@ -2,10 +2,10 @@ package world.ssafy.tourtalk.model.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,11 +19,17 @@ public class SearchConditionRequest {
     private String orderBy;
     private String orderDirection;
     
-    // 검색 조건 관련
+    // 검색 조건 관련 (관광지)
     private Integer contentTypeId;
     private Integer sidoCode;
     private Integer gugunCode;
+    // 공통
     private String keyword;
+    private String keywordType;
+    // 게시글
+    private int categoryId;
+    private int writerId;
+    
     
     // 추가 필터링
     private Integer minViewCount;
@@ -59,7 +65,18 @@ public class SearchConditionRequest {
     
     // SearchCondition으로 변환하는 메서드 (호환성 유지)
     public SearchConditionRequest toSearchCondition() {
-    	return SearchConditionRequest.from(this);
+    	SearchConditionRequest condition = new SearchConditionRequest();
+        condition.setPageNumber(this.pageNumber);
+        condition.setPageSize(this.pageSize);
+        condition.setOrderBy(this.orderBy);
+        condition.setOrderDirection(this.orderDirection);
+        condition.setContentTypeId(this.contentTypeId);
+        condition.setSidoCode(this.sidoCode);
+        condition.setGugunCode(this.gugunCode);
+        condition.setKeyword(this.keyword);
+        condition.setMinViewCount(this.minViewCount);
+        condition.setOnlyWithImage(this.onlyWithImage);
+        return condition;
     }
     
     // SearchCondition으로부터 생성하는 정적 팩토리 메서드
@@ -77,5 +94,25 @@ public class SearchConditionRequest {
                 .onlyWithImage(condition.getOnlyWithImage())
                 .build();
     }
+
+    // 게시글 검색
+	public SearchConditionRequest(Integer pageNumber, Integer pageSize, String orderBy, String orderDirection,
+			String keyword, String keywordType, int categoryId, int writerId, Integer minViewCount, Boolean onlyWithImage) {
+		super();
+		this.pageNumber = pageNumber;
+		this.pageSize = pageSize;
+		this.orderBy = orderBy;
+		this.orderDirection = orderDirection;
+		this.keyword = keyword;
+		this.keywordType = keywordType;
+		this.categoryId = categoryId;
+		this.writerId = writerId;
+		this.minViewCount = minViewCount;
+		this.onlyWithImage = onlyWithImage;
+	}
 	
+	// 검색 조건 존재 여부 확인
+	public boolean hasSearchCondition() {
+		return (keyword != null && !keyword.isBlank()) || writerId >  0 && categoryId > 0;
+	}
 }

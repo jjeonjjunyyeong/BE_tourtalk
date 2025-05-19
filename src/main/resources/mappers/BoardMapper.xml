@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="world.ssafy.tourtalk.model.mapper.BoardMapper">
+	<!-- 게시글 상세 조회 -->
+	<select id="selectById"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id,
+		b.title,
+		b.content,
+		b.view_count,
+		b.comment_count,
+		b.category_id,
+		b.writer_id,
+		b.status,
+		d.created_at,
+		d.updated_at,
+		d.deleted_at,
+		d.file_path
+		FROM board b
+		JOIN board_details d
+		ON b.post_id = d.post_id
+		WHERE b.post_id = #{postId}
+	</select>
+
+	<update id="updateViewCount">
+		UPDATE board
+		SET view_count = view_count + 1
+		WHERE post_id = #{postId}
+	</update>
+
+	<!-- 게시글 검색/목록 -->
+	<select id="searchWithConditions"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id, b.title, b.content, b.view_count, b.comment_count,
+		b.category_id,
+		b.writer_id,
+		d.created_at, d.updated_at, d.deleted_at,
+		d.file_path
+		FROM board b
+		JOIN board_details d ON b.post_id = d.post_id
+		WHERE b.status != 'deleted'
+		<if test="cond.keyword != null and cond.keyword != ''">
+			<choose>
+				<when test="cond.keywordType == 'title'">
+					AND b.title LIKE CONCAT('%', #{cond.keyword}, '%')
+				</when>
+				<when test="cond.keywordType == 'writer'">
+					AND b.writer_id = #{cond.writerId}
+				</when>
+			</choose>
+		</if>
+		<if test="cond.categoryId > 0">
+			AND b.category_id = #{cond.categoryId}
+		</if>
+		<if test="cond.orderBy != null and cond.orderBy != ''">
+			ORDER BY ${cond.orderBy} ${cond.orderDirection}
+		</if>
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<!-- 게시글 개수 -->
+	<select id="countWithConditions" resultType="long">
+		SELECT COUNT(*)
+		FROM board b
+		WHERE b.status != 'deleted'
+		<if test="cond.keyword != null and cond.keyword != ''">
+			<choose>
+				<when test="cond.keywordType == 'title'">
+					AND b.title LIKE CONCAT('%', #{cond.keyword}, '%')
+				</when>
+				<when test="cond.keywordType == 'writer'">
+					AND b.writer_id = #{cond.writerId}
+				</when>
+			</choose>
+		</if>
+		<if test="cond.categoryId > 0">
+			AND b.category_id = #{cond.categoryId}
+		</if>
+	</select>
+
+
+
+</mapper>
