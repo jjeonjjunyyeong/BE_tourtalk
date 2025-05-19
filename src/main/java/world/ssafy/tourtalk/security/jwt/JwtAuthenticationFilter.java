@@ -16,9 +16,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.enums.Role;
 import world.ssafy.tourtalk.security.auth.CustomMemberPrincipal;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -44,7 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	        Authentication auth =
 	                new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
+	        log.info("인증 principal 타입: {}", auth.getPrincipal().getClass().getName());
+	        
 	        SecurityContextHolder.getContext().setAuthentication(auth);
+	        
+	        log.info("JWT 필터 작동됨: token = {}", token);
 	    }
 
 	    filterChain.doFilter(request, response);
