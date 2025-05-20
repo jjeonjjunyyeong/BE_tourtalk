@@ -112,7 +112,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .map(HotplaceResponseDto::from)
                     .collect(Collectors.toList());
             
-            PageResponseDto<HotplaceResponseDto> response = PageResponseDto.<HotplaceResponseDto>builder()
+            PageResponseDto<HotplaceResponseDto> pageResponse = PageResponseDto.<HotplaceResponseDto>builder()
                     .content(dtoContent)
                     .pageNumber(pageResult.getPageNumber())
                     .pageSize(pageResult.getPageSize())
@@ -124,7 +124,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .endPage(pageResult.getEndPage())
                     .build();
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(pageResponse);
             
         } catch (Exception e) {
             log.error("Hotplace 목록 조회 중 오류", e);
@@ -150,7 +150,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .map(HotplaceResponseDto::from)
                     .collect(Collectors.toList());
             
-            PageResponseDto<HotplaceResponseDto> response = PageResponseDto.<HotplaceResponseDto>builder()
+            PageResponseDto<HotplaceResponseDto> pageResponse = PageResponseDto.<HotplaceResponseDto>builder()
                     .content(dtoContent)
                     .pageNumber(pageResult.getPageNumber())
                     .pageSize(pageResult.getPageSize())
@@ -162,7 +162,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .endPage(pageResult.getEndPage())
                     .build();
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(pageResponse);
             
         } catch (Exception e) {
             log.error("내 Hotplace 목록 조회 중 오류", e);
@@ -272,7 +272,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .map(HotplaceResponseDto::from)
                     .collect(Collectors.toList());
             
-            PageResponseDto<HotplaceResponseDto> response = PageResponseDto.<HotplaceResponseDto>builder()
+            PageResponseDto<HotplaceResponseDto> pageResponse = PageResponseDto.<HotplaceResponseDto>builder()
                     .content(dtoContent)
                     .pageNumber(pageResult.getPageNumber())
                     .pageSize(pageResult.getPageSize())
@@ -284,7 +284,7 @@ public class HotplaceRestController implements RestControllerHelper {
                     .endPage(pageResult.getEndPage())
                     .build();
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(pageResponse);
             
         } catch (Exception e) {
             log.error("Hotplace 검색 중 오류", e);
