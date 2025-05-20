@@ -41,4 +41,15 @@ public class Page<T> {
         this.startPage = tempStartPage;
         this.endPage = tempEndPage;
     }
+  
+    public Page(List<T> content, int pageNumber, int pageSize, long totalElements, int totalPages, boolean first, boolean last) {
+        this.content = content;
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+        this.first = first;
+        this.last = last;
+    }
+
 }
