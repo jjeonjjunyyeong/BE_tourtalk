@@ -137,4 +137,9 @@ public class MemberService {
 	public boolean softDelete(Integer mno) {
 		return memberMapper.softDelete(mno, MemberStatus.DELETED) == 1;
 	}
+
+	// ID 중복 체크
+	public boolean existsById(String id) {
+		return memberMapper.existsById(id);
+	}
 }

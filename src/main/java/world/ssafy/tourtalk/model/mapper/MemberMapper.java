@@ -25,4 +25,5 @@ public interface MemberMapper {
 	int updateCurator(MemberRequest corrected);
 
 	int softDelete(@Param("mno") Integer mno, @Param("status") MemberStatus deleted);
+	boolean existsById(String id);
 }

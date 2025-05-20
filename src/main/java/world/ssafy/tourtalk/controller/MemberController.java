@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.controller;
 
+import java.util.Map;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -96,4 +99,12 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
 		}
 	}
+	
+	// 아이디 중복 체크
+	@GetMapping("/checkId")
+	public ResponseEntity<Map<String, Boolean>> checkId(@RequestParam String id) {
+	    boolean available = !mService.existsById(id);
+	    return ResponseEntity.ok(Map.of("available", available));
+	}
+
 }
