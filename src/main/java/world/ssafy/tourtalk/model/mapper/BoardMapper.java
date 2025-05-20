@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import world.ssafy.tourtalk.model.dto.Board;
-import world.ssafy.tourtalk.model.dto.BoardDetails;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
@@ -14,29 +12,30 @@ import world.ssafy.tourtalk.model.dto.response.BoardResponse;
 @Mapper
 public interface BoardMapper {
 
-	int writeBoard(Board board);
+	// 게시글 작성
+	int writeBoard(BoardRequest board);
+	int writeBoardDetails(BoardRequest details);
 
-	int writeBoardDetails(BoardDetails details);
+	// 게시글 수정
+	int updateBoard(BoardRequest board);
+	int updateBoardDetails(BoardRequest details);
 
-	int updateBoard(Board board);
+	// 게시글 조회
+	BoardResponse selectById(int postId);
+	// 조회수 증가
+	void updateViewCount(int postId);
 
-	int updateBoardDetails(BoardDetails details);
+	// 게시글ID 기반 찾기
+	BoardResponse findById(int postId);
 
-	Board findById(int postId);
-
-	int softDelete(int postId);
-
-	int write(BoardRequest request);
-
-	int update(BoardRequest request);
+	// 게시글 삭제
+	int softDelete(BoardRequest request);
 
 	List<BoardResponse> searchWithConditions(@Param("cond") SearchConditionRequest cond, @Param("offset") int offset,
 			@Param("pageSize") int pageSize);
 
 	long countWithConditions(@Param("cond") SearchConditionRequest cond);
 
-	BoardResponse selectById(int postId);
 
-	void updateViewCount(int postId);
 
 }

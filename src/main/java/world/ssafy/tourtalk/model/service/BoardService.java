@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.model.dto.Page;
+import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
@@ -19,31 +20,53 @@ public class BoardService {
 
 	private final BoardMapper boardMapper;
 	
+	// 게시글 작성
 	@Transactional
-	public int write(BoardRequest request, Integer mno) {
-		//if (mno != null && mno.equals(request.getWriterId())) return boardMapper.write(request);
-		return 0;
+	public boolean write(BoardRequest request) {
+		int boardResult = boardMapper.writeBoard(request);
+		
+		int detailResult = boardMapper.writeBoardDetails(request);
+
+		return boardResult == 1 && detailResult == 1;
 	}
 
+	// 게시글 조회
 	@Transactional
 	public BoardResponse selectById(int postId) {
-		boardMapper.updateViewCount(postId);
+		BoardResponse response = boardMapper.selectById(postId);
+		if(response.getStatus() != BoardStatus.DELETED) {
+			boardMapper.updateViewCount(postId);			
+		}
 		return boardMapper.selectById(postId);
 	}
 
+	// 게시글 수정
 	@Transactional
-	public int update(BoardRequest request, Integer mno) {
-		//if (mno != null && mno.equals(request.getWriterId())) return boardMapper.update(request);
-		return 0;
+	public boolean update(BoardRequest request) {
+		int boardResult = boardMapper.updateBoard(request);
+		
+		int detailResult = boardMapper.updateBoardDetails(request);
+		
+		return boardResult == 1 && detailResult == 1;
 	}
 
+	// 게시글 삭제
 	@Transactional
-	public int delete(int postId, Integer mno) {
-		//BoardResponse board = boardMapper.findById(postId);
+	public boolean softDelete(int postId) {
+	    BoardRequest request = BoardRequest.builder()
+	        .postId(postId)
+	        .status(BoardStatus.DELETED)
+	        .build();
 
-		return 0;
+	    return boardMapper.softDelete(request) > 0;
+	}
+	
+	// 게시글ID 기반 찾기
+	public BoardResponse findById(int postId) {
+		return boardMapper.findById(postId);
 	}
 
+	// 게시글 검색
 	public PageResponse<BoardResponse> searchWithConditions(SearchConditionRequest cond) {
 		cond.setDefaults();
 		int offset = cond.getOffset();

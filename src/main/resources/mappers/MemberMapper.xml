@@ -144,4 +144,11 @@
 	  SELECT COUNT(*) > 0 FROM member WHERE id = #{id}
 	</select>
 
+	<!-- 프로필 이미지 업로드 -->
+	<update id="updateProfileImgPath">
+	  UPDATE member_details
+	  SET profile_img_path = #{profileImgPath}
+	  WHERE mno = #{mno}
+	</update>
+	
 </mapper>

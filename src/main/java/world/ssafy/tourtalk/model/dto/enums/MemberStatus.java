@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.model.dto.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum MemberStatus {
     ACTIVE("정상"),
     SUSPENDED("정지"),
@@ -14,5 +16,10 @@ public enum MemberStatus {
 
     public String getDesc() {
         return desc;
+    }
+    
+    @JsonCreator
+    public static MemberStatus from(String value) {
+        return MemberStatus.valueOf(value.toUpperCase());
     }
 }

@@ -23,9 +23,9 @@ public class FileController {
 	private final FileService fileService;
 	
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<?> upload(@RequestPart("file") MultipartFile file, @RequestPart("type") String type) {
     	 try {
-    	        String saved = fileService.save(file);
+    		 String saved = fileService.save(file, type);
     	        return ResponseEntity.ok(Map.of("filePath", saved));
     	    } catch (Exception e) {
     	        log.error("파일 업로드 실패", e);

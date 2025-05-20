@@ -107,4 +107,18 @@ public class MemberController {
 	    return ResponseEntity.ok(Map.of("available", available));
 	}
 
+	// 프로필 이미지 업로드
+	@PutMapping("/profile-img")
+	public ResponseEntity<?> updateProfileImg(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestParam String profileImgPath) {
+		try {
+			boolean result = mService.updateProfileImgPath(principal.getMno(), profileImgPath);
+			
+			return result
+					? ResponseEntity.status(HttpStatus.CREATED).body("프로필 업로드 성공 !")
+					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("프로필 업로드 실패!");
+		} catch(DataAccessException e) {
+			log.error("회원 프로필 업로드 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
+		}
+	}
 }
