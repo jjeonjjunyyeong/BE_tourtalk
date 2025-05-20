@@ -1,4 +1,4 @@
-package world.ssafy.tourtalk.model.dto;
+package world.ssafy.tourtalk.model.dto.response.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Page<T> {
+public class PageResponseDto<T> {
     private List<T> content;          // 페이지에 포함된 항목 목록
     private int pageNumber;           // 현재 페이지 번호
     private int pageSize;             // 페이지당 항목 수
@@ -41,15 +41,19 @@ public class Page<T> {
         this.startPage = tempStartPage;
         this.endPage = tempEndPage;
     }
-  
-    public Page(List<T> content, int pageNumber, int pageSize, long totalElements, int totalPages, boolean first, boolean last) {
-        this.content = content;
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
-        this.totalElements = totalElements;
-        this.totalPages = totalPages;
-        this.first = first;
-        this.last = last;
+    
+    // Page 객체로부터 PageResponseDto 생성
+    public static <T> PageResponseDto<T> from(world.ssafy.tourtalk.model.dto.Page<T> page) {
+        PageResponseDto<T> response = new PageResponseDto<>();
+        response.setContent(page.getContent());
+        response.setPageNumber(page.getPageNumber());
+        response.setPageSize(page.getPageSize());
+        response.setTotalPages(page.getTotalPages());
+        response.setTotalElements(page.getTotalElements());
+        response.setFirst(page.isFirst());
+        response.setLast(page.isLast());
+        response.setStartPage(page.getStartPage());
+        response.setEndPage(page.getEndPage());
+        return response;
     }
-
 }
