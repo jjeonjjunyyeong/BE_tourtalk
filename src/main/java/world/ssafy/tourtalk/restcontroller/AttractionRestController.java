@@ -247,7 +247,7 @@ public class AttractionRestController implements RestControllerHelper {
     @GetMapping("/random/theme/{contentTypeId}")
     public ResponseEntity<?> getRandomAttractionsByTheme(
             @PathVariable Integer contentTypeId,
-            @RequestParam(defaultValue="6") int count) {
+            @RequestParam(defaultValue="3") int count) {
         try {
             List<Attraction> attractions = attractionService.getRandomAttractionsByTheme(count, contentTypeId);
             
@@ -268,8 +268,9 @@ public class AttractionRestController implements RestControllerHelper {
     @GetMapping("/random/region/{sidoCode}")
     public ResponseEntity<?> getRandomAttractionsByRegion(
             @PathVariable Integer sidoCode,
-            @RequestParam(defaultValue="6") int count) {
+            @RequestParam(defaultValue="3") int count) {
         try {
+        	System.out.println(count);
             List<Attraction> attractions = attractionService.getRandomAttractionsByRegion(count, sidoCode);
             
             List<AttractionResponseDto> response = attractions.stream()

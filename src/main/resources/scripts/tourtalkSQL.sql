@@ -1,3 +1,7 @@
+drop database tourtalktest;
+create database tourtalktest;
+use tourtalktest;
+
 -- 회원 관련 테이블
 -- 1. 회원 기본 정보
 CREATE TABLE `member` (
@@ -44,17 +48,13 @@ CREATE TABLE `curator` (
 );
 
 -- 게시판 관련 테이블
--- 4. 게시판 카테고리
-CREATE TABLE `board_categories` (
-  `category_id` INT NOT NULL,
-  `main_category` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`category_id`)
-);
+-- 4. 게시판 카테고리 삭제
 
 -- 5. 게시글
 CREATE TABLE `board` (
   `post_id` INT NOT NULL AUTO_INCREMENT,
-  `category_id` INT NOT NULL,
+  -- 공지사항, 자유게시판, QnA, 문의, 리뷰
+  `category` ENUM('NOTICE', 'FREE', 'QNA', 'INQUIRY', 'REVIEW') NOT NULL,
   `writer_id` INT NOT NULL,
   `title` VARCHAR(200) NOT NULL,
   `content` TEXT NOT NULL,
@@ -63,7 +63,6 @@ CREATE TABLE `board` (
   `view_count` INT NOT NULL DEFAULT 0,
   `comment_count` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`post_id`),
-  FOREIGN KEY (`category_id`) REFERENCES `board_categories` (`category_id`),
   FOREIGN KEY (`writer_id`) REFERENCES `member` (`mno`)
 );
 
@@ -240,6 +239,7 @@ CREATE TABLE `attractions` (
   `addr2` VARCHAR(100) NULL,
   `homepage` VARCHAR(1000) NULL,
   `overview` VARCHAR(10000) NULL,
+  `view_cnt` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`no`),
   FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
   FOREIGN KEY (`area_code`) REFERENCES `sidos` (`no`),
