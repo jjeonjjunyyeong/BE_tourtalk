@@ -7,11 +7,13 @@
 	<insert id="writeBoard" useGeneratedKeys="true"
 		keyProperty="postId">
 		INSERT INTO board (
-		title, content, writer_id, category_id,
+		title, content, writer_id, category,
 		view_count, comment_count, status
 		) VALUES (
 		#{title}, #{content},
-		#{writerId}, #{categoryId},
+		#{writerId}, #{category,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory},
 		#{viewCount}, #{commentCount}, #{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
@@ -33,8 +35,11 @@
 		SET
 		title = #{title},
 		content = #{content},
-		category_id = #{categoryId},
-		status = #{status,
+		category = #{category,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory},
+		status =
+		#{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
 		WHERE
@@ -60,16 +65,20 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname
 		b.status,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
-		FROM board b
+		FROM board
+		b
 		JOIN board_details d
 		ON b.post_id = d.post_id
+		JOIN member m ON
+		b.writer_id = m.id
 		WHERE b.post_id = #{postId}
 	</select>
 
@@ -89,16 +98,20 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname
 		b.status,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
-		FROM board b
+		FROM board
+		b
 		JOIN board_details d
 		ON b.post_id = d.post_id
+		JOIN member m ON
+		b.writer_id = m.id
 		WHERE b.post_id = #{postId}
 	</select>
 
@@ -107,11 +120,16 @@
 		UPDATE board
 		SET status = #{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
-		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus},
-		deleted_at
-		= NOW()
-		WHERE post_id =
-		#{postId}
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		WHERE
+		post_id = #{postId}
+	</update>
+
+	<update id="softDeleteDetail">
+		UPDATE board_details
+		SET deleted_at = NOW()
+		WHERE
+		post_id = #{postId}
 	</update>
 
 	<!-- 게시글 검색/목록 -->
@@ -123,14 +141,16 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
 		FROM board b
 		JOIN board_details d ON b.post_id = d.post_id
+		JOIN member m ON b.writer_id = m.id
 		WHERE b.status = 'ACTIVE'
 
 		<if test="cond.keyword != null and cond.keyword != ''">
@@ -144,8 +164,10 @@
 			</choose>
 		</if>
 
-		<if test="cond.categoryId > 0">
-			AND b.category_id = #{cond.categoryId}
+		<if test="cond.category != null">
+			AND b.category = #{cond.category,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory}
 		</if>
 
 		<choose>
@@ -197,9 +219,10 @@
 				</when>
 			</choose>
 		</if>
-
-		<if test="cond.categoryId > 0">
-			AND b.category_id = #{cond.categoryId}
+		<if test="cond.category != null">
+			AND b.category = #{cond.category,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory}
 		</if>
 	</select>
 

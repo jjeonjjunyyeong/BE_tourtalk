@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
@@ -41,7 +42,7 @@ public class BoardController {
 	        request = BoardRequest.builder()
 	                .title(request.getTitle())
 	                .content(request.getContent())
-	                .categoryId(request.getCategoryId())
+	                .category(request.getCategory())
 	                .status(request.getStatus())
 	                .filePath(request.getFilePath())
 	                .writerId(principal.getMno()) 
@@ -113,7 +114,7 @@ public class BoardController {
 	@GetMapping("/search")
 	public ResponseEntity<?> searchOrList( @RequestParam(required = false) String keyword,
 	        @RequestParam(required = false) String keywordType,
-	        @RequestParam(required = false) Integer categoryId,
+	        @RequestParam(required = false) BoardCategory category,
 	        @RequestParam(required = false) Integer writerId,
 	        @RequestParam(defaultValue = "1") int page,
 	        @RequestParam(defaultValue = "10") int size,
@@ -125,8 +126,8 @@ public class BoardController {
 	                .pageSize(size)
 	                .keyword(keyword)
 	                .keywordType(keywordType)
-	                .categoryId(categoryId != null ? categoryId : 0)
-	                .writerId(writerId != null ? writerId : 0)
+	                .category(category)
+	                .writerId(writerId)
 	                .orderBy(orderBy)
 	                .orderDirection(orderDirection)
 	                .build();

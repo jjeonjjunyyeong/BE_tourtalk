@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
@@ -29,7 +30,8 @@ public interface BoardMapper {
 	BoardResponse findById(int postId);
 
 	// 게시글 삭제
-	int softDelete(BoardRequest request);
+	int softDelete(@Param("postId") int postId, @Param("status") BoardStatus deleted);
+	int softDeleteDetail(@Param("postId") int postId);
 
 	List<BoardResponse> searchWithConditions(@Param("cond") SearchConditionRequest cond, @Param("offset") int offset,
 			@Param("pageSize") int pageSize);

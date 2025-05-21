@@ -53,12 +53,10 @@ public class BoardService {
 	// 게시글 삭제
 	@Transactional
 	public boolean softDelete(int postId) {
-	    BoardRequest request = BoardRequest.builder()
-	        .postId(postId)
-	        .status(BoardStatus.DELETED)
-	        .build();
-
-	    return boardMapper.softDelete(request) > 0;
+		int boardResult = boardMapper.softDelete(postId, BoardStatus.DELETED);
+		int detailResult = boardMapper.softDeleteDetail(postId);
+		
+	    return boardResult == 1 && detailResult == 1;
 	}
 	
 	// 게시글ID 기반 찾기

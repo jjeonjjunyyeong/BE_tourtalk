@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Getter
@@ -28,7 +29,7 @@ public class BoardResponse {
 	}
 	// Board
 	private int postId;
-	private int categoryId;
+	private BoardCategory category;
 	private int writerId;
 	private String title;
 	private String content;
@@ -39,11 +40,13 @@ public class BoardResponse {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private String filePath;
+	// member
+	private String writerNickname;
 	
-	public BoardResponse(int postId, int categoryId, int writerId, String title, BoardStatus status, int viewCount,
-			int commentCount, LocalDateTime createdAt, LocalDateTime updatedAt, String filePath) {
+	public BoardResponse(int postId, BoardCategory category, int writerId, String title, BoardStatus status, int viewCount,
+			int commentCount, LocalDateTime createdAt, LocalDateTime updatedAt, String filePath, String writerNickname) {
 		this.postId = postId;
-		this.categoryId = categoryId;
+		this.category = category;
 		this.writerId = writerId;
 		this.title = title;
 		this.status = status;
@@ -52,6 +55,7 @@ public class BoardResponse {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 		this.filePath = filePath;
+		this.writerNickname = writerNickname;
 	}
 
 }
