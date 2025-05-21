@@ -292,3 +292,71 @@ CREATE TABLE `tour_booking` (
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),
   FOREIGN KEY (`product_id`) REFERENCES `tour_product` (`product_id`)
 );
+
+-- 1. 여행 경로 (사용자 생성 경로)
+CREATE TABLE `travel_routes` (
+  `route_id` INT NOT NULL AUTO_INCREMENT,
+  `mno` INT NULL,                      -- NULL 허용으로 비회원도 임시 경로 생성 가능
+  `title` VARCHAR(100) NOT NULL,
+  `description` TEXT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_public` BOOLEAN NOT NULL DEFAULT FALSE,  -- 공개 여부
+  `view_count` INT NOT NULL DEFAULT 0,
+  `like_count` INT NOT NULL DEFAULT 0,
+  `start_date` DATE NULL,
+  `end_date` DATE NULL,
+  PRIMARY KEY (`route_id`),
+  FOREIGN KEY (`mno`) REFERENCES `member` (`mno`) ON DELETE SET NULL
+);
+
+-- 2. 경로 상세 (각 경로의 방문지 정보)
+CREATE TABLE `route_places` (
+  `place_id` INT NOT NULL AUTO_INCREMENT,
+  `route_id` INT NOT NULL,
+  `attraction_no` INT NOT NULL,        -- attractions 테이블의 no
+  `visit_order` INT NOT NULL,          -- 방문 순서
+  `estimated_time` INT NULL,           -- 예상 소요 시간(분)
+  `visit_date` DATE NULL,              -- 방문 예정일
+  `memo` VARCHAR(255) NULL,            -- 메모
+  PRIMARY KEY (`place_id`),
+  FOREIGN KEY (`route_id`) REFERENCES `travel_routes` (`route_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`attraction_no`) REFERENCES `attractions` (`no`) ON DELETE CASCADE
+);
+
+-- 3. 이동 정보 (경로 내 장소 간 이동 정보)
+CREATE TABLE `route_transports` (
+  `transport_id` INT NOT NULL AUTO_INCREMENT,
+  `route_id` INT NOT NULL,
+  `from_place_id` INT NOT NULL,
+  `to_place_id` INT NOT NULL,
+  `transport_type` ENUM('WALK', 'CAR', 'BUS', 'SUBWAY', 'TRAIN', 'BICYCLE', 'TAXI') NOT NULL,
+  `distance` INT NULL,                 -- 거리(미터)
+  `estimated_time` INT NULL,           -- 예상 소요 시간(분)
+  `description` VARCHAR(255) NULL,     -- 이동 관련 설명
+  PRIMARY KEY (`transport_id`),
+  FOREIGN KEY (`route_id`) REFERENCES `travel_routes` (`route_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`from_place_id`) REFERENCES `route_places` (`place_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`to_place_id`) REFERENCES `route_places` (`place_id`) ON DELETE CASCADE
+);
+
+-- 4. 경로 일자 (일자별 그룹핑)
+CREATE TABLE `route_days` (
+  `day_id` INT NOT NULL AUTO_INCREMENT,
+  `route_id` INT NOT NULL,
+  `day_number` INT NOT NULL,           -- 몇 번째 일자인지
+  `date` DATE NULL,                    -- 실제 날짜
+  `day_total_time` INT NULL,           -- 해당 일자 총 소요 시간(분)
+  PRIMARY KEY (`day_id`),
+  FOREIGN KEY (`route_id`) REFERENCES `travel_routes` (`route_id`) ON DELETE CASCADE
+);
+
+-- 5. 경로-일자-장소 매핑 (일자별 방문지 매핑)
+CREATE TABLE `route_day_places` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `day_id` INT NOT NULL,
+  `place_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`day_id`) REFERENCES `route_days` (`day_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`place_id`) REFERENCES `route_places` (`place_id`) ON DELETE CASCADE
+);

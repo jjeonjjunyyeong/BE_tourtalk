@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="world.ssafy.tourtalk.model.mapper.RouteMapper">
+
+    <!-- 경로 관련 쿼리 -->
+    <insert id="insertRoute" parameterType="TravelRoute" useGeneratedKeys="true" keyProperty="routeId">
+        INSERT INTO travel_routes (
+            mno, title, description, is_public, start_date, end_date
+        ) VALUES (
+            #{mno}, #{title}, #{description}, #{isPublic}, #{startDate}, #{endDate}
+        )
+    </insert>
+    
+    <select id="getRouteById" resultType="TravelRoute">
+        SELECT 
+            route_id as routeId,
+            mno,
+            title,
+            description,
+            is_public as isPublic,
+            view_count as viewCount,
+            like_count as likeCount,
+            start_date as startDate,
+            end_date as endDate,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM travel_routes
+        WHERE route_id = #{routeId}
+    </select>
+    
+    <select id="getRoutesByMno" resultType="TravelRoute">
+        SELECT 
+            route_id as routeId,
+            mno,
+            title,
+            description,
+            is_public as isPublic,
+            view_count as viewCount,
+            like_count as likeCount,
+            start_date as startDate,
+            end_date as endDate,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM travel_routes
+        WHERE mno = #{mno}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="getPublicRoutes" resultType="TravelRoute">
+        SELECT 
+            route_id as routeId,
+            mno,
+            title,
+            description,
+            is_public as isPublic,
+            view_count as viewCount,
+            like_count as likeCount,
+            start_date as startDate,
+            end_date as endDate,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM travel_routes
+        WHERE is_public = TRUE OR mno = #{mno}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="countRoutesByMno" resultType="long">
+        SELECT COUNT(*) FROM travel_routes WHERE mno = #{mno}
+    </select>
+    
+    <select id="countPublicRoutes" resultType="long">
+        SELECT COUNT(*) FROM travel_routes WHERE is_public = TRUE OR mno = #{mno}
+    </select>
+    
+    <update id="updateRoute" parameterType="TravelRoute">
+        UPDATE travel_routes 
+        SET 
+            title = #{title},
+            description = #{description},
+            is_public = #{isPublic},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE route_id = #{routeId}
+    </update>
+    
+    <delete id="deleteRoute">
+        DELETE FROM travel_routes WHERE route_id = #{routeId}
+    </delete>
+    
+    <update id="incrementViewCount">
+        UPDATE travel_routes 
+        SET view_count = view_count + 1 
+        WHERE route_id = #{routeId}
+    </update>
+    
+    <select id="countAttractionsByRouteId" resultType="int">
+        SELECT COUNT(*) FROM route_places WHERE route_id = #{routeId}
+    </select>
+    
+    <!-- 일자 관련 쿼리 -->
+    <insert id="insertRouteDay" parameterType="RouteDay" useGeneratedKeys="true" keyProperty="dayId">
+        INSERT INTO route_days (
+            route_id, day_number, date, day_total_time
+        ) VALUES (
+            #{routeId}, #{dayNumber}, #{date}, #{dayTotalTime}
+        )
+    </insert>
+    
+    <select id="getRouteDaysByRouteId" resultType="RouteDay">
+        SELECT 
+            day_id as dayId,
+            route_id as routeId,
+            day_number as dayNumber,
+            date,
+            day_total_time as dayTotalTime
+        FROM route_days
+        WHERE route_id = #{routeId}
+        ORDER BY day_number
+    </select>
+    
+    <delete id="deleteRouteDaysByRouteId">
+        DELETE FROM route_days WHERE route_id = #{routeId}
+    </delete>
+    
+    <!-- 장소 관련 쿼리 -->
+    <insert id="insertRoutePlace" parameterType="RoutePlace" useGeneratedKeys="true" keyProperty="placeId">
+        INSERT INTO route_places (
+            route_id, attraction_no, visit_order, estimated_time, visit_date, memo
+        ) VALUES (
+            #{routeId}, #{attractionNo}, #{visitOrder}, #{estimatedTime}, #{visitDate}, #{memo}
+        )
+    </insert>
+    
+    <select id="getRoutePlaceById" resultType="RoutePlace">
+        SELECT 
+            place_id as placeId,
+            route_id as routeId,
+            attraction_no as attractionNo,
+            visit_order as visitOrder,
+            estimated_time as estimatedTime,
+            visit_date as visitDate,
+            memo
+        FROM route_places
+        WHERE place_id = #{placeId}
+    </select>
+    
+    <select id="getRoutePlacesByRouteId" resultType="RoutePlace">
+        SELECT 
+            place_id as placeId,
+            route_id as routeId,
+            attraction_no as attractionNo,
+            visit_order as visitOrder,
+            estimated_time as estimatedTime,
+            visit_date as visitDate,
+            memo
+        FROM route_places
+        WHERE route_id = #{routeId}
+        ORDER BY visit_order
+    </select>
+    
+    <select id="getRoutePlacesByDayId" resultType="RoutePlace">
+        SELECT 
+            rp.place_id as placeId,
+            rp.route_id as routeId,
+            rp.attraction_no as attractionNo,
+            rp.visit_order as visitOrder,
+            rp.estimated_time as estimatedTime,
+            rp.visit_date as visitDate,
+            rp.memo
+        FROM route_places rp
+        JOIN route_day_places rdp ON rp.place_id = rdp.place_id
+        WHERE rdp.day_id = #{dayId}
+        ORDER BY rp.visit_order
+    </select>
+    
+    <delete id="deleteRoutePlacesByRouteId">
+        DELETE FROM route_places WHERE route_id = #{routeId}
+    </delete>
+    
+    <!-- 일자-장소 매핑 관련 쿼리 -->
+    <insert id="insertRouteDayPlace">
+        INSERT INTO route_day_places (
+            day_id, place_id
+        ) VALUES (
+            #{dayId}, #{placeId}
+        )
+    </insert>
+    
+    <delete id="deleteRouteDayPlacesByDayId">
+        DELETE FROM route_day_places WHERE day_id = #{dayId}
+    </delete>
+    
+    <!-- 이동 관련 쿼리 -->
+    <insert id="insertRouteTransport" parameterType="RouteTransport" useGeneratedKeys="true" keyProperty="transportId">
+        INSERT INTO route_transports (
+            route_id, from_place_id, to_place_id, transport_type, distance, estimated_time, description
+        ) VALUES (
+            #{routeId}, #{fromPlaceId}, #{toPlaceId}, #{transportType}, #{distance}, #{estimatedTime}, #{description}
+        )
+    </insert>
+    
+    <select id="getRouteTransportByToPlaceId" resultType="RouteTransport">
+        SELECT 
+            transport_id as transportId,
+            route_id as routeId,
+            from_place_id as fromPlaceId,
+            to_place_id as toPlaceId,
+            transport_type as transportType,
+            distance,
+            estimated_time as estimatedTime,
+            description
+        FROM route_transports
+        WHERE to_place_id = #{toPlaceId}
+    </select>
+    
+    <delete id="deleteRouteTransportsByRouteId">
+        DELETE FROM route_transports WHERE route_id = #{routeId}
+    </delete>
+
+</mapper>
