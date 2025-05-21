@@ -15,14 +15,17 @@ public interface BoardMapper {
 
 	// 게시글 작성
 	int writeBoard(BoardRequest board);
+
 	int writeBoardDetails(BoardRequest details);
 
 	// 게시글 수정
 	int updateBoard(BoardRequest board);
+
 	int updateBoardDetails(BoardRequest details);
 
 	// 게시글 조회
 	BoardResponse selectById(int postId);
+
 	// 조회수 증가
 	void updateViewCount(int postId);
 
@@ -31,13 +34,18 @@ public interface BoardMapper {
 
 	// 게시글 삭제
 	int softDelete(@Param("postId") int postId, @Param("status") BoardStatus deleted);
+
 	int softDeleteDetail(@Param("postId") int postId);
 
+	// 게시글 전체 조회
+	List<BoardResponse> selectAll(@Param("cond") SearchConditionRequest cond, @Param("offset") int offset,
+			@Param("limit") int limit);
+
+	long countAll(@Param("cond") SearchConditionRequest cond);
+
+	// 게시글 검색
 	List<BoardResponse> searchWithConditions(@Param("cond") SearchConditionRequest cond, @Param("offset") int offset,
 			@Param("pageSize") int pageSize);
 
 	long countWithConditions(@Param("cond") SearchConditionRequest cond);
-
-
-
 }

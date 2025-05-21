@@ -147,16 +147,18 @@ public class BoardController {
 	
 	// 게시글 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> selectAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<?> selectAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) BoardStatus status) {
 		try {
 			SearchConditionRequest condition = SearchConditionRequest.builder()
 					.pageNumber(page)
 					.pageSize(size)
+					.status(status)
 					.build();
 			
 			condition.setDefaults();
 			
-			PageResponse<BoardResponse> result = bService.searchWithConditions(condition);
+			PageResponse<BoardResponse> result = bService.selectAll(condition);
 			
 			return result.getContent().isEmpty() 
 					? ResponseEntity.ok(result)

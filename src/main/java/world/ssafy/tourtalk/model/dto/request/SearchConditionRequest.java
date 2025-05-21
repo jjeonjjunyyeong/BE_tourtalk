@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
+import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Data
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class SearchConditionRequest {
     // 게시글
     private BoardCategory category;
     private Integer writerId;
-    
+    private BoardStatus status;
     
     // 추가 필터링
     private Integer minViewCount;
@@ -57,6 +58,10 @@ public class SearchConditionRequest {
         if (onlyWithImage == null) {
             onlyWithImage = false;
         }
+        
+        if (status == null || "".equals(String.valueOf(status).trim())) {
+            status = BoardStatus.ACTIVE;
+        }
     }
     
     // offset 계산 메서드
@@ -77,6 +82,7 @@ public class SearchConditionRequest {
         condition.setKeyword(this.keyword);
         condition.setMinViewCount(this.minViewCount);
         condition.setOnlyWithImage(this.onlyWithImage);
+        condition.setStatus(this.status);
         return condition;
     }
     
@@ -93,9 +99,17 @@ public class SearchConditionRequest {
                 .keyword(condition.getKeyword())
                 .minViewCount(condition.getMinViewCount())
                 .onlyWithImage(condition.getOnlyWithImage())
+                .status(condition.getStatus())
                 .build();
     }
 
+    // 게시글 전체 조회
+    public SearchConditionRequest(Integer pageNumber, Integer pageSize, BoardStatus status) {
+    	this.pageNumber = pageNumber;
+    	this.pageSize = pageSize;
+    	this.status = status;
+    }
+    
     // 게시글 검색
 	public SearchConditionRequest(Integer pageNumber, Integer pageSize, String orderBy, String orderDirection,
 			String keyword, String keywordType, BoardCategory category, Integer writerId, Integer minViewCount, Boolean onlyWithImage) {

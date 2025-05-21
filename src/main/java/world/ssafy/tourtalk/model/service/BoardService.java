@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import world.ssafy.tourtalk.controller.BoardController;
 import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
@@ -19,7 +19,7 @@ import world.ssafy.tourtalk.model.mapper.BoardMapper;
 public class BoardService {
 
 	private final BoardMapper boardMapper;
-	
+
 	// 게시글 작성
 	@Transactional
 	public boolean write(BoardRequest request) {
@@ -64,6 +64,47 @@ public class BoardService {
 		return boardMapper.findById(postId);
 	}
 
+	// 게시글 전체 조회
+	public PageResponse<BoardResponse> selectAll(SearchConditionRequest cond) {
+	    // 기본값 설정
+	    cond.setDefaults();
+	    System.out.println(cond.getStatus());
+	    // 페이징 계산
+	    int offset = cond.getOffset();
+
+	    // 게시글 목록 조회
+	    List<BoardResponse> list = boardMapper.selectAll(cond, offset, cond.getPageSize());
+
+	    // 전체 개수 조회
+	    long total = boardMapper.countAll(cond);
+
+	    // 페이징 정보 계산
+	    int totalPages = (int) Math.ceil((double) total / cond.getPageSize());
+	    boolean first = cond.getPageNumber() == 1;
+	    boolean last = cond.getPageNumber() >= totalPages;
+
+	    // Page 객체 생성
+	    Page<BoardResponse> page = new Page<>(
+	        list,
+	        cond.getPageNumber(),
+	        cond.getPageSize(),
+	        total,
+	        totalPages,
+	        first,
+	        last
+	    );
+
+	    // 내비게이션 정보 계산
+	    page.calculatePageInfo(5); // navSize = 5
+	    System.out.println("⛳ BoardResponse selectAll 개수 = " + list.size());
+	    for (BoardResponse b : list) {
+	        System.out.println("✅ 게시글 = " + b);
+	    }
+	    // PageResponse 생성 후 반환
+	    return PageResponse.from(page);
+	}
+
+	
 	// 게시글 검색
 	public PageResponse<BoardResponse> searchWithConditions(SearchConditionRequest cond) {
 		cond.setDefaults();
@@ -78,11 +119,9 @@ public class BoardService {
 
 		Page<BoardResponse> page = new Page<>(list, cond.getPageNumber(), cond.getPageSize(), total, totalPages, first, last);
 		page.calculatePageInfo(5); 
-
+		System.out.println("📦 BoardResponse 리스트 검색 조회= " + list);
 		return PageResponse.from(page);
 	}
-
-
 
 
 }

@@ -67,7 +67,7 @@
 		b.comment_count,
 		b.category,
 		b.writer_id,
-		m.nickname AS writerNickname
+		m.nickname AS writerNickname,
 		b.status,
 		d.created_at,
 		d.updated_at,
@@ -89,6 +89,68 @@
 		post_id = #{postId}
 	</update>
 
+
+<resultMap id="BoardResultMap" type="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+  <result property="postId" column="post_id"/>
+  <result property="category" column="category"
+          javaType="world.ssafy.tourtalk.model.dto.enums.BoardCategory"
+          typeHandler="world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler"/>
+  <result property="writerId" column="writer_id"/>
+  <result property="title" column="title"/>
+  <result property="content" column="content"/>
+  <result property="status" column="status"
+          javaType="world.ssafy.tourtalk.model.dto.enums.BoardStatus"
+          typeHandler="world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler"/>
+  <result property="viewCount" column="view_count"/>
+  <result property="commentCount" column="comment_count"/>
+  <result property="createdAt" column="created_at"/>
+  <result property="updatedAt" column="updated_at"/>
+  <result property="deletedAt" column="deleted_at"/>
+  <result property="filePath" column="file_path"/>
+  <result property="writerNickname" column="writerNickname"/>
+</resultMap>
+
+	<!-- 게시글 전체 목록 조회 -->
+	<select id="selectAll" resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+  SELECT
+    b.post_id,
+    b.category,
+    b.writer_id,
+    b.title,
+    b.content,
+    b.status,
+    b.view_count,
+    b.comment_count,
+    d.created_at,
+    d.updated_at,
+    d.deleted_at,
+    d.file_path,
+    m.nickname AS writerNickname
+  FROM board b
+  JOIN board_details d ON b.post_id = d.post_id
+  JOIN member m ON b.writer_id = m.mno
+  WHERE 1 = 1
+  <if test="cond.status != null">
+    AND b.status = #{cond.status,
+      typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+      javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+  </if>
+  ORDER BY d.created_at DESC
+  LIMIT #{limit} OFFSET #{offset}
+</select>
+
+
+
+	<!-- 전체 게시글 수 조회 -->
+	<select id="countAll" resultType="long">
+		SELECT COUNT(*)
+		FROM board b
+		WHERE 1 = 1
+		<if test="cond.status != null">
+			AND b.status = #{cond.status}
+		</if>
+	</select>
+
 	<!-- 게시글ID 기반 찾기 -->
 	<select id="findById"
 		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
@@ -100,7 +162,7 @@
 		b.comment_count,
 		b.category,
 		b.writer_id,
-		m.nickname AS writerNickname
+		m.nickname AS writerNickname,
 		b.status,
 		d.created_at,
 		d.updated_at,
@@ -149,9 +211,11 @@
 		d.deleted_at,
 		d.file_path
 		FROM board b
-		JOIN board_details d ON b.post_id = d.post_id
+		JOIN board_details d
+		ON b.post_id = d.post_id
 		JOIN member m ON b.writer_id = m.id
-		WHERE b.status = 'ACTIVE'
+		WHERE
+		b.status = 'ACTIVE'
 
 		<if test="cond.keyword != null and cond.keyword != ''">
 			<choose>
