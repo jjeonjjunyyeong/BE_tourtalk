@@ -139,3 +139,4 @@ build/
 HELP.md
 .DS_Store
 .env
+application.properties
