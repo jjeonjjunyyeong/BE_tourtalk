@@ -147,8 +147,8 @@ public class BoardController {
 	
 	// 게시글 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> selectAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
-			@RequestParam(required = false) BoardStatus status) {
+	public ResponseEntity<?> selectAll(@RequestParam(name = "pageNumber", defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "ACTIVE") BoardStatus status) {
 		try {
 			SearchConditionRequest condition = SearchConditionRequest.builder()
 					.pageNumber(page)
@@ -161,6 +161,27 @@ public class BoardController {
 			PageResponse<BoardResponse> result = bService.selectAll(condition);
 			
 			return result.getContent().isEmpty() 
+					? ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.")
+					: ResponseEntity.ok(result);
+		} catch(DataAccessException e) {
+			log.error("게시글 목록 조회 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
+		}
+	}
+	
+	// 마이페이지 : 작성자 게시글 전체 조회
+	@GetMapping("/myPosts")
+	public ResponseEntity<?> getMyPosts(@RequestParam int writerId, @RequestParam(name = "pageNumber", defaultValue = "1") int page, 
+			@RequestParam(defaultValue = "10") int size) {
+		try {
+			SearchConditionRequest condition = SearchConditionRequest.builder()
+					.pageNumber(page)
+					.pageSize(size)
+					.writerId(writerId)
+					.build();
+		
+			PageResponse<BoardResponse> result = bService.getMyPosts(condition);
+			return result != null
 					? ResponseEntity.ok(result)
 					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.");
 		} catch(DataAccessException e) {

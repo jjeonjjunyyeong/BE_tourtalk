@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="world.ssafy.tourtalk.model.mapper.CommentMapper">
+
+	<!-- 댓글 작성 -->
+	<insert id="insert" parameterType="commentRequest">
+		INSERT INTO comments (post_id,
+		writer_id, content, created_at, status)
+		VALUES (#{postId}, #{writerId},
+		#{content}, NOW(), #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.CommentStatus})
+	</insert>
+
+	<!-- 댓글 수정 -->
+	<update id="update" parameterType="commentRequest">
+		UPDATE comments
+		SET content =
+		#{content}, updated_at = NOW(),
+		status = #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.CommentStatus}
+		WHERE
+		comment_id = #{commentId} AND writer_id = #{writerId}
+	</update>
+
+	<!-- 댓글 삭제 -->
+	<update id="softDelete">
+		UPDATE comments
+		SET status = 'DELETED', updated_at =
+		NOW()
+		WHERE comment_id = #{commentId}
+	</update>
+
+	<!-- 댓글 작성자 mno 조회 -->
+	<select id="selectByWriterId" resultType="int">
+		SELECT writer_id
+		FROM
+		comments
+		WHERE comment_id = #{commentId}
+	</select>
+
+	<!-- 게시글에 작성된 댓글 전체 조회 -->
+	<select id="selectAllByPostId"
+		resultType="world.ssafy.tourtalk.model.dto.response.CommentResponse">
+		SELECT
+		c.comment_id AS commentId,
+		c.post_id AS postId,
+		c.writer_id AS writerId,
+		c.content,
+		c.created_at AS createdAt,
+		c.updated_at AS updatedAt,
+		c.status,
+		m.nickname AS writerNickname
+		FROM
+		comments c
+		JOIN member m ON c.writer_id = m.mno
+		WHERE c.post_id =
+		#{postId}
+		ORDER BY c.created_at ASC
+	</select>
+
+	<select id="selectByCommentId"
+		resultType="world.ssafy.tourtalk.model.dto.response.CommentResponse">
+		SELECT
+		c.comment_id AS commentId,
+		c.post_id AS postId,
+		c.writer_id AS writerId,
+		c.content,
+		c.created_at AS createdAt,
+		c.updated_at AS updatedAt,
+		c.status,
+		m.nickname AS writerNickname
+		FROM comments c
+		JOIN member m ON c.writer_id = m.mno
+		WHERE c.comment_id = #{commentId}
+	</select>
+</mapper>

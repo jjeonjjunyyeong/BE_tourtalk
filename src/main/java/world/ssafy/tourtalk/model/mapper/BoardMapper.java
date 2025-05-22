@@ -48,4 +48,13 @@ public interface BoardMapper {
 			@Param("pageSize") int pageSize);
 
 	long countWithConditions(@Param("cond") SearchConditionRequest cond);
+
+	// 게시글에 댓글 생성
+	boolean updateCommentCount(@Param("postId") int postId);
+
+	// 마이페이지 : 내가 작성한 게시글 조회
+	List<BoardResponse> selectMyPosts(@Param("cond") SearchConditionRequest cond,
+            @Param("offset") int offset,
+            @Param("size") int size);
+	int countMyPosts(@Param("cond") SearchConditionRequest cond);
 }

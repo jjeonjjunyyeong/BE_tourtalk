@@ -13,6 +13,7 @@ import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @ToString
 public class BoardResponse {
@@ -65,10 +66,4 @@ public class BoardResponse {
 		this.filePath = filePath;
 		this.writerNickname = writerNickname;
 	}
-
-	public BoardResponse() {
-	    System.out.println("✅ BoardResponse 생성됨");
-	}
-
-	
 }

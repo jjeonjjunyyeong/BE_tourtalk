@@ -103,6 +103,13 @@ public class SearchConditionRequest {
                 .build();
     }
 
+    // 마이페이지 : 게시글 조회
+    public SearchConditionRequest(Integer writerId, Integer pageNumber, Integer pageSize) {
+    	this.writerId = writerId;
+    	this.pageNumber = pageNumber;
+    	this.pageSize = pageSize;
+    }
+    
     // 게시글 전체 조회
     public SearchConditionRequest(Integer pageNumber, Integer pageSize, BoardStatus status) {
     	this.pageNumber = pageNumber;

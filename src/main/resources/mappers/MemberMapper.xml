@@ -77,8 +77,10 @@
 	<!-- 상세 정보 조회 -->
 	<select id="getDetailsByMno"
 		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse">
-		SELECT mno, email, phone, gender, address, postal_code AS postalCode,
-		birth_date AS birthDate, profile_img_path AS profileImgPath,
+		SELECT mno, email, phone, gender, address, postal_code AS
+		postalCode,
+		birth_date AS birthDate, profile_img_path AS
+		profileImgPath,
 		created_at, updated_at, last_login
 		FROM member_details
 		WHERE mno = #{mno}
@@ -87,7 +89,8 @@
 	<!-- 큐레이터 정보 조회 -->
 	<select id="getCuratorByMno"
 		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse">
-		SELECT mno, curator_no AS curatorNo, curator_img AS curatorImg,
+		SELECT mno, curator_no AS curatorNo, curator_img AS
+		curatorImg,
 		ad_grade, approved_at
 		FROM curator
 		WHERE mno = #{mno}
@@ -98,7 +101,8 @@
 		parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
 		UPDATE member
 		SET password = #{password},
-		nickname = #{nickname}
+		nickname =
+		#{nickname}
 		WHERE mno = #{mno}
 	</update>
 
@@ -118,16 +122,18 @@
 		birth_date = #{birthDate},
 		profile_img_path = #{profileImgPath},
 		updated_at = NOW()
-		WHERE mno = #{mno}
+		WHERE mno =
+		#{mno}
 	</update>
 
-    <!-- 큐레이터 정보 수정 -->
-    <update id="updateCurator" parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
-        UPDATE curator
-        SET curator_no = #{curatorNo},
-            curator_img = #{curatorImg}
-        WHERE mno = #{mno}
-    </update>
+	<!-- 큐레이터 정보 수정 -->
+	<update id="updateCurator"
+		parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
+		UPDATE curator
+		SET curator_no = #{curatorNo},
+		curator_img = #{curatorImg}
+		WHERE mno = #{mno}
+	</update>
 
 	<!-- 회원 탈퇴 처리 (is_deleted = true) -->
 	<update id="softDelete">
@@ -136,19 +142,26 @@
 		#{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.MemberStatus}
-		WHERE mno = #{mno}
+		WHERE mno =
+		#{mno}
 	</update>
 
 	<!-- ID 중복체크 -->
 	<select id="existsById" resultType="boolean">
-	  SELECT COUNT(*) > 0 FROM member WHERE id = #{id}
+		SELECT COUNT(*) > 0 FROM member WHERE id = #{id}
 	</select>
 
 	<!-- 프로필 이미지 업로드 -->
 	<update id="updateProfileImgPath">
-	  UPDATE member_details
-	  SET profile_img_path = #{profileImgPath}
-	  WHERE mno = #{mno}
+		UPDATE member_details
+		SET profile_img_path = #{profileImgPath}
+		WHERE mno = #{mno}
 	</update>
-	
+
+	<!-- mno로 회원 조회 -->
+	<select id="selectMemberByMno"
+		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse">
+		SELECT * FROM member WHERE mno = #{mno}
+	</select>
+
 </mapper>
