@@ -292,3 +292,42 @@ CREATE TABLE `tour_booking` (
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),
   FOREIGN KEY (`product_id`) REFERENCES `tour_product` (`product_id`)
 );
+
+-- 여행 계획 테이블
+CREATE TABLE `trip_plans` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `mno` INT NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `description` TEXT NULL,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NOT NULL,
+  `total_distance` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `total_duration` INT NOT NULL DEFAULT 0,
+  `status` ENUM('DRAFT', 'COMPLETED', 'DELETED') NOT NULL DEFAULT 'DRAFT',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`mno`) REFERENCES `member` (`mno`) ON DELETE CASCADE,
+  INDEX `idx_mno_status` (`mno`, `status`),
+  INDEX `idx_created_at` (`created_at`)
+);
+
+-- 여행 계획-관광지 연결 테이블
+CREATE TABLE `trip_plan_attractions` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `trip_plan_id` BIGINT NOT NULL,
+  `attraction_no` INT NOT NULL,
+  `visit_order` INT NOT NULL,
+  `attraction_title` VARCHAR(500) NULL,
+  `latitude` DECIMAL(20,17) NULL,
+  `longitude` DECIMAL(20,17) NULL,
+  `sido` VARCHAR(50) NULL,
+  `gugun` VARCHAR(50) NULL,
+  `addr` VARCHAR(200) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`trip_plan_id`) REFERENCES `trip_plans` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`attraction_no`) REFERENCES `attractions` (`no`) ON DELETE CASCADE,
+  UNIQUE KEY `uk_trip_plan_attraction` (`trip_plan_id`, `attraction_no`),
+  INDEX `idx_trip_plan_order` (`trip_plan_id`, `visit_order`)
+);
