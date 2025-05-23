@@ -334,7 +334,7 @@ CREATE TABLE `trip_plan_attractions` (
 -- 22. 사용자 등록 hotplace 테이블
 CREATE TABLE `hotplaces` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `user_id` VARCHAR(50) NOT NULL,
+  `mno` INT NOT NULL,  
   `title` VARCHAR(200) NOT NULL,
   `latitude` DECIMAL(20,17) NOT NULL,
   `longitude` DECIMAL(20,17) NOT NULL,
@@ -348,7 +348,8 @@ CREATE TABLE `hotplaces` (
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
-  INDEX `idx_user_id` (`user_id`),
+  FOREIGN KEY (`mno`) REFERENCES `member` (`mno`), 
+  INDEX `idx_mno` (`mno`),  
   INDEX `idx_created_at` (`created_at`),
   INDEX `idx_rating` (`rating`)
 );
