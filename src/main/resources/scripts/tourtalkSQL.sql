@@ -331,3 +331,36 @@ CREATE TABLE `trip_plan_attractions` (
   UNIQUE KEY `uk_trip_plan_attraction` (`trip_plan_id`, `attraction_no`),
   INDEX `idx_trip_plan_order` (`trip_plan_id`, `visit_order`)
 );
+-- 22. 사용자 등록 hotplace 테이블
+CREATE TABLE `hotplaces` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(200) NOT NULL,
+  `latitude` DECIMAL(20,17) NOT NULL,
+  `longitude` DECIMAL(20,17) NOT NULL,
+  `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  `content_type_id` INT NOT NULL,
+  `description` TEXT NULL,
+  `review` TEXT NULL,
+  `recommendation_reason` TEXT NULL,
+  `view_count` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
+  INDEX `idx_user_id` (`user_id`),
+  INDEX `idx_created_at` (`created_at`),
+  INDEX `idx_rating` (`rating`)
+);
+
+-- 23. hotplace 이미지 테이블
+CREATE TABLE `hotplace_images` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `hotplace_id` BIGINT NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `image_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`hotplace_id`) REFERENCES `hotplaces` (`id`) ON DELETE CASCADE,
+  INDEX `idx_hotplace_id` (`hotplace_id`)
+);
