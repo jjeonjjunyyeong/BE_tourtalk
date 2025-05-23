@@ -1,3 +1,4 @@
+<!-- hotplace.xml 파일의 주요 변경 사항 -->
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -7,7 +8,7 @@
 	<!-- Hotplace ResultMap -->
 	<resultMap id="HotplaceMap" type="Hotplace">
 		<id property="id" column="id"/>
-		<result property="userId" column="user_id"/>
+		<result property="mno" column="mno"/>
 		<result property="title" column="title"/>
 		<result property="latitude" column="latitude"/>
 		<result property="longitude" column="longitude"/>
@@ -24,7 +25,7 @@
 	
 	<!-- 공통 조회용 SQL -->
 	<sql id="hotplaceColumns">
-		h.id, h.user_id, h.title, h.latitude, h.longitude, h.rating,
+		h.id, h.mno, h.title, h.latitude, h.longitude, h.rating,
 		h.content_type_id, ct.content_type_name, h.description, h.review,
 		h.recommendation_reason, h.view_count, h.created_at, h.updated_at
 	</sql>
@@ -37,10 +38,10 @@
 	<!-- Hotplace 생성 -->
 	<insert id="insertHotplace" parameterType="Hotplace" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO hotplaces (
-			user_id, title, latitude, longitude, rating, content_type_id,
+			mno, title, latitude, longitude, rating, content_type_id,
 			description, review, recommendation_reason
 		) VALUES (
-			#{userId}, #{title}, #{latitude}, #{longitude}, #{rating}, #{contentTypeId},
+			#{mno}, #{title}, #{latitude}, #{longitude}, #{rating}, #{contentTypeId},
 			#{description}, #{review}, #{recommendationReason}
 		)
 	</insert>
@@ -61,10 +62,10 @@
 	</select>
 	
 	<!-- 사용자별 Hotplace 조회 (페이징) -->
-	<select id="getHotplacesByUserId" resultMap="HotplaceMap">
+	<select id="getHotplacesByMno" resultMap="HotplaceMap">
 		SELECT <include refid="hotplaceColumns"/>
 		<include refid="hotplaceJoin"/>
-		WHERE h.user_id = #{userId}
+		WHERE h.mno = #{mno}
 		ORDER BY h.created_at DESC
 		LIMIT #{offset}, #{limit}
 	</select>
@@ -100,8 +101,8 @@
 	</select>
 	
 	<!-- 사용자별 Hotplace 수 -->
-	<select id="getHotplacesByUserIdCount" resultType="int">
-		SELECT COUNT(*) FROM hotplaces WHERE user_id = #{userId}
+	<select id="getHotplacesByMnoCount" resultType="int">
+		SELECT COUNT(*) FROM hotplaces WHERE mno = #{mno}
 	</select>
 	
 	<!-- Hotplace 검색 -->

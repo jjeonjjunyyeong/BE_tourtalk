@@ -23,7 +23,7 @@ public class BasicHotplaceService implements HotplaceService {
     
     @Override
     @Transactional
-    public Hotplace createHotplace(String userId, HotplaceCreateRequestDto requestDto) {
+    public Hotplace createHotplace(Integer mno, HotplaceCreateRequestDto requestDto) {
         try {
             if (!isValidContentType(requestDto.getContentTypeId())) {
                 throw new IllegalArgumentException("존재하지 않는 컨텐츠 타입입니다: " + requestDto.getContentTypeId());
@@ -32,7 +32,7 @@ public class BasicHotplaceService implements HotplaceService {
             List<String> imageUrls = fileUploadService.uploadImages(requestDto.getImages());
             
             Hotplace hotplace = Hotplace.builder()
-                    .userId(userId)
+                    .mno(mno)  // userId에서 mno로 변경
                     .title(requestDto.getTitle())
                     .latitude(requestDto.getLatitude())
                     .longitude(requestDto.getLongitude())
@@ -52,7 +52,7 @@ public class BasicHotplaceService implements HotplaceService {
                 hotplaceMapper.insertHotplaceImage(hotplace.getId(), imageUrls.get(i), i);
             }
             
-            return getHotplaceById(hotplace.getId(), userId);
+            return getHotplaceById(hotplace.getId(), mno);
             
         } catch (IOException e) {
             log.error("이미지 업로드 중 오류 발생", e);
@@ -61,7 +61,7 @@ public class BasicHotplaceService implements HotplaceService {
     }
     
     @Override
-    public Hotplace getHotplaceById(Long id, String currentUserId) {
+    public Hotplace getHotplaceById(Long id, Integer currentMno) {
         Hotplace hotplace = hotplaceMapper.getHotplaceById(id);
         if (hotplace == null) {
             throw new IllegalArgumentException("존재하지 않는 Hotplace입니다: " + id);
@@ -72,19 +72,19 @@ public class BasicHotplaceService implements HotplaceService {
         List<String> imageUrls = hotplaceMapper.getHotplaceImages(id);
         hotplace.setImageUrls(imageUrls);
         
-        hotplace.setOwner(hotplace.getUserId().equals(currentUserId));
+        hotplace.setOwner(hotplace.getMno().equals(currentMno));
         
         return hotplace;
     }
     
     @Override
-    public Page<Hotplace> getAllHotplaces(int pageNumber, int pageSize, String currentUserId) {
+    public Page<Hotplace> getAllHotplaces(int pageNumber, int pageSize, Integer currentMno) {
         int offset = (pageNumber - 1) * pageSize;
         
         List<Hotplace> hotplaces = hotplaceMapper.getAllHotplaces(offset, pageSize);
         
         for (Hotplace hotplace : hotplaces) {
-            setAdditionalInfo(hotplace, currentUserId);
+            setAdditionalInfo(hotplace, currentMno);
         }
         
         int totalCount = hotplaceMapper.getTotalHotplacesCount();
@@ -93,10 +93,10 @@ public class BasicHotplaceService implements HotplaceService {
     }
     
     @Override
-    public Page<Hotplace> getMyHotplaces(String userId, int pageNumber, int pageSize) {
+    public Page<Hotplace> getMyHotplaces(Integer mno, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         
-        List<Hotplace> hotplaces = hotplaceMapper.getHotplacesByUserId(userId, offset, pageSize);
+        List<Hotplace> hotplaces = hotplaceMapper.getHotplacesByMno(mno, offset, pageSize);
         
         for (Hotplace hotplace : hotplaces) {
             List<String> imageUrls = hotplaceMapper.getHotplaceImages(hotplace.getId());
@@ -104,21 +104,21 @@ public class BasicHotplaceService implements HotplaceService {
             hotplace.setOwner(true);
         }
         
-        int totalCount = hotplaceMapper.getHotplacesByUserIdCount(userId);
+        int totalCount = hotplaceMapper.getHotplacesByMnoCount(mno);
         
         return createPage(hotplaces, pageNumber, pageSize, totalCount);
     }
     
     @Override
     @Transactional
-    public Hotplace updateHotplace(Long id, String userId, HotplaceCreateRequestDto requestDto) {
+    public Hotplace updateHotplace(Long id, Integer mno, HotplaceCreateRequestDto requestDto) {
         try {
             Hotplace existingHotplace = hotplaceMapper.getHotplaceById(id);
             if (existingHotplace == null) {
                 throw new IllegalArgumentException("존재하지 않는 Hotplace입니다: " + id);
             }
             
-            if (!existingHotplace.getUserId().equals(userId)) {
+            if (!existingHotplace.getMno().equals(mno)) {
                 throw new IllegalArgumentException("수정 권한이 없습니다.");
             }
             
@@ -160,7 +160,7 @@ public class BasicHotplaceService implements HotplaceService {
                 }
             }
             
-            return getHotplaceById(id, userId);
+            return getHotplaceById(id, mno);
             
         } catch (IOException e) {
             log.error("이미지 업로드 중 오류 발생", e);
@@ -170,13 +170,13 @@ public class BasicHotplaceService implements HotplaceService {
     
     @Override
     @Transactional
-    public boolean deleteHotplace(Long id, String userId) {
+    public boolean deleteHotplace(Long id, Integer mno) {
         Hotplace existingHotplace = hotplaceMapper.getHotplaceById(id);
         if (existingHotplace == null) {
             throw new IllegalArgumentException("존재하지 않는 Hotplace입니다: " + id);
         }
         
-        if (!existingHotplace.getUserId().equals(userId)) {
+        if (!existingHotplace.getMno().equals(mno)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
         
@@ -192,13 +192,13 @@ public class BasicHotplaceService implements HotplaceService {
     }
     
     @Override
-    public Page<Hotplace> searchHotplaces(String keyword, Integer contentTypeId, int pageNumber, int pageSize, String currentUserId) {
+    public Page<Hotplace> searchHotplaces(String keyword, Integer contentTypeId, int pageNumber, int pageSize, Integer currentMno) {
         int offset = (pageNumber - 1) * pageSize;
         
         List<Hotplace> hotplaces = hotplaceMapper.searchHotplaces(keyword, contentTypeId, offset, pageSize);
         
         for (Hotplace hotplace : hotplaces) {
-            setAdditionalInfo(hotplace, currentUserId);
+            setAdditionalInfo(hotplace, currentMno);
         }
         
         int totalCount = hotplaceMapper.searchHotplacesCount(keyword, contentTypeId);
@@ -207,11 +207,11 @@ public class BasicHotplaceService implements HotplaceService {
     }
     
     @Override
-    public List<Hotplace> getPopularHotplaces(int limit, String currentUserId) {
+    public List<Hotplace> getPopularHotplaces(int limit, Integer currentMno) {
         List<Hotplace> hotplaces = hotplaceMapper.getPopularHotplaces(limit);
         
         for (Hotplace hotplace : hotplaces) {
-            setAdditionalInfo(hotplace, currentUserId);
+            setAdditionalInfo(hotplace, currentMno);
         }
         
         return hotplaces;
@@ -223,16 +223,16 @@ public class BasicHotplaceService implements HotplaceService {
     }
     
     @Override
-    public boolean isOwner(Long hotplaceId, String userId) {
+    public boolean isOwner(Long hotplaceId, Integer mno) {
         Hotplace hotplace = hotplaceMapper.getHotplaceById(hotplaceId);
-        return hotplace != null && hotplace.getUserId().equals(userId);
+        return hotplace != null && hotplace.getMno().equals(mno);
     }
     
-    private void setAdditionalInfo(Hotplace hotplace, String currentUserId) {
+    private void setAdditionalInfo(Hotplace hotplace, Integer currentMno) {
         List<String> imageUrls = hotplaceMapper.getHotplaceImages(hotplace.getId());
         hotplace.setImageUrls(imageUrls);
         
-        hotplace.setOwner(hotplace.getUserId().equals(currentUserId));
+        hotplace.setOwner(hotplace.getMno().equals(currentMno));
     }
     
     private Page<Hotplace> createPage(List<Hotplace> content, int pageNumber, int pageSize, long totalCount) {
