@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.request.CommentRequest;
+import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.CommentResponse;
+import world.ssafy.tourtalk.model.dto.response.PageResponse;
 import world.ssafy.tourtalk.model.service.CommentService;
 import world.ssafy.tourtalk.security.auth.CustomMemberPrincipal;
 
@@ -91,6 +93,28 @@ public class CommentController {
 					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("댓글이 아직 작성되지 않았습니다.");
 		} catch(DataAccessException e) {
 			log.error("댓글 삭제 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
+		}
+	}
+	
+	
+	// 마이페이지 : 작성자 댓글 전체 조회
+	@GetMapping("/myComments")
+	public ResponseEntity<?> getMyPosts(@RequestParam int writerId, @RequestParam(name = "pageNumber", defaultValue = "1") int page, 
+			@RequestParam(defaultValue = "10") int size) {
+		try {
+			SearchConditionRequest condition = SearchConditionRequest.builder()
+					.pageNumber(page)
+					.pageSize(size)
+					.writerId(writerId)
+					.build();
+		
+			PageResponse<CommentResponse> result = cService.getMyComments(condition);
+			return result != null
+					? ResponseEntity.ok(result)
+					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("댓글이 존재하지 않습니다.");
+		} catch(DataAccessException e) {
+			log.error("게시글 목록 조회 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
 		}
 	}

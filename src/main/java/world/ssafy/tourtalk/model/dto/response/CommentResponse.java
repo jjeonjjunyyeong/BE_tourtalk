@@ -21,6 +21,7 @@ public class CommentResponse {
 	private LocalDateTime updatedAt;
 	private CommentStatus status;
 	private String writerNickname;
+	private String postTitle;
 	
 	public CommentResponse(int commentId, int postId, int writerId, String content, LocalDateTime createdAt,
 			LocalDateTime updatedAt, CommentStatus status) {
