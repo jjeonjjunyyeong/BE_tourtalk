@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.model.dto.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum ProductStatus {
     DRAFT("대기"),
     OPEN("모집"),
@@ -15,5 +17,10 @@ public enum ProductStatus {
 
     public String getDesc() {
         return desc;
+    }
+    
+    @JsonCreator
+    public static ProductStatus from(String value) {
+        return ProductStatus.valueOf(value.toUpperCase());
     }
 }

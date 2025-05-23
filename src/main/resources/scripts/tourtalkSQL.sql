@@ -1,3 +1,7 @@
+drop database tourtalktest;
+create database tourtalktest;
+use tourtalktest;
+
 -- 회원 관련 테이블
 -- 1. 회원 기본 정보
 CREATE TABLE `member` (
@@ -6,9 +10,9 @@ CREATE TABLE `member` (
   `password` VARCHAR(1000) NOT NULL,
   `nickname` VARCHAR(50) NULL,
   -- 사용자, 큐레이터, 관리자
-  `role` ENUM('user', 'curator', 'admin') NOT NULL DEFAULT 'user',
+  `role` ENUM('USER', 'CURATOR', 'ADMIN') NOT NULL DEFAULT 'USER',
   -- 정상 활동, 일시 정지, 승인 대기, 탈퇴 처리
-  `status` ENUM('active', 'suspended', 'pending', 'deleted') NOT NULL DEFAULT 'active',
+  `status` ENUM('ACTIVE', 'SUSPENDED', 'PENDING', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
   `points` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`mno`),
   UNIQUE KEY (`id`)
@@ -20,7 +24,7 @@ CREATE TABLE `member_details` (
   `email` VARCHAR(100) NOT NULL,
   `phone` VARCHAR(13) NOT NULL,
   -- 비공개, 남자, 여자
-  `gender` ENUM('unknown', 'man', 'woman') NOT NULL DEFAULT 'unknown',
+  `gender` ENUM('UNKNOWN', 'MAN', 'WOMAN') NOT NULL DEFAULT 'UNKNOWN',
   `address` VARCHAR(200) NULL,
   `postal_code` VARCHAR(20) NULL,
   `birth_date` DATE NULL,
@@ -44,32 +48,27 @@ CREATE TABLE `curator` (
 );
 
 -- 게시판 관련 테이블
--- 4. 게시판 카테고리
-CREATE TABLE `board_categories` (
-  `category_id` INT NOT NULL,
-  `main_category` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`category_id`)
-);
+-- 4. 게시판 카테고리 삭제
 
 -- 5. 게시글
 CREATE TABLE `board` (
   `post_id` INT NOT NULL AUTO_INCREMENT,
-  `category_id` INT NOT NULL,
+  -- 공지사항, 자유게시판, QnA, 문의, 리뷰
+  `category` ENUM('NOTICE', 'FREE', 'QNA', 'INQUIRY', 'REVIEW') NOT NULL,
   `writer_id` INT NOT NULL,
   `title` VARCHAR(200) NOT NULL,
   `content` TEXT NOT NULL,
   -- 공개, 비공개, 삭제됨
-  `status` ENUM('active', 'inactive', 'deleted') NOT NULL DEFAULT 'active',
+  `status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
   `view_count` INT NOT NULL DEFAULT 0,
   `comment_count` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`post_id`),
-  FOREIGN KEY (`category_id`) REFERENCES `board_categories` (`category_id`),
   FOREIGN KEY (`writer_id`) REFERENCES `member` (`mno`)
 );
 
 -- 6. 게시글 상세 정보
 CREATE TABLE `board_details` (
-  `post_id` INT NOT NULL AUTO_INCREMENT,
+  `post_id` INT NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NULL,
   `deleted_at` DATETIME NULL,
@@ -87,7 +86,7 @@ CREATE TABLE `comments` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NULL,
   -- 공개, 비밀댓글, 삭제됨
-  `status` ENUM('active', 'inactive', 'deleted') NOT NULL DEFAULT 'active',
+  `status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`comment_id`),
   FOREIGN KEY (`post_id`) REFERENCES `board` (`post_id`),
   FOREIGN KEY (`writer_id`) REFERENCES `member` (`mno`)
@@ -110,13 +109,13 @@ CREATE TABLE `rating` (
   `post_id` INT NOT NULL,
   `mno` INT NOT NULL,
   -- 상품, 큐레이터, 관광지
-  `target_type` ENUM('product', 'curator', 'attraction') NOT NULL,
+  `target_type` ENUM('PRODUCT', 'CURATOR', 'ATTRACTION') NOT NULL,
   `target_id` INT NOT NULL,
   `rating_value` INT NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NULL,
   -- 공개, 배공개, 삭제됨
-  `status` ENUM('active', 'inactive', 'deleted') NOT NULL DEFAULT 'active',
+  `status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`rating_id`),
   FOREIGN KEY (`post_id`) REFERENCES `board` (`post_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`)
@@ -128,7 +127,7 @@ CREATE TABLE `chat_rooms` (
   `room_id` INT NOT NULL AUTO_INCREMENT,
   `room_name` VARCHAR(30) NOT NULL,
   -- 비공개, 그룹, 공개
-  `room_type` ENUM('private', 'group', 'public') NOT NULL,
+  `room_type` ENUM('PRIVATE', 'GROUP', 'PUBLIC') NOT NULL,
   `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `mno` INT NOT NULL,
   PRIMARY KEY (`room_id`),
@@ -141,7 +140,7 @@ CREATE TABLE `user_rooms` (
   `room_id` INT NOT NULL,
   `mno` INT NOT NULL,
   `joined_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `role` ENUM('member', 'manager') NOT NULL,
+  `role` ENUM('MEMBER', 'MANAGER') NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`room_id`) REFERENCES `chat_rooms` (`room_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`)
@@ -179,7 +178,7 @@ CREATE TABLE `group_member` (
   `group_id` INT NOT NULL AUTO_INCREMENT,
   `member_id` INT NOT NULL,
   `joined_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `role` ENUM('member', 'manager') NOT NULL DEFAULT 'member',
+  `role` ENUM('MEMBER', 'MANAGER') NOT NULL DEFAULT 'MEMBER',
   PRIMARY KEY (`group_id`, `member_id`),
   FOREIGN KEY (`group_id`) REFERENCES `travel_group` (`group_id`),
   FOREIGN KEY (`member_id`) REFERENCES `member` (`mno`)
@@ -240,6 +239,7 @@ CREATE TABLE `attractions` (
   `addr2` VARCHAR(100) NULL,
   `homepage` VARCHAR(1000) NULL,
   `overview` VARCHAR(10000) NULL,
+  `view_cnt` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`no`),
   FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
   FOREIGN KEY (`area_code`) REFERENCES `sidos` (`no`),
@@ -257,11 +257,11 @@ CREATE TABLE `tour_product` (
   `max_participants` INT NOT NULL,
   `min_participants` INT NOT NULL DEFAULT 1,
   -- 전체 비용, 1인당 비용
-  `price_type` ENUM('total', 'per_person') NOT NULL,
+  `price_type` ENUM('TOTAL', 'PER_PERSON') NOT NULL,
   `price` INT NOT NULL,
   `start_date` DATE NOT NULL,
   -- 비공개, 모집 중, 모집 완료, 취소됨
-  `status` ENUM('draft', 'open', 'closed', 'cancelled') NULL DEFAULT 'draft',
+  `status` ENUM('DRAFT', 'OPEN', 'CLOSED', 'CANCELLED') NULL DEFAULT 'DRAFT',
   `thumbnail_img` VARCHAR(255) NULL,
   `tags` VARCHAR(255) NULL,
   `meeting_place` VARCHAR(255) NULL,
@@ -284,11 +284,84 @@ CREATE TABLE `tour_booking` (
   `total_price` INT NOT NULL,
   `payment_method` VARCHAR(50) NOT NULL,
   -- 미결제, 결제완료, 환불
-  `payment_status` ENUM('unpaid', 'paid', 'refunded') NULL DEFAULT 'unpaid',
+  `payment_status` ENUM('UNPAID', 'PAID', 'REFUNDED') NULL DEFAULT 'UNPAID',
   -- 정상 예약, 취소됨, 투어 완료
-  `status` ENUM('reserved', 'cancelled', 'completed') NOT NULL DEFAULT 'reserved',
+  `status` ENUM('RESERVED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'RESERVED',
   `cancelled_at` DATETIME NULL,
   PRIMARY KEY (`booking_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),
   FOREIGN KEY (`product_id`) REFERENCES `tour_product` (`product_id`)
+);
+
+-- 여행 계획 테이블
+CREATE TABLE `trip_plans` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `mno` INT NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `description` TEXT NULL,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NOT NULL,
+  `total_distance` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `total_duration` INT NOT NULL DEFAULT 0,
+  `status` ENUM('DRAFT', 'COMPLETED', 'DELETED') NOT NULL DEFAULT 'DRAFT',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`mno`) REFERENCES `member` (`mno`) ON DELETE CASCADE,
+  INDEX `idx_mno_status` (`mno`, `status`),
+  INDEX `idx_created_at` (`created_at`)
+);
+
+-- 여행 계획-관광지 연결 테이블
+CREATE TABLE `trip_plan_attractions` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `trip_plan_id` BIGINT NOT NULL,
+  `attraction_no` INT NOT NULL,
+  `visit_order` INT NOT NULL,
+  `attraction_title` VARCHAR(500) NULL,
+  `latitude` DECIMAL(20,17) NULL,
+  `longitude` DECIMAL(20,17) NULL,
+  `sido` VARCHAR(50) NULL,
+  `gugun` VARCHAR(50) NULL,
+  `addr` VARCHAR(200) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`trip_plan_id`) REFERENCES `trip_plans` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`attraction_no`) REFERENCES `attractions` (`no`) ON DELETE CASCADE,
+  UNIQUE KEY `uk_trip_plan_attraction` (`trip_plan_id`, `attraction_no`),
+  INDEX `idx_trip_plan_order` (`trip_plan_id`, `visit_order`)
+);
+-- 22. 사용자 등록 hotplace 테이블
+CREATE TABLE `hotplaces` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `mno` INT NOT NULL,  
+  `title` VARCHAR(200) NOT NULL,
+  `latitude` DECIMAL(20,17) NOT NULL,
+  `longitude` DECIMAL(20,17) NOT NULL,
+  `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  `content_type_id` INT NOT NULL,
+  `description` TEXT NULL,
+  `review` TEXT NULL,
+  `recommendation_reason` TEXT NULL,
+  `view_count` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
+  FOREIGN KEY (`mno`) REFERENCES `member` (`mno`), 
+  INDEX `idx_mno` (`mno`),  
+  INDEX `idx_created_at` (`created_at`),
+  INDEX `idx_rating` (`rating`)
+);
+
+-- 23. hotplace 이미지 테이블
+CREATE TABLE `hotplace_images` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `hotplace_id` BIGINT NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `image_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`hotplace_id`) REFERENCES `hotplaces` (`id`) ON DELETE CASCADE,
+  INDEX `idx_hotplace_id` (`hotplace_id`)
 );

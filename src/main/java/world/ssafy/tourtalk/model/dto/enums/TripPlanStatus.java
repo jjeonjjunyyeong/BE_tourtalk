@@ -2,13 +2,14 @@ package world.ssafy.tourtalk.model.dto.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-public enum PriceType {
-    TOTAL("총합"),
-    PER_PERSON("1인 비용");
+public enum TripPlanStatus {
+    DRAFT("임시저장"),
+    COMPLETED("완료"),
+    DELETED("삭제");
 
     private final String desc;
 
-    PriceType(String desc) {
+    TripPlanStatus(String desc) {
         this.desc = desc;
     }
 
@@ -17,7 +18,7 @@ public enum PriceType {
     }
     
     @JsonCreator
-    public static PriceType from(String value) {
-        return PriceType.valueOf(value.toUpperCase());
+    public static TripPlanStatus from(String value) {
+        return TripPlanStatus.valueOf(value.toUpperCase());
     }
 }

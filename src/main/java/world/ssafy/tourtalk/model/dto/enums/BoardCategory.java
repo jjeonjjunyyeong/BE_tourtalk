@@ -2,14 +2,14 @@ package world.ssafy.tourtalk.model.dto.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-public enum BoardStatus {
+public enum BoardCategory {
 	ACTIVE("공개"),
 	INACTIVE("비공개"),
 	DELETED("삭제");
 	
 	private final String desc;
 	
-	BoardStatus(String desc) {
+	BoardCategory(String desc) {
         this.desc = desc;
     }
 
@@ -18,7 +18,7 @@ public enum BoardStatus {
     }
     
     @JsonCreator
-    public static BoardStatus from(String value) {
-        return BoardStatus.valueOf(value.toUpperCase());
+    public static BoardCategory from(String value) {
+        return BoardCategory.valueOf(value.toUpperCase());
     }
 }

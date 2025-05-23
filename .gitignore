@@ -138,3 +138,5 @@ build/
 ### 기타 ###
 HELP.md
 .DS_Store
+.env
+application.properties

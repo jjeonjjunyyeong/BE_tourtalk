@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.model.dto.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum PaymentStatus {
     UNPAID("미결제"),
     PAID("결제완료"),
@@ -12,5 +14,10 @@ public enum PaymentStatus {
 
     public String getDesc() {
         return desc;
+    }
+    
+    @JsonCreator
+    public static PaymentStatus from(String value) {
+        return PaymentStatus.valueOf(value.toUpperCase());
     }
 }

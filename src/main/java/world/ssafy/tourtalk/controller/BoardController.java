@@ -4,6 +4,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
 import world.ssafy.tourtalk.model.dto.response.PageResponse;
 import world.ssafy.tourtalk.model.service.BoardService;
+import world.ssafy.tourtalk.security.auth.CustomMemberPrincipal;
 
 @Slf4j
 @RestController
@@ -34,14 +36,21 @@ public class BoardController {
 
 	// 게시글 작성
 	@PostMapping
-	public ResponseEntity<?> write(@RequestBody BoardRequest request) {
+	public ResponseEntity<?> write(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestBody BoardRequest request) {
 		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			Integer mno = (Integer) auth.getPrincipal();
+	        request = BoardRequest.builder()
+	                .title(request.getTitle())
+	                .content(request.getContent())
+	                .categoryId(request.getCategoryId())
+	                .status(request.getStatus())
+	                .filePath(request.getFilePath())
+	                .writerId(principal.getMno()) 
+	                .build();
+			
+			boolean result = bService.write(request);	
 
-			int result = bService.write(request, mno);
-
-			return result > 0 ? ResponseEntity.status(HttpStatus.CREATED).body("게시글 작성 성공 !")
+			return result
+					? ResponseEntity.status(HttpStatus.CREATED).body("게시글 작성 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 작성 실패!!!");
 		} catch (DataAccessException e) {
 			log.error("게시글 작성 중 오류 발생", e);
@@ -67,14 +76,15 @@ public class BoardController {
 	
 	// 게시글 수정
 	@PutMapping
-	public ResponseEntity<?> update(@RequestBody BoardRequest request) {
+	public ResponseEntity<?> update(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestBody BoardRequest request) {
 		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			Integer mno = (Integer) auth.getPrincipal();
+			boolean result = false;
+			if(request.getWriterId() == principal.getMno()) {
+				result = bService.update(request);
+			}
 
-			int result = bService.update(request, mno);
-
-			return result > 0 ? ResponseEntity.status(HttpStatus.OK).body("게시글 수정 성공 !")
+			return result
+					? ResponseEntity.status(HttpStatus.OK).body("게시글 수정 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 수정 실패!!!");
 		} catch (DataAccessException e) {
 			log.error("게시글 수정 중 오류 발생", e);
@@ -84,14 +94,14 @@ public class BoardController {
 
 	// 게시글 삭제
 	@DeleteMapping("/{postId}")
-	public ResponseEntity<?> softDelete(@PathVariable int postId) {
+	public ResponseEntity<?> softDelete(@AuthenticationPrincipal CustomMemberPrincipal principal, @PathVariable int postId) {
 		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			Integer mno = (Integer) auth.getPrincipal();
-
-			int result = bService.delete(postId, mno);
-
-			return result > 0 ? ResponseEntity.status(HttpStatus.OK).body("게시글 삭제 성공 !")
+			boolean result = false;
+			if(bService.findById(postId).getWriterId() == principal.getMno()) {
+				result = bService.softDelete(postId);
+			}
+			return result
+					? ResponseEntity.status(HttpStatus.OK).body("게시글 삭제 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 삭제 실패!!!");
 		} catch (DataAccessException e) {
 			log.error("게시글 삭제 중 오류 발생", e);
@@ -147,7 +157,8 @@ public class BoardController {
 			
 			PageResponse<BoardResponse> result = bService.searchWithConditions(condition);
 			
-			return result != null ? ResponseEntity.ok(result)
+			return result.getContent().isEmpty() 
+					? ResponseEntity.ok(result)
 					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.");
 		} catch(DataAccessException e) {
 			log.error("게시글 목록 조회 중 오류 발생", e);

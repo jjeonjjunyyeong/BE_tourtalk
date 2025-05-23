@@ -99,4 +99,7 @@ public class MemberRequest {
 		this.password = password;
 	}
 
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 }

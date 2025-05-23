@@ -22,6 +22,9 @@ public class MemberService {
 	@Transactional
 	public boolean regist(MemberRequest request) {
 		request.setPassword(passwordEncoder.encode(request.getPassword()));
+		String cleanPhone = request.getPhone().replaceAll("-", "");
+	    request.setPhone(cleanPhone);
+	    
 		int memberResult = memberMapper.insertMember(request);
 		int memberDetailResult = memberMapper.insertMemberDetails(request);
 		
@@ -136,5 +139,16 @@ public class MemberService {
 	@Transactional
 	public boolean softDelete(Integer mno) {
 		return memberMapper.softDelete(mno, MemberStatus.DELETED) == 1;
+	}
+
+	// ID 중복 체크
+	public boolean existsById(String id) {
+		return memberMapper.existsById(id);
+	}
+
+	// 프로필 이미지 업데이트
+	@Transactional
+	public boolean updateProfileImgPath(int mno, String profileImgPath) {
+		return memberMapper.updateProfileImgPath(mno, profileImgPath) > 0;
 	}
 }

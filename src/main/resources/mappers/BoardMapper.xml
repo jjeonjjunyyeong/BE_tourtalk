@@ -3,6 +3,54 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="world.ssafy.tourtalk.model.mapper.BoardMapper">
+	<!-- 게시글 작성 -->
+	<insert id="writeBoard" useGeneratedKeys="true"
+		keyProperty="postId">
+		INSERT INTO board (
+		title, content, writer_id, category_id,
+		view_count, comment_count, status
+		) VALUES (
+		#{title}, #{content},
+		#{writerId}, #{categoryId},
+		#{viewCount}, #{commentCount}, #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		)
+	</insert>
+
+	<insert id="writeBoardDetails">
+		INSERT INTO board_details (
+		post_id, file_path
+		) VALUES
+		(
+		#{postId}, #{filePath}
+		)
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoard">
+		UPDATE board
+		SET
+		title = #{title},
+		content = #{content},
+		category_id = #{categoryId},
+		status = #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		WHERE
+		post_id =
+		#{postId}
+	</update>
+
+	<update id="updateBoardDetails">
+		UPDATE board_details
+		SET
+		file_path = #{filePath},
+		updated_at = NOW()
+		WHERE post_id =
+		#{postId}
+	</update>
+
 	<!-- 게시글 상세 조회 -->
 	<select id="selectById"
 		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
@@ -28,21 +76,63 @@
 	<update id="updateViewCount">
 		UPDATE board
 		SET view_count = view_count + 1
-		WHERE post_id = #{postId}
+		WHERE
+		post_id = #{postId}
+	</update>
+
+	<!-- 게시글ID 기반 찾기 -->
+	<select id="findById"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id,
+		b.title,
+		b.content,
+		b.view_count,
+		b.comment_count,
+		b.category_id,
+		b.writer_id,
+		b.status,
+		d.created_at,
+		d.updated_at,
+		d.deleted_at,
+		d.file_path
+		FROM board b
+		JOIN board_details d
+		ON b.post_id = d.post_id
+		WHERE b.post_id = #{postId}
+	</select>
+
+	<!-- 게시글 삭제 (소프트 딜리트) -->
+	<update id="softDelete">
+		UPDATE board
+		SET status = #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus},
+		deleted_at
+		= NOW()
+		WHERE post_id =
+		#{postId}
 	</update>
 
 	<!-- 게시글 검색/목록 -->
 	<select id="searchWithConditions"
 		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
 		SELECT
-		b.post_id, b.title, b.content, b.view_count, b.comment_count,
+		b.post_id,
+		b.title,
+		b.content,
+		b.view_count,
+		b.comment_count,
 		b.category_id,
 		b.writer_id,
-		d.created_at, d.updated_at, d.deleted_at,
+		d.created_at,
+		d.updated_at,
+		d.deleted_at,
 		d.file_path
 		FROM board b
 		JOIN board_details d ON b.post_id = d.post_id
-		WHERE b.status != 'deleted'
+		WHERE b.status = 'ACTIVE'
+
 		<if test="cond.keyword != null and cond.keyword != ''">
 			<choose>
 				<when test="cond.keywordType == 'title'">
@@ -53,12 +143,41 @@
 				</when>
 			</choose>
 		</if>
+
 		<if test="cond.categoryId > 0">
 			AND b.category_id = #{cond.categoryId}
 		</if>
-		<if test="cond.orderBy != null and cond.orderBy != ''">
-			ORDER BY ${cond.orderBy} ${cond.orderDirection}
-		</if>
+
+		<choose>
+			<when
+				test="cond.orderBy == 'createdAt' and cond.orderDirection == 'ASC'">
+				ORDER BY d.created_at ASC
+			</when>
+			<when
+				test="cond.orderBy == 'createdAt' and cond.orderDirection == 'DESC'">
+				ORDER BY d.created_at DESC
+			</when>
+			<when
+				test="cond.orderBy == 'updatedAt' and cond.orderDirection == 'ASC'">
+				ORDER BY d.updated_at ASC
+			</when>
+			<when
+				test="cond.orderBy == 'updatedAt' and cond.orderDirection == 'DESC'">
+				ORDER BY d.updated_at DESC
+			</when>
+			<when
+				test="cond.orderBy == 'viewCount' and cond.orderDirection == 'ASC'">
+				ORDER BY b.view_count ASC
+			</when>
+			<when
+				test="cond.orderBy == 'viewCount' and cond.orderDirection == 'DESC'">
+				ORDER BY b.view_count DESC
+			</when>
+			<otherwise>
+				ORDER BY d.created_at DESC
+			</otherwise>
+		</choose>
+
 		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
@@ -66,7 +185,8 @@
 	<select id="countWithConditions" resultType="long">
 		SELECT COUNT(*)
 		FROM board b
-		WHERE b.status != 'deleted'
+		WHERE b.status = 'ACTIVE'
+
 		<if test="cond.keyword != null and cond.keyword != ''">
 			<choose>
 				<when test="cond.keywordType == 'title'">
@@ -77,11 +197,10 @@
 				</when>
 			</choose>
 		</if>
+
 		<if test="cond.categoryId > 0">
 			AND b.category_id = #{cond.categoryId}
 		</if>
 	</select>
-
-
 
 </mapper>

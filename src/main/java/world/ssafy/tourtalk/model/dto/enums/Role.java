@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.model.dto.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Role {
     USER("일반회원"),
     CURATOR("학예사"),
@@ -13,5 +15,10 @@ public enum Role {
 
     public String getDesc() {
         return desc;
+    }
+    
+    @JsonCreator
+    public static Role from(String value) {
+        return Role.valueOf(value.toUpperCase());
     }
 }

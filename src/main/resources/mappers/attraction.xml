@@ -72,7 +72,7 @@
 	</update>
 	
 	<select id="allCountView" resultType="map">
-		SELECT a.no, a.title, s.sido_name, a.view_cnt 
+		SELECT a.no, a.title, s.sido_name, a.view_cnt, a.first_image1
 		FROM attractions a 
 		JOIN sidos s ON (a.area_code = s.sido_code) 
 		<where>
