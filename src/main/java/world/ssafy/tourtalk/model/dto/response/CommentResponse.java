@@ -2,38 +2,28 @@ package world.ssafy.tourtalk.model.dto.response;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.ssafy.tourtalk.model.dto.enums.CommentStatus;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class CommentResponse {
-	public enum Status {
-		ACTIVE("공개"), INACTIVE("비공개"), DELETED("삭제");
-		
-		private final String desc;
-
-	    Status(String desc) {
-	        this.desc = desc;
-	    }
-
-	    public String getDescription() {
-	        return desc;
-	    }
-	}
-	
+public class CommentResponse {	
 	private int commentId;
 	private int postId;
 	private int writerId;
 	private String content;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Status status;
+	private CommentStatus status;
+	private String writerNickname;
 	
 	public CommentResponse(int commentId, int postId, int writerId, String content, LocalDateTime createdAt,
-			LocalDateTime updatedAt, Status status) {
+			LocalDateTime updatedAt, CommentStatus status) {
 		this.commentId = commentId;
 		this.postId = postId;
 		this.writerId = writerId;

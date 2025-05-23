@@ -137,7 +137,15 @@ public class MemberService {
 	
 	// 회원탈퇴
 	@Transactional
-	public boolean softDelete(Integer mno) {
+	public boolean softDelete(Integer mno, String password) {
+		MemberResponse member = memberMapper.selectMemberByMno(mno);
+	    if (member == null) return false;
+
+	    // 기존 암호화된 비밀번호와 평문 비교
+	    if (!passwordEncoder.matches(password, member.getPassword())) {
+	        return false;
+	    }
+		
 		return memberMapper.softDelete(mno, MemberStatus.DELETED) == 1;
 	}
 

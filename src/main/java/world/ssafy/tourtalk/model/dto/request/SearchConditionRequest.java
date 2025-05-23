@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
+import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Data
 @NoArgsConstructor
@@ -27,9 +29,9 @@ public class SearchConditionRequest {
     private String keyword;
     private String keywordType;
     // 게시글
-    private int categoryId;
-    private int writerId;
-    
+    private BoardCategory category;
+    private Integer writerId;
+    private BoardStatus status;
     
     // 추가 필터링
     private Integer minViewCount;
@@ -56,6 +58,10 @@ public class SearchConditionRequest {
         if (onlyWithImage == null) {
             onlyWithImage = false;
         }
+        
+        if (status == null || "".equals(String.valueOf(status).trim())) {
+            status = BoardStatus.ACTIVE;
+        }
     }
     
     // offset 계산 메서드
@@ -76,6 +82,7 @@ public class SearchConditionRequest {
         condition.setKeyword(this.keyword);
         condition.setMinViewCount(this.minViewCount);
         condition.setOnlyWithImage(this.onlyWithImage);
+        condition.setStatus(this.status);
         return condition;
     }
     
@@ -92,12 +99,27 @@ public class SearchConditionRequest {
                 .keyword(condition.getKeyword())
                 .minViewCount(condition.getMinViewCount())
                 .onlyWithImage(condition.getOnlyWithImage())
+                .status(condition.getStatus())
                 .build();
     }
 
+    // 마이페이지 : 게시글 조회
+    public SearchConditionRequest(Integer writerId, Integer pageNumber, Integer pageSize) {
+    	this.writerId = writerId;
+    	this.pageNumber = pageNumber;
+    	this.pageSize = pageSize;
+    }
+    
+    // 게시글 전체 조회
+    public SearchConditionRequest(Integer pageNumber, Integer pageSize, BoardStatus status) {
+    	this.pageNumber = pageNumber;
+    	this.pageSize = pageSize;
+    	this.status = status;
+    }
+    
     // 게시글 검색
 	public SearchConditionRequest(Integer pageNumber, Integer pageSize, String orderBy, String orderDirection,
-			String keyword, String keywordType, int categoryId, int writerId, Integer minViewCount, Boolean onlyWithImage) {
+			String keyword, String keywordType, BoardCategory category, Integer writerId, Integer minViewCount, Boolean onlyWithImage) {
 		super();
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
@@ -105,7 +127,7 @@ public class SearchConditionRequest {
 		this.orderDirection = orderDirection;
 		this.keyword = keyword;
 		this.keywordType = keywordType;
-		this.categoryId = categoryId;
+		this.category = category;
 		this.writerId = writerId;
 		this.minViewCount = minViewCount;
 		this.onlyWithImage = onlyWithImage;
@@ -113,6 +135,6 @@ public class SearchConditionRequest {
 	
 	// 검색 조건 존재 여부 확인
 	public boolean hasSearchCondition() {
-		return (keyword != null && !keyword.isBlank()) || writerId >  0 && categoryId > 0;
+		return (keyword != null && !keyword.isBlank()) || (writerId != null && writerId > 0) && category != null;
 	}
 }

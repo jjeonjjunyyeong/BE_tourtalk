@@ -20,6 +20,7 @@ public interface MemberMapper {
 	MemberResponse getDetailsByMno(@Param("mno") int mno);
 	MemberResponse getCuratorByMno(@Param("mno") int mno);
 	
+	//회원정보 수정
 	int update(MemberRequest request);
 	int updateDetails(MemberRequest request);
 	int updateCurator(MemberRequest corrected);
@@ -29,4 +30,6 @@ public interface MemberMapper {
 	boolean existsById(String id);
 	
 	int updateProfileImgPath(int mno, String profileImgPath);
+	// mno로 회원 조회
+	MemberResponse selectMemberByMno(Integer mno);
 }

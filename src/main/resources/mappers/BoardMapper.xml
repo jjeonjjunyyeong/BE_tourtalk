@@ -7,11 +7,13 @@
 	<insert id="writeBoard" useGeneratedKeys="true"
 		keyProperty="postId">
 		INSERT INTO board (
-		title, content, writer_id, category_id,
+		title, content, writer_id, category,
 		view_count, comment_count, status
 		) VALUES (
 		#{title}, #{content},
-		#{writerId}, #{categoryId},
+		#{writerId}, #{category,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory},
 		#{viewCount}, #{commentCount}, #{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
@@ -33,13 +35,15 @@
 		SET
 		title = #{title},
 		content = #{content},
-		category_id = #{categoryId},
-		status = #{status,
+		category = #{category,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory},
+		status =
+		#{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
 		WHERE
-		post_id =
-		#{postId}
+		post_id = #{postId}
 	</update>
 
 	<update id="updateBoardDetails">
@@ -47,8 +51,7 @@
 		SET
 		file_path = #{filePath},
 		updated_at = NOW()
-		WHERE post_id =
-		#{postId}
+		WHERE post_id = #{postId}
 	</update>
 
 	<!-- 게시글 상세 조회 -->
@@ -60,16 +63,20 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname,
 		b.status,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
-		FROM board b
+		FROM board
+		b
 		JOIN board_details d
 		ON b.post_id = d.post_id
+		JOIN member m ON
+		b.writer_id = m.mno
 		WHERE b.post_id = #{postId}
 	</select>
 
@@ -80,6 +87,48 @@
 		post_id = #{postId}
 	</update>
 
+	<!-- 게시글 전체 목록 조회 -->
+	<select id="selectAll"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id,
+		b.category,
+		b.writer_id,
+		b.title,
+		b.content,
+		b.status,
+		b.view_count,
+		b.comment_count,
+		d.created_at,
+		d.updated_at,
+		d.deleted_at,
+		d.file_path,
+		m.nickname AS writerNickname
+		FROM board b
+		JOIN board_details
+		d ON b.post_id = d.post_id
+		JOIN member m ON b.writer_id = m.mno
+		WHERE 1
+		= 1
+		<if test="cond.status != null">
+			AND b.status = #{cond.status,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		</if>
+		ORDER BY d.created_at DESC
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<!-- 전체 게시글 수 조회 -->
+	<select id="countAll" resultType="long">
+		SELECT COUNT(*)
+		FROM board b
+		WHERE 1 = 1
+		<if test="cond.status != null">
+			AND b.status = #{cond.status}
+		</if>
+	</select>
+
 	<!-- 게시글ID 기반 찾기 -->
 	<select id="findById"
 		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
@@ -89,16 +138,20 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname,
 		b.status,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
-		FROM board b
+		FROM board
+		b
 		JOIN board_details d
 		ON b.post_id = d.post_id
+		JOIN member m ON
+		b.writer_id = m.mno
 		WHERE b.post_id = #{postId}
 	</select>
 
@@ -107,11 +160,16 @@
 		UPDATE board
 		SET status = #{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
-		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus},
-		deleted_at
-		= NOW()
-		WHERE post_id =
-		#{postId}
+		javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		WHERE
+		post_id = #{postId}
+	</update>
+
+	<update id="softDeleteDetail">
+		UPDATE board_details
+		SET deleted_at = NOW()
+		WHERE
+		post_id = #{postId}
 	</update>
 
 	<!-- 게시글 검색/목록 -->
@@ -123,15 +181,19 @@
 		b.content,
 		b.view_count,
 		b.comment_count,
-		b.category_id,
+		b.category,
 		b.writer_id,
+		m.nickname AS writerNickname,
 		d.created_at,
 		d.updated_at,
 		d.deleted_at,
 		d.file_path
 		FROM board b
-		JOIN board_details d ON b.post_id = d.post_id
-		WHERE b.status = 'ACTIVE'
+		JOIN board_details d
+		ON b.post_id = d.post_id
+		JOIN member m ON b.writer_id = m.mno
+		WHERE
+		b.status = 'ACTIVE'
 
 		<if test="cond.keyword != null and cond.keyword != ''">
 			<choose>
@@ -144,8 +206,10 @@
 			</choose>
 		</if>
 
-		<if test="cond.categoryId > 0">
-			AND b.category_id = #{cond.categoryId}
+		<if test="cond.category != null">
+			AND b.category = #{cond.category,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory}
 		</if>
 
 		<choose>
@@ -197,10 +261,44 @@
 				</when>
 			</choose>
 		</if>
-
-		<if test="cond.categoryId > 0">
-			AND b.category_id = #{cond.categoryId}
+		<if test="cond.category != null">
+			AND b.category = #{cond.category,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory}
 		</if>
+	</select>
+
+	<!-- 게시글에 댓글 생성 -->
+	<update id="updateCommentCount">
+		UPDATE board
+		SET comment_count = comment_count + 1
+		WHERE post_id = #{postId}
+	</update>
+
+	<!-- 내가 작성한 게시글 조회 -->
+	<select id="selectMyPosts"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id AS postId,
+		b.title,
+		b.view_count AS viewCount,
+		b.comment_count AS commentCount,
+		d.created_at AS createdAt,
+		b.status
+		FROM board b
+		JOIN board_details d ON b.post_id = d.post_id
+		WHERE b.writer_id = #{cond.writerId}
+		AND b.status != 'DELETED'
+		ORDER BY d.created_at DESC
+		LIMIT #{size} OFFSET #{offset}
+	</select>
+
+	<!-- 게시글 개수 조회 -->
+	<select id="countMyPosts" resultType="int">
+		SELECT COUNT(*)
+		FROM board
+		WHERE writer_id = #{cond.writerId}
+		AND status != 'DELETED'
 	</select>
 
 </mapper>

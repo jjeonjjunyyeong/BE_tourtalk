@@ -33,7 +33,7 @@ public class TourProductController {
 
 	private final TourProductService tService;
 	
-	//@PreAuthorize("hasRole('CURATOR')")
+	@PreAuthorize("hasRole('CURATOR')")
 	@PostMapping
 	public ResponseEntity<?> insert(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestBody TourProductRequest request) {
 		try {

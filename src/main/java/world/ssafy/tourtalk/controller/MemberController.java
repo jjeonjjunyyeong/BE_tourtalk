@@ -72,7 +72,7 @@ public class MemberController {
 			boolean success = mService.update(request);
 			
 			return success
-					? ResponseEntity.status(HttpStatus.CREATED).body("회원정보 수정 성공 !")
+					? ResponseEntity.status(HttpStatus.OK).body("회원정보 수정 성공 !")
 					: ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원정보 수정 실패!!!");
 		} catch (DataAccessException e) {
 			log.error("회원정보 수정 중 오류 발생", e);
@@ -81,16 +81,13 @@ public class MemberController {
 	}
 	
 	// 회원 탈퇴
-	@DeleteMapping("/me")
-	public ResponseEntity<?> softDelete(@AuthenticationPrincipal CustomMemberPrincipal principal) {
+	@PostMapping("/deleted")
+	public ResponseEntity<?> softDelete(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestBody MemberRequest request) {
 		try {
-			Integer mno = principal.getMno();
-			String nickname = principal.getNickname();
-			
-			boolean success = mService.softDelete(mno);
+			boolean success = mService.softDelete(request.getMno(), request.getPassword());
 			
 			if (success) {
-				return ResponseEntity.status(HttpStatus.CREATED).body(nickname + "님 회원탈퇴 성공 !");
+				return ResponseEntity.status(HttpStatus.OK).body("회원탈퇴 성공 !");
 			} else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원탈퇴 실패!!!");
 			}

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Getter
@@ -15,7 +16,7 @@ import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 public class BoardRequest {
 	// Board
 	private int postId;
-	private int categoryId;
+	private BoardCategory category;
 	private int writerId;
 	private String title;
 	private String content;

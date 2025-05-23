@@ -3,9 +3,11 @@ package world.ssafy.tourtalk.model.dto.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum BoardCategory {
-	ACTIVE("공개"),
-	INACTIVE("비공개"),
-	DELETED("삭제");
+	NOTICE("공지사항"),
+	FREE("자유게시판"),
+	QNA("QnA"),
+	INQUIRY("문의 게시판"),
+	REVIEW("리뷰");
 	
 	private final String desc;
 	

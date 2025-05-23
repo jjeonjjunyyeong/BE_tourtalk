@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
@@ -41,7 +42,7 @@ public class BoardController {
 	        request = BoardRequest.builder()
 	                .title(request.getTitle())
 	                .content(request.getContent())
-	                .categoryId(request.getCategoryId())
+	                .category(request.getCategory())
 	                .status(request.getStatus())
 	                .filePath(request.getFilePath())
 	                .writerId(principal.getMno()) 
@@ -113,7 +114,7 @@ public class BoardController {
 	@GetMapping("/search")
 	public ResponseEntity<?> searchOrList( @RequestParam(required = false) String keyword,
 	        @RequestParam(required = false) String keywordType,
-	        @RequestParam(required = false) Integer categoryId,
+	        @RequestParam(required = false) BoardCategory category,
 	        @RequestParam(required = false) Integer writerId,
 	        @RequestParam(defaultValue = "1") int page,
 	        @RequestParam(defaultValue = "10") int size,
@@ -125,8 +126,8 @@ public class BoardController {
 	                .pageSize(size)
 	                .keyword(keyword)
 	                .keywordType(keywordType)
-	                .categoryId(categoryId != null ? categoryId : 0)
-	                .writerId(writerId != null ? writerId : 0)
+	                .category(category)
+	                .writerId(writerId)
 	                .orderBy(orderBy)
 	                .orderDirection(orderDirection)
 	                .build();
@@ -146,18 +147,41 @@ public class BoardController {
 	
 	// 게시글 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> selectAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<?> selectAll(@RequestParam(name = "pageNumber", defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "ACTIVE") BoardStatus status) {
 		try {
 			SearchConditionRequest condition = SearchConditionRequest.builder()
 					.pageNumber(page)
 					.pageSize(size)
+					.status(status)
 					.build();
 			
 			condition.setDefaults();
 			
-			PageResponse<BoardResponse> result = bService.searchWithConditions(condition);
+			PageResponse<BoardResponse> result = bService.selectAll(condition);
 			
 			return result.getContent().isEmpty() 
+					? ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.")
+					: ResponseEntity.ok(result);
+		} catch(DataAccessException e) {
+			log.error("게시글 목록 조회 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
+		}
+	}
+	
+	// 마이페이지 : 작성자 게시글 전체 조회
+	@GetMapping("/myPosts")
+	public ResponseEntity<?> getMyPosts(@RequestParam int writerId, @RequestParam(name = "pageNumber", defaultValue = "1") int page, 
+			@RequestParam(defaultValue = "10") int size) {
+		try {
+			SearchConditionRequest condition = SearchConditionRequest.builder()
+					.pageNumber(page)
+					.pageSize(size)
+					.writerId(writerId)
+					.build();
+		
+			PageResponse<BoardResponse> result = bService.getMyPosts(condition);
+			return result != null
 					? ResponseEntity.ok(result)
 					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.");
 		} catch(DataAccessException e) {
