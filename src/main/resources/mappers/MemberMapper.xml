@@ -131,7 +131,8 @@
 		parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
 		UPDATE curator
 		SET curator_no = #{curatorNo},
-		curator_img = #{curatorImg}
+		curator_img
+		= #{curatorImg}
 		WHERE mno = #{mno}
 	</update>
 
@@ -148,13 +149,15 @@
 
 	<!-- ID 중복체크 -->
 	<select id="existsById" resultType="boolean">
-		SELECT COUNT(*) > 0 FROM member WHERE id = #{id}
+		SELECT COUNT(*) > 0 FROM
+		member WHERE id = #{id}
 	</select>
 
 	<!-- 프로필 이미지 업로드 -->
 	<update id="updateProfileImgPath">
 		UPDATE member_details
-		SET profile_img_path = #{profileImgPath}
+		SET profile_img_path =
+		#{profileImgPath}
 		WHERE mno = #{mno}
 	</update>
 
@@ -162,6 +165,11 @@
 	<select id="selectMemberByMno"
 		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse">
 		SELECT * FROM member WHERE mno = #{mno}
+	</select>
+
+	<!-- mno로 회원 닉네임 조회 -->
+	<select id="selectNicknameByMno" resultType="string">
+		SELECT nickname FROM member WHERE mno = #{mno}
 	</select>
 
 </mapper>

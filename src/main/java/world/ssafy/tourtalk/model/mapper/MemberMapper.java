@@ -32,4 +32,7 @@ public interface MemberMapper {
 	int updateProfileImgPath(int mno, String profileImgPath);
 	// mno로 회원 조회
 	MemberResponse selectMemberByMno(Integer mno);
+	
+	// mno로 닉네임 찾기
+	String selectNicknameByMno(int mno);
 }

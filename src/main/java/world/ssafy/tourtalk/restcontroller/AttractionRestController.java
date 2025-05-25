@@ -2,6 +2,7 @@ package world.ssafy.tourtalk.restcontroller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.controller.RestControllerHelper;
 import world.ssafy.tourtalk.model.dto.Attraction;
 import world.ssafy.tourtalk.model.dto.Page;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/attractions")
 @OpenAPIDefinition(info = @Info(title="Attractions API", version = "1.0", description="관광지 정보 조회 API"))
@@ -284,4 +287,21 @@ public class AttractionRestController implements RestControllerHelper {
                 .body("지역별 관광지 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
+    
+    @Operation(summary = "관광지명 자동완성", description = "입력한 키워드로 관광지 제목(title)만 반환")
+    @GetMapping("/titles")
+	public ResponseEntity<?> searchByAttractionTitle(@RequestParam String keyword) {
+		try {
+			List<Map<String, Integer>> titles = attractionService.searchByAttractionTitle(keyword);
+			
+			return titles != null
+					? ResponseEntity.ok(titles)
+					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("관광지 조회 실패!");
+		} catch (DataAccessException e) {
+			log.error("관광지 조회 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+		}
+	}
+    
+    
 }

@@ -2,6 +2,10 @@ drop database tourtalktest;
 create database tourtalktest;
 use tourtalktest;
 
+drop database tourtalktest;
+create database tourtalktest;
+use tourtalktest;
+
 -- 회원 관련 테이블
 -- 1. 회원 기본 정보
 CREATE TABLE `member` (
@@ -239,19 +243,22 @@ CREATE TABLE `attractions` (
   `addr2` VARCHAR(100) NULL,
   `homepage` VARCHAR(1000) NULL,
   `overview` VARCHAR(10000) NULL,
-  `view_cnt` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`no`),
   FOREIGN KEY (`content_type_id`) REFERENCES `contenttypes` (`content_type_id`),
   FOREIGN KEY (`area_code`) REFERENCES `sidos` (`no`),
   FOREIGN KEY (`si_gun_gu_code`) REFERENCES `guguns` (`key`)
 );
 
+-- DB에 더미 데이터 추가 후, view_cnt 컬럼 추가
+ALTER TABLE attractions
+ADD COLUMN view_cnt INT NOT NULL DEFAULT 0;
+
 -- 투어 상품 관련 테이블
 -- 20. 투어 상품
 CREATE TABLE `tour_product` (
   `product_id` INT NOT NULL AUTO_INCREMENT,
   `mno` INT NOT NULL,
-  `location_name` INT NOT NULL,
+  `location_no` INT NOT NULL,
   `title` VARCHAR(100) NOT NULL,
   `description` TEXT NULL,
   `max_participants` INT NOT NULL,
@@ -261,17 +268,26 @@ CREATE TABLE `tour_product` (
   `price` INT NOT NULL,
   `start_date` DATE NOT NULL,
   -- 비공개, 모집 중, 모집 완료, 취소됨
-  `status` ENUM('DRAFT', 'OPEN', 'CLOSED', 'CANCELLED') NULL DEFAULT 'DRAFT',
+  `status` ENUM('DRAFT', 'OPEN', 'CLOSED', 'CANCELLED') NULL DEFAULT 'OPEN',
   `thumbnail_img` VARCHAR(255) NULL,
   `tags` VARCHAR(255) NULL,
   `meeting_place` VARCHAR(255) NULL,
-  `meeting_time` TIME NOT NULL,
+  `meeting_time` INT NULL,
   `duration` INT NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NULL,
   PRIMARY KEY (`product_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),
-  FOREIGN KEY (`location_name`) REFERENCES `attractions` (`no`)
+  FOREIGN KEY (`location_no`) REFERENCES `attractions` (`no`)
+);
+
+-- 상품 등록 타임 테이블
+CREATE TABLE `product_time_slot` (
+  `slot_id` INT NOT NULL AUTO_INCREMENT,
+  `product_id` INT NOT NULL,
+  `time` TIME NOT NULL,
+  PRIMARY KEY (`slot_id`),
+  FOREIGN KEY (`product_id`) REFERENCES `tour_product`(`product_id`) ON DELETE CASCADE
 );
 
 -- 21. 투어 예약
@@ -279,14 +295,15 @@ CREATE TABLE `tour_booking` (
   `booking_id` INT NOT NULL AUTO_INCREMENT,
   `mno` INT NOT NULL,
   `product_id` INT NOT NULL,
+  `time` TIME NOT NULL,
   `reserved_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `participant_count` INT NOT NULL,
   `total_price` INT NOT NULL,
   `payment_method` VARCHAR(50) NOT NULL,
   -- 미결제, 결제완료, 환불
   `payment_status` ENUM('UNPAID', 'PAID', 'REFUNDED') NULL DEFAULT 'UNPAID',
-  -- 정상 예약, 취소됨, 투어 완료
-  `status` ENUM('RESERVED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'RESERVED',
+  -- 결제 대기, 정상 예약, 취소됨, 투어 완료
+  `status` ENUM('PENDING_PAYMENT', 'RESERVED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'RESERVED',
   `cancelled_at` DATETIME NULL,
   PRIMARY KEY (`booking_id`),
   FOREIGN KEY (`mno`) REFERENCES `member` (`mno`),

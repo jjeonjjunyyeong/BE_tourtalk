@@ -2,6 +2,7 @@ package world.ssafy.tourtalk.model.dto.request;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,11 @@ public class TourProductRequest {
 	private String thumbnailImg;
 	private String tags;
 	private String meetingPlace;
-	private LocalTime meetingTime;
+	private int meetingTime;
 	private int duration;
+	private List<String> timeSlots;
+	
+	public void setMno(int mno) {
+		this.mno = mno;
+	}
 }

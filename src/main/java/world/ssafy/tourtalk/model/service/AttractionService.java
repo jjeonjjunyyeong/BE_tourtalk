@@ -46,4 +46,8 @@ public interface AttractionService {
     
     // 참조 데이터 존재 여부 확인
     boolean validateReferences(int contentTypeId, int areaCode, int siGunGuCode);
+	
+	// 관광지 이름 자동완성
+    List<Map<String, Integer>> searchByAttractionTitle(String keyword);
+	
 }

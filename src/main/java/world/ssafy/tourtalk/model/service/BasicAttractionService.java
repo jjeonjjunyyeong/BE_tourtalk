@@ -261,4 +261,9 @@ public class BasicAttractionService implements AttractionService {
         
         return page;
     }
+
+	@Override
+	public List<Map<String, Integer>> searchByAttractionTitle(String keyword) {
+		return attractionMapper.findTitlesByKeyword("%" + keyword + "%");
+	}
 }
