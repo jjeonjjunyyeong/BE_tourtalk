@@ -34,4 +34,11 @@ public class BoardRequest {
 		this.postId = postId;
 		this.status = status;
 	}
+	
+	public BoardRequest(int postId, BoardCategory category, String title, BoardStatus status) {
+		this.postId = postId;
+		this.category = category;
+		this.title = title;
+		this.status = status;
+	}
 }

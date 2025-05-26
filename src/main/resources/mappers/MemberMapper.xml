@@ -309,13 +309,13 @@
 	</select>
 
 	<!-- 관리자 계정으로 회원정보 수정 -->
-	<update id="updateByAdmin" parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
+	<update id="updateByAdmin" parameterType="map">
 		UPDATE member
 		SET
 		nickname = #{nickname},
 		role = #{role,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
-		javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole},
+		javaType=world.ssafy.tourtalk.model.dto.enums.Role},
 		status = #{status,
 		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
 		javaType=world.ssafy.tourtalk.model.dto.enums.MemberStatus}

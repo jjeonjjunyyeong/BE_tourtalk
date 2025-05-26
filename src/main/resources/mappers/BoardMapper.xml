@@ -281,7 +281,8 @@
 		SELECT
 		b.post_id AS postId,
 		b.title,
-		b.view_count AS viewCount,
+		b.view_count AS
+		viewCount,
 		b.comment_count AS commentCount,
 		d.created_at AS createdAt,
 		b.status
@@ -289,7 +290,8 @@
 		JOIN board_details d ON b.post_id = d.post_id
 		WHERE b.writer_id = #{cond.writerId}
 		AND b.status != 'DELETED'
-		ORDER BY d.created_at DESC
+		ORDER BY
+		d.created_at DESC
 		LIMIT #{size} OFFSET #{offset}
 	</select>
 
@@ -301,4 +303,78 @@
 		AND status != 'DELETED'
 	</select>
 
+	<!-- 게시글 목록 조회 -->
+	<select id="findBoardsWithCondition"
+		resultType="world.ssafy.tourtalk.model.dto.response.BoardResponse">
+		SELECT
+		b.post_id,
+		b.title,
+		b.content,
+		b.category,
+		b.status,
+		b.view_count,
+		b.comment_count,
+		m.nickname AS writerNickname,
+		d.created_at
+		FROM board b
+		JOIN board_details d ON b.post_id = d.post_id
+		JOIN member m ON b.writer_id = m.mno
+		WHERE 1 = 1
+		<if test="request.category != null">
+			AND b.category = #{request.category}
+		</if>
+		<if test="request.status != null">
+			AND b.status = #{request.status}
+		</if>
+		<if
+			test="request.keyword != null and request.keyword != '' and request.keywordType == 'title'">
+			AND b.title LIKE CONCAT('%', #{request.keyword}, '%')
+		</if>
+		<if
+			test="request.keyword != null and request.keyword != '' and request.keywordType == 'writer'">
+			AND m.nickname LIKE CONCAT('%', #{request.keyword}, '%')
+		</if>
+		ORDER BY
+		<choose>
+			<when test="request.orderBy != null and request.orderBy != ''">
+				${request.orderBy} ${request.orderDirection}
+			</when>
+			<otherwise>
+				b.post_id DESC
+			</otherwise>
+		</choose>
+		LIMIT #{offset}, #{request.pageSize}
+	</select>
+
+
+	<!-- 게시글 총 개수 조회 -->
+	<select id="countBoardsWithCondition" resultType="int">
+		SELECT COUNT(*)
+		FROM board b
+		JOIN board_details d ON b.post_id = d.post_id
+		JOIN member m ON b.writer_id = m.mno
+		WHERE 1 = 1
+		<if test="request.category != null">
+			AND b.category = #{request.category}
+		</if>
+		<if test="request.status != null">
+			AND b.status = #{request.status}
+		</if>
+		<if
+			test="request.keyword != null and request.keyword != '' and request.keywordType == 'title'">
+			AND b.title LIKE CONCAT('%', #{request.keyword}, '%')
+		</if>
+		<if
+			test="request.keyword != null and request.keyword != '' and request.keywordType == 'writer'">
+			AND m.nickname LIKE CONCAT('%', #{request.keyword}, '%')
+		</if>
+	</select>
+
+	<!-- 관리자 - 게시글 상태 변경 -->
+	<update id="updateStatus">
+		UPDATE board
+		SET status = #{status}
+		WHERE post_id =
+		#{postId}
+	</update>
 </mapper>

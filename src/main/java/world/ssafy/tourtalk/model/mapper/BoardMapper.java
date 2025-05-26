@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
+import world.ssafy.tourtalk.model.dto.request.BoardSearchRequest;
 import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
 
@@ -57,4 +58,13 @@ public interface BoardMapper {
             @Param("offset") int offset,
             @Param("size") int size);
 	int countMyPosts(@Param("cond") SearchConditionRequest cond);
+
+	// 게시글 목록을 검색 조건과 페이징에 따라 조회
+	List<BoardResponse> findBoardsWithCondition(@Param("request") BoardSearchRequest request, @Param("offset") int offset);
+	// 검색 조건에 해당하는 게시글 총 개수를 조회
+	int countBoardsWithCondition(@Param("request") BoardSearchRequest request);
+	// 관리자 - 게시글 상태 변경
+	void updateStatus(int postId, BoardStatus status);
+
+
 }

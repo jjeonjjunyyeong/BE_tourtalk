@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import world.ssafy.tourtalk.model.dto.enums.MemberStatus;
+import world.ssafy.tourtalk.model.dto.enums.Role;
 import world.ssafy.tourtalk.model.dto.request.MemberRequest;
 import world.ssafy.tourtalk.model.dto.request.MemberSearchRequest;
 import world.ssafy.tourtalk.model.dto.response.MemberResponse;
@@ -51,6 +52,12 @@ public interface MemberMapper {
 	Optional<MemberResponse> findMemberDetailById(@Param("mno") int mno);
 	
 	// 관리자 계정으로 회원정보 수정
-	int updateByAdmin(@Param("mno") int mno, @Param("request") MemberRequest request);
+	int updateByAdmin(
+		    @Param("mno") int mno,
+		    @Param("nickname") String nickname,
+		    @Param("role") Role role,
+		    @Param("status") MemberStatus status
+		);
+
 
 }
