@@ -171,13 +171,13 @@ public class BoardController {
 	
 	// 마이페이지 : 작성자 게시글 전체 조회
 	@GetMapping("/myPosts")
-	public ResponseEntity<?> getMyPosts(@RequestParam int writerId, @RequestParam(name = "pageNumber", defaultValue = "1") int page, 
+	public ResponseEntity<?> getMyPosts(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestParam int writerId, @RequestParam(name = "pageNumber", defaultValue = "1") int page, 
 			@RequestParam(defaultValue = "10") int size) {
 		try {
 			SearchConditionRequest condition = SearchConditionRequest.builder()
 					.pageNumber(page)
 					.pageSize(size)
-					.writerId(writerId)
+					.writerId(principal.getMno())
 					.build();
 		
 			PageResponse<BoardResponse> result = bService.getMyPosts(condition);

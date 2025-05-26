@@ -1,6 +1,5 @@
 package world.ssafy.tourtalk.model.dto.request;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +17,6 @@ public class TourBookingRequest {
 	private int mno;
 	private int productId;
 	private LocalTime time;
-	private LocalDateTime reservedAt;
 	private int participantCount;
 	private int totalPrice;
 	private String paymentMethod;

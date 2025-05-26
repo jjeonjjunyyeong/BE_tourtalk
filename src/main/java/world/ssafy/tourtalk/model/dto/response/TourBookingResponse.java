@@ -1,5 +1,6 @@
 package world.ssafy.tourtalk.model.dto.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -18,6 +19,9 @@ public class TourBookingResponse {
 	private int bookingId;
 	private int mno;
 	private int productId;
+	private String title;
+	private LocalDate startDate;
+	private String curatorNickname;
 	private LocalTime time;
 	private LocalDateTime reservedAt;
 	private int participantCount;

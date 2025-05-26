@@ -1,5 +1,6 @@
 package world.ssafy.tourtalk.model.service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,8 @@ public class TourBookingService {
 				.participantCount(request.getParticipantCount())
 				.totalPrice(request.getTotalPrice())
 				.paymentMethod(request.getPaymentMethod())
-				.paymentStatus(PaymentStatus.UNPAID)
-				.status(BookingStatus.PENDING_PAYMENT)
+				.paymentStatus(request.getPaymentStatus())
+				.status(request.getStatus())
 				.build();
 
 		return bookingMapper.insert(booking) > 0;
@@ -63,6 +64,35 @@ public class TourBookingService {
 		// 4. 전체 시간대 기준으로 participantCount가 없으면 0으로 설정
 		return allTimeSlots.stream().map(time -> new TourBookingResponse(time, reservedMap.getOrDefault(time, 0)))
 				.collect(Collectors.toList());
+	}
+
+	// 현재 로그인한 회원의 예약된 상품 목록 확인
+	public List<TourBookingResponse> getBookingsByMember(int mno) {
+		 return bookingMapper.findByMember(mno);
+	}
+
+	// 예약 취소
+	public boolean cancelBooking(int bookingId, int mno) {
+		TourBookingResponse booking = bookingMapper.getBookingById(bookingId);
+	    if (booking == null || booking.getMno() != mno) {
+	        throw new IllegalArgumentException("권한이 없거나 존재하지 않는 예약입니다.");
+	    }
+	    return bookingMapper.cancelBooking(bookingId) > 0;
+	}
+
+	// 결제 완료 처리
+	public void confirmPayment(int bookingId, int mno) throws AccessDeniedException {
+		TourBookingResponse booking = bookingMapper.getBookingById(bookingId);
+		
+		if (booking == null) {
+	        throw new IllegalArgumentException("예약 정보를 찾을 수 없습니다.");
+	    }
+
+	    if (booking.getMno() != mno) {
+	        throw new AccessDeniedException("해당 예약에 대한 결제 권한이 없습니다.");
+	    }
+
+	    bookingMapper.updatePaymentStatus(bookingId, PaymentStatus.PAID, BookingStatus.RESERVED);
 	}
 
 

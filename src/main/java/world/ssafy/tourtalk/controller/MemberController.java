@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.web.bind.annotation.RequestBody;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class MemberController {
 
 	private final MemberService memberService;
 
-	// 회원가입
+	@Operation(summary = "회원 가입", description = "사용자가 회원 정보를 입력하여 TourTalk 서비스에 가입합니다.")
 	@PostMapping
 	public ResponseEntity<?> regist(@RequestBody MemberRequest request) {
 		try {
@@ -50,7 +52,7 @@ public class MemberController {
 		}
 	}
 	
-	// 회원 정보 조회(본인)
+	@Operation(summary = "회원 정보 조회 (상세)", description = "로그인한 사용자의 이메일, 전화번호 등 상세 정보를 조회합니다.")
 	@GetMapping("/me")
 	public ResponseEntity<?> me(@AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
@@ -65,7 +67,7 @@ public class MemberController {
 		}
 	}
 	
-	// 회원 정보 수정
+	@Operation(summary = "회원 정보 수정", description = "로그인한 사용자가 본인의 회원 정보를 수정합니다.")
 	@PutMapping("/me")
 	public ResponseEntity<?> update(@RequestBody MemberRequest request, @AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
@@ -81,7 +83,7 @@ public class MemberController {
 		}
 	}
 	
-	// 회원 탈퇴
+	@Operation(summary = "회원 탈퇴", description = "로그인한 사용자가 본인의 계정을 탈퇴 처리합니다.")
 	@PostMapping("/deleted")
 	public ResponseEntity<?> softDelete(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestBody MemberRequest request) {
 		try {
@@ -98,14 +100,14 @@ public class MemberController {
 		}
 	}
 	
-	// 아이디 중복 체크
+	@Operation(summary = "아이디 중복 체크", description = "회원 가입 시 입력한 아이디가 이미 존재하는지 확인합니다.")
 	@GetMapping("/checkId")
 	public ResponseEntity<Map<String, Boolean>> checkId(@RequestParam String id) {
 	    boolean available = !memberService.existsById(id);
 	    return ResponseEntity.ok(Map.of("available", available));
 	}
 
-	// 프로필 이미지 업로드
+	@Operation(summary = "프로필 이미지 업로드", description = "사용자의 프로필 이미지를 서버에 업로드하고, 이미지 경로를 저장합니다.")
 	@PutMapping("/profile-img")
 	public ResponseEntity<?> updateProfileImg(@AuthenticationPrincipal CustomMemberPrincipal principal, @RequestParam String profileImgPath) {
 		try {
@@ -120,6 +122,7 @@ public class MemberController {
 		}
 	}
 	
+	@Operation(summary = "회원 닉네임 조회", description = "특정 회원(mno)의 닉네임을 조회합니다.")
 	@GetMapping("/{mno}/nickname")
 	public ResponseEntity<?> getNickname(@PathVariable int mno) {
 		try {

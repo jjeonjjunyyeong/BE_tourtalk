@@ -169,7 +169,158 @@
 
 	<!-- mno로 회원 닉네임 조회 -->
 	<select id="selectNicknameByMno" resultType="string">
-		SELECT nickname FROM member WHERE mno = #{mno}
+		SELECT nickname FROM
+		member WHERE mno = #{mno}
 	</select>
+
+	<!-- 회원 목록 조회 (검색/정렬/페이징) -->
+	<select id="findMembersWithCondition"
+		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse"
+		parameterType="map"> <!-- or keep MemberSearchRequest if no @Param -->
+
+		SELECT
+		m.mno,
+		m.id,
+		m.nickname,
+		m.role,
+		m.status,
+		d.email,
+		d.phone,
+		d.gender,
+		d.created_at,
+		d.last_login,
+		c.curator_no AS curatorNo
+		FROM member m
+		JOIN
+		member_details d ON m.mno = d.mno
+		LEFT JOIN curator c ON m.mno = c.mno
+		WHERE 1 = 1
+
+		<if test="request.keyword != null and request.keyword != ''">
+			<choose>
+				<when test="request.keywordType == 'id'">
+					AND m.id LIKE CONCAT('%', #{request.keyword}, '%')
+				</when>
+				<when test="request.keywordType == 'nickname'">
+					AND m.nickname LIKE CONCAT('%', #{request.keyword},
+					'%')
+				</when>
+				<otherwise>
+					AND (m.id LIKE CONCAT('%', #{request.keyword}, '%')
+					OR
+					m.nickname LIKE CONCAT('%', #{request.keyword}, '%'))
+				</otherwise>
+			</choose>
+		</if>
+
+		<if test="request.role != null">
+			AND m.role = #{request.role,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole}
+		</if>
+
+		<if test="request.status != null">
+			AND m.status = #{request.status,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.MemberStatus}
+		</if>
+
+		<choose>
+			<when test="request.orderBy != null and request.orderBy != ''">
+				ORDER BY ${request.orderBy} ${request.orderDirection}
+			</when>
+			<otherwise>
+				ORDER BY d.created_at DESC
+			</otherwise>
+		</choose>
+
+		LIMIT #{request.pageSize} OFFSET #{offset}
+	</select>
+
+
+	<!-- 총 회원 수 조회(페이지네이션용) -->
+	<select id="countMembersWithCondition" resultType="int"
+		parameterType="world.ssafy.tourtalk.model.dto.request.MemberSearchRequest">
+		SELECT COUNT(*)
+		FROM member m
+		JOIN member_details d ON m.mno = d.mno
+		WHERE 1 = 1
+
+		<if test="request.keyword != null and request.keyword != ''">
+			<choose>
+				<when test="request.keywordType == 'id'">
+					AND m.id LIKE CONCAT('%', #{request.keyword}, '%')
+				</when>
+				<when test="request.keywordType == 'nickname'">
+					AND m.nickname LIKE CONCAT('%', #{request.keyword},
+					'%')
+				</when>
+				<otherwise>
+					AND (m.id LIKE CONCAT('%', #{request.keyword}, '%')
+					OR
+					m.nickname LIKE CONCAT('%', #{request.keyword}, '%'))
+				</otherwise>
+			</choose>
+		</if>
+
+		<if test="request.role != null">
+			AND m.role = #{request.role,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole}
+		</if>
+
+		<if test="request.status != null">
+			AND m.status = #{request.status,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.MemberStatus}
+		</if>
+	</select>
+
+	<!-- 특정 회원의 기본 정보, 상세 정보, 큐레이터 정보를 모두 조회 -->
+	<select id="findMemberDetailById"
+		resultType="world.ssafy.tourtalk.model.dto.response.MemberResponse"
+		parameterType="map">
+		SELECT
+		m.mno,
+		m.id,
+		m.nickname,
+		m.role,
+		m.status,
+		m.points,
+		d.email,
+		d.phone,
+		d.gender,
+		d.address,
+		d.postal_code AS postalCode,
+		d.birth_date AS birthDate,
+		d.profile_img_path AS profileImgPath,
+		d.created_at,
+		d.updated_at,
+		d.last_login,
+		c.curator_no AS curatorNo,
+		c.curator_img AS curatorImg,
+		c.ad_grade,
+		c.approved_at
+		FROM member m
+		JOIN
+		member_details d ON m.mno = d.mno
+		LEFT JOIN curator c ON m.mno = c.mno
+		WHERE m.mno = #{mno}
+	</select>
+
+	<!-- 관리자 계정으로 회원정보 수정 -->
+	<update id="updateByAdmin" parameterType="world.ssafy.tourtalk.model.dto.request.MemberRequest">
+		UPDATE member
+		SET
+		nickname = #{nickname},
+		role = #{role,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole},
+		status = #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.MemberStatus}
+		WHERE mno = #{mno}
+	</update>
+
 
 </mapper>

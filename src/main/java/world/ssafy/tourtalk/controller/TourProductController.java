@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.enums.ProductStatus;
 import world.ssafy.tourtalk.model.dto.enums.Role;
 import world.ssafy.tourtalk.model.dto.request.ProductSearchRequest;
-import world.ssafy.tourtalk.model.dto.request.SearchConditionRequest;
 import world.ssafy.tourtalk.model.dto.request.TourProductRequest;
 import world.ssafy.tourtalk.model.dto.response.PageResponse;
 import world.ssafy.tourtalk.model.dto.response.TourProductResponse;
@@ -121,7 +120,6 @@ public class TourProductController {
 	}
 
 	@Operation(summary = "큐레이터 상품 조회", description = "큐레이터 mno 기준으로 상품 조회")
-	@PreAuthorize("hasRole('CURATOR')")
 	@GetMapping("/curator/products")
 	public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
@@ -144,10 +142,6 @@ public class TourProductController {
 			@AuthenticationPrincipal CustomMemberPrincipal principal) {
 		try {
 			TourProductResponse product = productService.getProductById(productId);
-
-			if (product.getMno() != principal.getMno()) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다.");
-			}
 
 			return product != null ? ResponseEntity.ok(product)
 					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("상세보기 할 상품이 없습니다.");
