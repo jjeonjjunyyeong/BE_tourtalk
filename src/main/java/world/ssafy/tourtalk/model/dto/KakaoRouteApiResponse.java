@@ -29,7 +29,7 @@ public class KakaoRouteApiResponse {
             private Origin origin;
             private Destination destination;
             private List<Waypoint> waypoints;
-            private Integer priority;
+            private String priority; // Integer -> String으로 변경
             private Bound bound;
             private Fare fare;
             private Integer distance;
@@ -42,6 +42,7 @@ public class KakaoRouteApiResponse {
             private Integer duration;
             private Bound bound;
             private List<Road> roads;
+            private List<Guide> guides; // 가이드 정보 추가
         }
         
         @Data
@@ -54,6 +55,19 @@ public class KakaoRouteApiResponse {
             @JsonProperty("traffic_state")
             private Integer trafficState;
             private List<List<Double>> vertexes; // [x, y] 좌표 배열
+        }
+        
+        @Data
+        public static class Guide {
+            private String name;
+            private Double x;
+            private Double y;
+            private Integer distance;
+            private Integer duration;
+            private Integer type;
+            private String guidance;
+            @JsonProperty("road_index")
+            private Integer roadIndex;
         }
         
         @Data
