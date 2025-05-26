@@ -185,75 +185,77 @@ public class BasicRouteService implements RouteService {
         return builder.build().toUri();
     }
     
-    private RouteResponseDto convertToRouteResponse(KakaoRouteApiResponse kakaoResponse, 
+    private RouteResponseDto convertToRouteResponse(KakaoRouteApiResponse kakaoResponse,
             RouteRequestDto originalRequest) {
-if (kakaoResponse.getRoutes() == null || kakaoResponse.getRoutes().isEmpty()) {
-throw new RuntimeException("경로 정보가 없습니다.");
-}
+		if (kakaoResponse.getRoutes() == null || kakaoResponse.getRoutes().isEmpty()) {
+			throw new RuntimeException("경로 정보가 없습니다.");
+		}
+		
+		KakaoRouteApiResponse.Route route = kakaoResponse.getRoutes().get(0);
+		
+		// 결과 코드 확인
+		if (route.getResultCode() != 0) {
+			throw new RuntimeException("경로 검색 실패: " + route.getResultMsg());
+		}
+		
+		// 요약 정보 변환
+		RouteResponseDto.RouteInfo routeInfo = RouteResponseDto.RouteInfo.builder()
+			.totalDistance(route.getSummary().getDistance())
+			.totalTime(route.getSummary().getDuration())
+			.tollFare(route.getSummary().getFare() != null ? route.getSummary().getFare().getToll() : 0)
+			.taxiFare(route.getSummary().getFare() != null ? route.getSummary().getFare().getTaxi() : 0)
+			.origin(originalRequest.getOrigin())
+			.destination(originalRequest.getDestination())
+			.waypoints(originalRequest.getWaypoints())
+			.build();
+		
+		// 구간 정보 변환
+		List<RouteResponseDto.RouteSection> sections = new ArrayList<>();
+		List<Coordinate> allCoordinates = new ArrayList<>();
+		
+		if (route.getSections() != null) {
+			for (KakaoRouteApiResponse.Route.Section section : route.getSections()) {
+				List<Coordinate> sectionCoords = new ArrayList<>();
+				
+				if (section.getRoads() != null) {
+					for (KakaoRouteApiResponse.Route.Road road : section.getRoads()) {
+					if (road.getVertexes() != null) {
+						// 1차원 배열을 2개씩 묶어서 좌표로 변환
+						List<Double> vertices = road.getVertexes();
+						for (int i = 0; i < vertices.size(); i += 2) {
+							if (i + 1 < vertices.size()) {
+								Coordinate coord = Coordinate.builder()
+									.longitude(BigDecimal.valueOf(vertices.get(i)))     // x = 경도
+									.latitude(BigDecimal.valueOf(vertices.get(i + 1)))  // y = 위도
+									.build();
+								
+								sectionCoords.add(coord);
+								allCoordinates.add(coord);
+							}
+						}
+					}
+				}
+			}
+			
+			RouteResponseDto.RouteSection routeSection = RouteResponseDto.RouteSection.builder()
+				.distance(section.getDistance())
+				.duration(section.getDuration())
+				.roads(sectionCoords)
+				.description(generateSectionDescription(section))
+				.trafficState(getAverageTrafficState(section))
+				.build();
+			
+			sections.add(routeSection);
+			}
+		}
+		
+		return RouteResponseDto.builder()
+		.routeInfo(routeInfo)
+		.sections(sections)
+		.coordinates(allCoordinates)
+		.build();
+	}
 
-KakaoRouteApiResponse.Route route = kakaoResponse.getRoutes().get(0);
-
-// 결과 코드 확인
-if (route.getResultCode() != 0) {
-throw new RuntimeException("경로 검색 실패: " + route.getResultMsg());
-}
-
-// 요약 정보 변환
-RouteResponseDto.RouteInfo routeInfo = RouteResponseDto.RouteInfo.builder()
-.totalDistance(route.getSummary().getDistance())
-.totalTime(route.getSummary().getDuration())
-.tollFare(route.getSummary().getFare() != null ? route.getSummary().getFare().getToll() : 0)
-.taxiFare(route.getSummary().getFare() != null ? route.getSummary().getFare().getTaxi() : 0)
-.origin(originalRequest.getOrigin())
-.destination(originalRequest.getDestination())
-.waypoints(originalRequest.getWaypoints())
-.build();
-
-// 구간 정보 변환
-List<RouteResponseDto.RouteSection> sections = new ArrayList<>();
-List<Coordinate> allCoordinates = new ArrayList<>();
-
-if (route.getSections() != null) {
-for (KakaoRouteApiResponse.Route.Section section : route.getSections()) {
-List<Coordinate> sectionCoords = new ArrayList<>();
-
-if (section.getRoads() != null) {
-    for (KakaoRouteApiResponse.Route.Road road : section.getRoads()) {
-        if (road.getVertexes() != null) {
-            // 1차원 배열을 2개씩 묶어서 좌표로 변환
-            List<Double> vertices = road.getVertexes();
-            for (int i = 0; i < vertices.size(); i += 2) {
-                if (i + 1 < vertices.size()) {
-                    Coordinate coord = Coordinate.builder()
-                        .longitude(BigDecimal.valueOf(vertices.get(i)))     // x = 경도
-                        .latitude(BigDecimal.valueOf(vertices.get(i + 1)))  // y = 위도
-                        .build();
-                    sectionCoords.add(coord);
-                    allCoordinates.add(coord);
-                }
-            }
-        }
-    }
-}
-
-RouteResponseDto.RouteSection routeSection = RouteResponseDto.RouteSection.builder()
-.distance(section.getDistance())
-.duration(section.getDuration())
-.roads(sectionCoords)
-.description(generateSectionDescription(section))
-.trafficState(getAverageTrafficState(section))
-.build();
-
-sections.add(routeSection);
-}
-}
-
-return RouteResponseDto.builder()
-.routeInfo(routeInfo)
-.sections(sections)
-.coordinates(allCoordinates)
-.build();
-}
     
     /**
      * 구간 설명 생성
