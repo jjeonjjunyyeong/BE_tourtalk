@@ -1,5 +1,7 @@
 package world.ssafy.tourtalk.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.springframework.dao.DataAccessException;
@@ -11,11 +13,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.model.dto.enums.Role;
@@ -54,24 +60,65 @@ public class AdminBoardController {
 	        }
 	    }
 
-	 @Operation(summary = "관리자 - 게시글 수정", description = "게시글 ID를 기준으로 카테고리, 제목, 상태를 변경합니다.")
-	 @PatchMapping("/{postId}/status")
-	 public ResponseEntity<?> updateBoardStatus(@PathVariable int postId, @RequestBody BoardRequest request) {
+		/*
+		 * @Operation(summary = "관리자 - 게시글 수정", description =
+		 * "게시글 ID를 기준으로 카테고리, 제목, 상태를 변경합니다.")
+		 * 
+		 * @PutMapping("/{postId}") public ResponseEntity<?>
+		 * updateBoardStatus(@PathVariable int postId, @RequestBody BoardRequest
+		 * request) { try {
+		 * 
+		 * System.out.println(postId); System.out.println("📥 전달받은 값: title=" +
+		 * request.getTitle() + ", category=" + request.getCategory() + ", status=" +
+		 * request.getStatus());
+		 * 
+		 * boolean result = adminBoardService.updateBoardByAdmin(postId, request);
+		 * 
+		 * return result ? ResponseEntity.status(HttpStatus.OK).body("게시글 수정 성공 !") :
+		 * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 수정 실패!!!"); } catch
+		 * (NoSuchElementException e) { return
+		 * ResponseEntity.status(HttpStatus.NOT_FOUND).build(); } catch
+		 * (IllegalStateException e) { return
+		 * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); } catch
+		 * (DataAccessException e) { log.error("게시글 상태 변경 실패: {}", e.getMessage(), e);
+		 * return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); } }
+		 */
+	 
+	 @PutMapping("/{postId}")
+	 public ResponseEntity<?> updateBoardStatus(@PathVariable int postId, 
+	                                          HttpServletRequest request) throws IOException {
 	     try {
-	         adminBoardService.updateBoardStatus(postId, request.getStatus());
-	         return ResponseEntity.ok().build();
-	     } catch (NoSuchElementException e) {
-	         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-	     } catch (IllegalStateException e) {
-	         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	     } catch (DataAccessException e) {
-	         log.error("게시글 상태 변경 실패: {}", e.getMessage(), e);
-	         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	         // Raw JSON 읽기
+	         StringBuilder jsonBuffer = new StringBuilder();
+	         String line;
+	         try (BufferedReader reader = request.getReader()) {
+	             while ((line = reader.readLine()) != null) {
+	                 jsonBuffer.append(line);
+	             }
+	         }
+	         
+	         // JSON 파싱
+	         ObjectMapper mapper = new ObjectMapper();
+	         BoardRequest boardRequest = mapper.readValue(jsonBuffer.toString(), BoardRequest.class);
+	         
+	         System.out.println("📥 전달받은 값: title=" + boardRequest.getTitle()
+	             + ", category=" + boardRequest.getCategory()
+	             + ", status=" + boardRequest.getStatus());
+	         
+	         boolean result = adminBoardService.updateBoardByAdmin(postId, boardRequest);
+	         
+	         return result
+	             ? ResponseEntity.status(HttpStatus.OK).body("게시글 수정 성공 !")
+	             : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 수정 실패!!!");
+	             
+	     } catch (Exception e) {
+	         log.error("게시글 수정 실패: {}", e.getMessage(), e);
+	         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("처리 중 오류 발생");
 	     }
 	 }
 	 
 	 @Operation(summary = "관리자 - 게시글 상세 조회", description = "게시글 ID를 기준으로 상세 정보를 조회합니다.")
-	 @GetMapping("/admin/boards/{postId}")
+	 @GetMapping("/{postId}")
 	 public ResponseEntity<?> getBoardDetail(@PathVariable int postId) {
 	     try {
 	         BoardResponse detail = adminBoardService.getBoardDetail(postId);

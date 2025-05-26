@@ -128,5 +128,10 @@ public class TourProductService {
                 .last(condition.getPageNumber() * condition.getPageSize() >= total)
                 .build();
 	}
+
+	// locationNo로 locationName 가져오기
+	public String getLocationById(int locationNo) {
+		return productMapper.getLocationById(locationNo);
+	}
 	
 }

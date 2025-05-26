@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import world.ssafy.tourtalk.model.dto.Page;
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
+import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.BoardSearchRequest;
 import world.ssafy.tourtalk.model.dto.response.BoardResponse;
 import world.ssafy.tourtalk.model.dto.response.PageResponse;
@@ -39,30 +42,24 @@ public class AdminBoardService {
 		return PageResponse.from(page);
 	}
 
-	// 관리자 - 게시글 상태 변경
-	public void updateBoardStatus(int postId, BoardStatus status) {
+	// 관리자 - 게시글 수정
+	@Transactional
+	public boolean updateBoardByAdmin(int postId, BoardRequest request) {
 		BoardResponse current = boardMapper.selectById(postId);
-		
+
 		if (current == null) {
-	        throw new NoSuchElementException("해당 게시글이 존재하지 않습니다.");
-	    }
-
-		BoardStatus currentStatus = current.getStatus();
-
-		if (currentStatus == BoardStatus.DELETED) {
-			throw new IllegalStateException("삭제된 게시글은 상태를 변경할 수 없습니다.");
+			throw new NoSuchElementException("해당 게시글이 존재하지 않습니다.");
 		}
 
-		if (currentStatus == status)
-			return; // 상태 변경 없음
-
-		boardMapper.updateStatus(postId, status);
-
+		String newTitle = request.getTitle() != null ? request.getTitle() : current.getTitle();
+		BoardCategory newCategory = request.getCategory() != null ? request.getCategory() : current.getCategory();
+		BoardStatus newStatus = request.getStatus() != null ? request.getStatus() : current.getStatus();
+		return boardMapper.updateBoardByAdmin(postId, newTitle, newCategory, newStatus) > 0;
 	}
 
+	// 관리자 - 게시글 조회
 	public BoardResponse getBoardDetail(int postId) {
-		// TODO Auto-generated method stub
-		return null;
+		return boardMapper.selectById(postId);
 	}
 
 }

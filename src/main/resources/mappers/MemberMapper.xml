@@ -216,7 +216,7 @@
 		<if test="request.role != null">
 			AND m.role = #{request.role,
 			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
-			javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole}
+			javaType=world.ssafy.tourtalk.model.dto.enums.Role}
 		</if>
 
 		<if test="request.status != null">
@@ -266,7 +266,7 @@
 		<if test="request.role != null">
 			AND m.role = #{request.role,
 			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
-			javaType=world.ssafy.tourtalk.model.dto.enums.MemberRole}
+			javaType=world.ssafy.tourtalk.model.dto.enums.Role}
 		</if>
 
 		<if test="request.status != null">

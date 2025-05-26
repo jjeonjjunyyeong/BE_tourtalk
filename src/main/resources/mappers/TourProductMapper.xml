@@ -84,7 +84,7 @@
 	<update id="softDeleted" parameterType="int">
 		UPDATE tour_product
 		SET
-		status = 'DELETED',
+		status = 'CANCELLED',
 		updated_at = NOW()
 		WHERE product_id = #{productId}
 	</update>
@@ -114,7 +114,8 @@
 		tp.mno AS mno,
 		tp.location_no AS locationNo,
 		tp.title AS title,
-		tp.description AS description,
+		tp.description AS
+		description,
 		tp.max_participants AS maxParticipants,
 		tp.min_participants AS minParticipants,
 		tp.price_type AS priceType,
@@ -123,12 +124,14 @@
 		tp.status AS status,
 		tp.thumbnail_img AS thumbnailImg,
 		tp.tags AS tags,
-		tp.meeting_place AS meetingPlace,
+		tp.meeting_place AS
+		meetingPlace,
 		tp.meeting_time AS meetingTime,
 		tp.duration AS duration,
 		tp.created_at AS createdAt,
 		tp.updated_at AS updatedAt
-		FROM tour_product tp
+		FROM tour_product
+		tp
 		WHERE tp.product_id = #{productId}
 	</select>
 
@@ -212,6 +215,14 @@
 			</otherwise>
 		</choose>
 		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+
+	<select id="getLocationById" resultType="string"
+		parameterType="int">
+		SELECT title
+		FROM attractions
+		WHERE no = #{locationNo}
 	</select>
 
 </mapper>

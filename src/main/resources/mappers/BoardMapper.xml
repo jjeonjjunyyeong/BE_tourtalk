@@ -318,7 +318,8 @@
 		d.created_at
 		FROM board b
 		JOIN board_details d ON b.post_id = d.post_id
-		JOIN member m ON b.writer_id = m.mno
+		JOIN member m ON
+		b.writer_id = m.mno
 		WHERE 1 = 1
 		<if test="request.category != null">
 			AND b.category = #{request.category}
@@ -346,12 +347,12 @@
 		LIMIT #{offset}, #{request.pageSize}
 	</select>
 
-
 	<!-- 게시글 총 개수 조회 -->
 	<select id="countBoardsWithCondition" resultType="int">
 		SELECT COUNT(*)
 		FROM board b
-		JOIN board_details d ON b.post_id = d.post_id
+		JOIN board_details d ON b.post_id =
+		d.post_id
 		JOIN member m ON b.writer_id = m.mno
 		WHERE 1 = 1
 		<if test="request.category != null">
@@ -370,11 +371,17 @@
 		</if>
 	</select>
 
-	<!-- 관리자 - 게시글 상태 변경 -->
-	<update id="updateStatus">
+	<!-- 관리자 - 게시글 수정 -->
+	<update id="updateBoardByAdmin">
 		UPDATE board
-		SET status = #{status}
-		WHERE post_id =
-		#{postId}
+		SET
+		title = #{title},
+		category = #{category,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardCategory},
+		status = #{status,
+			typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+			javaType=world.ssafy.tourtalk.model.dto.enums.BoardStatus}
+		WHERE post_id = #{postId}
 	</update>
 </mapper>

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,7 +88,7 @@ public class TourProductController {
 
 	@Operation(summary = "상품 삭제", description = "등록한 상품을 (소프트)삭제")
 	@PreAuthorize("hasRole('CURATOR')")
-	@PutMapping("/{productId}/deleted")
+	@DeleteMapping("/{productId}/deleted")
 	public ResponseEntity<?> softDeleted(@AuthenticationPrincipal CustomMemberPrincipal principal,
 			@PathVariable int productId) {
 		try {
@@ -151,4 +152,17 @@ public class TourProductController {
 		}
 	}
 
+	@Operation(summary = "큐레이터 상품 상세 조회", description = "조회된 상품의 상세 정보 조회")
+	@GetMapping("/locations/{locationNo}")
+	public ResponseEntity<?> getLocationById(@PathVariable int locationNo) {
+		try {
+			String locationName = productService.getLocationById(locationNo);
+
+			return locationName != null ? ResponseEntity.ok(locationName)
+					: ResponseEntity.status(HttpStatus.NOT_FOUND).body("관광지 명을 찾지 못했습니다.");
+		} catch (DataAccessException e) {
+			log.error("관광지 명 조회 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+		}
+	}
 }

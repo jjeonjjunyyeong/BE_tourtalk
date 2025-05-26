@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 import world.ssafy.tourtalk.model.dto.request.BoardRequest;
 import world.ssafy.tourtalk.model.dto.request.BoardSearchRequest;
@@ -54,17 +55,20 @@ public interface BoardMapper {
 	boolean updateCommentCount(@Param("postId") int postId);
 
 	// 마이페이지 : 내가 작성한 게시글 조회
-	List<BoardResponse> selectMyPosts(@Param("cond") SearchConditionRequest cond,
-            @Param("offset") int offset,
-            @Param("size") int size);
+	List<BoardResponse> selectMyPosts(@Param("cond") SearchConditionRequest cond, @Param("offset") int offset,
+			@Param("size") int size);
+
 	int countMyPosts(@Param("cond") SearchConditionRequest cond);
 
 	// 게시글 목록을 검색 조건과 페이징에 따라 조회
-	List<BoardResponse> findBoardsWithCondition(@Param("request") BoardSearchRequest request, @Param("offset") int offset);
+	List<BoardResponse> findBoardsWithCondition(@Param("request") BoardSearchRequest request,
+			@Param("offset") int offset);
+
 	// 검색 조건에 해당하는 게시글 총 개수를 조회
 	int countBoardsWithCondition(@Param("request") BoardSearchRequest request);
-	// 관리자 - 게시글 상태 변경
-	void updateStatus(int postId, BoardStatus status);
 
+	// 관리자 - 게시글 수정
+	int updateBoardByAdmin(@Param("postId") int postId, @Param("title") String title,
+			@Param("category") BoardCategory category, @Param("status") BoardStatus status);
 
 }

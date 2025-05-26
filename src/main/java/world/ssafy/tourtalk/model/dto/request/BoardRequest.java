@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import world.ssafy.tourtalk.model.dto.enums.BoardCategory;
 import world.ssafy.tourtalk.model.dto.enums.BoardStatus;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

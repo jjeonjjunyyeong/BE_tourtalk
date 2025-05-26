@@ -39,6 +39,9 @@ public interface TourProductMapper {
 	int countAvailableProducts(ProductSearchRequest condition);
 	// 조건에 맞는 예약 가능한 상품 목록을 페이징하여 조회
 	List<TourProductResponse> findAvailableProducts(ProductSearchRequest condition);
+
+	// locationNo로 locationName 가져오기
+	String getLocationById(int locationNo);
 	
 	
 }
