@@ -218,20 +218,22 @@ for (KakaoRouteApiResponse.Route.Section section : route.getSections()) {
 List<Coordinate> sectionCoords = new ArrayList<>();
 
 if (section.getRoads() != null) {
-for (KakaoRouteApiResponse.Route.Road road : section.getRoads()) {
-if (road.getVertexes() != null) {
-for (List<Double> vertex : road.getVertexes()) {
-if (vertex.size() >= 2) {
-Coordinate coord = Coordinate.builder()
-  .longitude(BigDecimal.valueOf(vertex.get(0))) // x = 경도
-  .latitude(BigDecimal.valueOf(vertex.get(1)))  // y = 위도
-  .build();
-sectionCoords.add(coord);
-allCoordinates.add(coord);
-}
-}
-}
-}
+    for (KakaoRouteApiResponse.Route.Road road : section.getRoads()) {
+        if (road.getVertexes() != null) {
+            // 1차원 배열을 2개씩 묶어서 좌표로 변환
+            List<Double> vertices = road.getVertexes();
+            for (int i = 0; i < vertices.size(); i += 2) {
+                if (i + 1 < vertices.size()) {
+                    Coordinate coord = Coordinate.builder()
+                        .longitude(BigDecimal.valueOf(vertices.get(i)))     // x = 경도
+                        .latitude(BigDecimal.valueOf(vertices.get(i + 1)))  // y = 위도
+                        .build();
+                    sectionCoords.add(coord);
+                    allCoordinates.add(coord);
+                }
+            }
+        }
+    }
 }
 
 RouteResponseDto.RouteSection routeSection = RouteResponseDto.RouteSection.builder()

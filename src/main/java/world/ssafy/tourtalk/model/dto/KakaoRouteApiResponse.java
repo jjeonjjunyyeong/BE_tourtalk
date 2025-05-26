@@ -54,7 +54,7 @@ public class KakaoRouteApiResponse {
             private Double trafficSpeed;
             @JsonProperty("traffic_state")
             private Integer trafficState;
-            private List<List<Double>> vertexes; // [x, y] 좌표 배열
+            private List<Double> vertexes; // List<List<Double>>에서 List<Double>로 변경
         }
         
         @Data
