@@ -1,0 +1,149 @@
+@startuml
+interface world.ssafy.tourtalk.model.mapper.ReservationMapper {
+~ int insert(ReservationRequest,int)
+~ List<ReservationResponse> selectAllByMno(int)
+~ int cancelReservation(int,int)
+}
+
+interface world.ssafy.tourtalk.model.mapper.AttractionMapper {
+~ List<Map<String,Object>> getContent()
+~ List<Map<String,Object>> getSido()
+~ List<Map<String,Object>> getGugun(String)
+~ Attraction getAttractionByNo(int)
+~ void updateViewCount(int)
+~ List<Map<String,Object>> allCountView()
+~ List<Attraction> getAttractionByDirectCodes(int,int,int)
+~ List<Attraction> getAttractionByDirectCodesWithPaging(int,int,int,int,int)
+~ int getTotalCountByDirectCodes(int,int,int)
+~ List<Attraction> searchAttractionsByCodes(SearchCondition)
+~ int countAttractionsByCodes(SearchCondition)
+~ List<Attraction> getRandomAttractions(int,Integer,Integer)
+~ int insertAttraction(Attraction)
+~ int updateAttraction(Attraction)
+~ int deleteAttraction(int)
+~ int countAttractionByTitle(String)
+~ int countContentTypeById(int)
+~ int countSidoByCode(int)
+~ int countGugunByCode(int)
+~ List<Map<String,Integer>> findTitlesByKeyword(String)
+}
+
+interface world.ssafy.tourtalk.model.mapper.CommentMapper {
+~ int insert(CommentRequest)
+~ int update(CommentRequest)
+~ int softDelete(int)
+~ int selectByWriterId(int)
+~ List<CommentResponse> selectAllByPostId(int)
+~ CommentResponse selectByCommentId(int)
+~ List<CommentResponse> selectMyComments(SearchConditionRequest,int,Integer)
+~ long countMyComments(SearchConditionRequest)
+}
+
+interface world.ssafy.tourtalk.model.mapper.HotplaceMapper {
+~ int insertHotplace(Hotplace)
+~ Hotplace getHotplaceById(Long)
+~ List<Hotplace> getAllHotplaces(int,int)
+~ List<Hotplace> getHotplacesByMno(Integer,int,int)
+~ int updateHotplace(Hotplace)
+~ int deleteHotplace(Long)
+~ int updateViewCount(Long)
+~ int getTotalHotplacesCount()
+~ int getHotplacesByMnoCount(Integer)
+~ List<Hotplace> searchHotplaces(String,Integer,int,int)
+~ int searchHotplacesCount(String,Integer)
+~ List<Hotplace> getPopularHotplaces(int)
+~ int insertHotplaceImage(Long,String,int)
+~ List<String> getHotplaceImages(Long)
+~ int deleteHotplaceImages(Long)
+~ int countContentTypeById(int)
+}
+
+interface world.ssafy.tourtalk.model.mapper.MemberMapper {
+~ int insertMember(MemberRequest)
+~ int insertMemberDetails(MemberRequest)
+~ int insertCurator(MemberRequest)
+~ MemberResponse getMemberById(String,MemberStatus)
+~ MemberResponse getMemberByMno(int,MemberStatus)
+~ MemberResponse getDetailsByMno(int)
+~ MemberResponse getCuratorByMno(int)
+~ int update(MemberRequest)
+~ int updateDetails(MemberRequest)
+~ int updateCurator(MemberRequest)
+~ int softDelete(Integer,MemberStatus)
+~ boolean existsById(String)
+~ int updateProfileImgPath(int,String)
+~ MemberResponse selectMemberByMno(Integer)
+~ String selectNicknameByMno(int)
+~ List<MemberResponse> findMembersWithCondition(MemberSearchRequest,int)
+~ int countMembersWithCondition(MemberSearchRequest)
+~ Optional<MemberResponse> findMemberDetailById(int)
+~ int updateByAdmin(int,String,Role,MemberStatus)
+}
+
+interface world.ssafy.tourtalk.model.mapper.TourBookingMapper {
+~ int insert(TourBookingRequest)
+~ int countParticipantsByProductAndTime(int,LocalTime)
+~ List<TourBookingResponse> getBookingCountByProduct(int)
+~ List<TourBookingResponse> findByMember(int)
+~ int cancelBooking(int)
+~ TourBookingResponse getBookingById(int)
+~ int updatePaymentStatus(int,PaymentStatus,BookingStatus)
+}
+
+interface world.ssafy.tourtalk.model.mapper.BoardMapper {
+~ int writeBoard(BoardRequest)
+~ int writeBoardDetails(BoardRequest)
+~ int updateBoard(BoardRequest)
+~ int updateBoardDetails(BoardRequest)
+~ BoardResponse selectById(int)
+~ void updateViewCount(int)
+~ BoardResponse findById(int)
+~ int softDelete(int,BoardStatus)
+~ int softDeleteDetail(int)
+~ List<BoardResponse> selectAll(SearchConditionRequest,int,int)
+~ long countAll(SearchConditionRequest)
+~ List<BoardResponse> searchWithConditions(SearchConditionRequest,int,int)
+~ long countWithConditions(SearchConditionRequest)
+~ boolean updateCommentCount(int)
+~ List<BoardResponse> selectMyPosts(SearchConditionRequest,int,int)
+~ int countMyPosts(SearchConditionRequest)
+~ List<BoardResponse> findBoardsWithCondition(BoardSearchRequest,int)
+~ int countBoardsWithCondition(BoardSearchRequest)
+~ int updateBoardByAdmin(int,String,BoardCategory,BoardStatus)
+}
+
+interface world.ssafy.tourtalk.model.mapper.TripPlanMapper {
+~ int insertTripPlan(TripPlan)
+~ TripPlan getTripPlanById(Long)
+~ List<TripPlan> getTripPlansByMno(Integer,TripPlanStatus)
+~ List<TripPlan> getAllTripPlansByMno(Integer)
+~ int updateTripPlan(TripPlan)
+~ int deleteTripPlan(Long)
+~ int softDeleteTripPlan(Long)
+~ int insertTripPlanAttraction(TripPlanAttraction)
+~ int insertTripPlanAttractions(Long,List<TripPlanAttraction>)
+~ List<TripPlanAttraction> getTripPlanAttractionsByTripPlanId(Long)
+~ int deleteTripPlanAttractionsByTripPlanId(Long)
+~ int countTripPlansByMno(Integer)
+~ boolean existsTripPlanById(Long)
+~ boolean isOwner(Long,Integer)
+~ List<TripPlan> getTripPlansWithPaging(Integer,TripPlanStatus,int,int)
+}
+
+interface world.ssafy.tourtalk.model.mapper.AuthMapper {
+}
+interface world.ssafy.tourtalk.model.mapper.TourProductMapper {
+~ int insertProduct(TourProductRequest)
+~ int insertTimeSlot(int,String)
+~ TourProductResponse getById(int)
+~ int update(int,TourProductRequest,int)
+~ int softDeleted(int)
+~ List<TourProductResponse> findByCurator(int)
+~ List<LocalTime> selectTimeSlots(int)
+~ int getMaxParticipants(int)
+~ int countAvailableProducts(ProductSearchRequest)
+~ List<TourProductResponse> findAvailableProducts(ProductSearchRequest)
+~ String getLocationById(int)
+}
+
+@enduml

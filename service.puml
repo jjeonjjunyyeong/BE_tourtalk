@@ -1,0 +1,16 @@
+@startuml
+class world.ssafy.tourtalk.service.FileUploadService {
+- String uploadPath
+- String baseUrl
+- {static} List<String> ALLOWED_EXTENSIONS
+- {static} long MAX_FILE_SIZE
++ List<String> uploadImages(List<MultipartFile>)
+- String uploadSingleImage(MultipartFile)
+- void validateFile(MultipartFile)
+- String getFileExtension(String)
+- void createUploadDirectory()
++ boolean deleteImage(String)
+}
+
+
+@enduml

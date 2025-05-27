@@ -1,0 +1,21 @@
+@startuml
+class world.ssafy.tourtalk.config.WebConfig {
++ WebMvcConfigurer corsConfigurer()
++ void addResourceHandlers(ResourceHandlerRegistry)
+}
+
+class world.ssafy.tourtalk.config.AdminApiKeyInterceptor {
+- String adminApiKey
++ boolean preHandle(HttpServletRequest,HttpServletResponse,Object)
+}
+
+
+class world.ssafy.tourtalk.config.RestTemplateConfig {
++ RestTemplate restTemplate()
+}
+
+
+
+org.springframework.web.servlet.config.annotation.WebMvcConfigurer <|.. world.ssafy.tourtalk.config.WebConfig
+org.springframework.web.servlet.HandlerInterceptor <|.. world.ssafy.tourtalk.config.AdminApiKeyInterceptor
+@enduml

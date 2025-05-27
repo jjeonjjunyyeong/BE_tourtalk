@@ -1,0 +1,73 @@
+@startuml
+class world.ssafy.tourtalk.restcontroller.AdminAttractionRestController {
+- AttractionService attractionService
++ ResponseEntity<?> createAttraction(AttractionCreateUpdateRequestDto)
++ ResponseEntity<?> updateAttraction(Integer,AttractionCreateUpdateRequestDto)
++ ResponseEntity<?> deleteAttraction(Integer)
+- Object createErrorResponse(String,String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.AdminAttractionRestController$ErrorResponse {
+- String error
+- String message
++ String getError()
++ String getMessage()
+}
+
+
+class world.ssafy.tourtalk.restcontroller.HotplaceRestController {
+- HotplaceService hotplaceService
++ ResponseEntity<?> createHotplace(HotplaceCreateRequestDto,CustomMemberPrincipal)
++ ResponseEntity<?> getHotplace(Long,CustomMemberPrincipal)
++ ResponseEntity<?> getAllHotplaces(int,int,CustomMemberPrincipal)
++ ResponseEntity<?> getMyHotplaces(int,int,CustomMemberPrincipal)
++ ResponseEntity<?> updateHotplace(Long,HotplaceCreateRequestDto,CustomMemberPrincipal)
++ ResponseEntity<?> deleteHotplace(Long,CustomMemberPrincipal)
++ ResponseEntity<?> searchHotplaces(String,Integer,int,int,CustomMemberPrincipal)
++ ResponseEntity<?> getPopularHotplaces(int,CustomMemberPrincipal)
+- Object createErrorResponse(String,String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.HotplaceRestController$ErrorResponse {
+- String error
+- String message
++ String getError()
++ String getMessage()
+}
+
+
+class world.ssafy.tourtalk.restcontroller.AttractionRestController {
+- AttractionService attractionService
+- String keySgisServiceId
+- String keySgisSecurity
+- String keyVworld
+- String keyData
++ ResponseEntity<?> getAttractionByNo(Integer)
++ ResponseEntity<?> getAttractionsByDirectCodes(Integer,Integer,Integer,int,int)
++ ResponseEntity<?> searchAttractions(AttractionSearchRequestDto)
++ ResponseEntity<?> getAttractionFormData()
++ ResponseEntity<?> getGugunList(String)
++ ResponseEntity<?> getPopularAttractions(int)
++ ResponseEntity<?> getRandomAttractionsByTheme(Integer,int)
++ ResponseEntity<?> getRandomAttractionsByRegion(Integer,int)
++ ResponseEntity<?> searchByAttractionTitle(String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.ImageController {
+- String uploadPath
++ ResponseEntity<Resource> getHotplaceImage(String)
+- String getContentType(String)
+}
+
+
+
+
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.AdminAttractionRestController
+world.ssafy.tourtalk.restcontroller.AdminAttractionRestController +.. world.ssafy.tourtalk.restcontroller.AdminAttractionRestController$ErrorResponse
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.HotplaceRestController
+world.ssafy.tourtalk.restcontroller.HotplaceRestController +.. world.ssafy.tourtalk.restcontroller.HotplaceRestController$ErrorResponse
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.AttractionRestController
+@enduml

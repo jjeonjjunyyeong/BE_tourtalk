@@ -1,0 +1,43 @@
+@startuml
+!theme plain
+
+title 회원 관리 Use Case 다이어그램
+
+left to right direction
+
+' 액터 정의
+:게스트: as Guest
+:일반 사용자: as User
+:큐레이터: as Curator
+:관리자: as Admin
+
+' 시스템 경계
+rectangle "TourTalk 시스템 - 회원 관리" {
+    usecase "회원가입" as UC1
+    usecase "로그인/로그아웃" as UC2
+    usecase "회원정보 수정" as UC3
+    usecase "프로필 이미지 업로드" as UC4
+    usecase "회원 탈퇴" as UC5
+}
+
+' 게스트 관계
+Guest --> UC1
+Guest --> UC2
+
+' 일반 사용자 관계
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+
+' 큐레이터 관계
+Curator --> UC2
+Curator --> UC3
+Curator --> UC4
+Curator --> UC5
+
+' 관리자 관계
+Admin --> UC3
+Admin --> UC5
+
+@enduml

@@ -1,0 +1,1729 @@
+@startuml
+class world.ssafy.tourtalk.controller.BoardController {
+- BoardService bService
++ ResponseEntity<?> write(CustomMemberPrincipal,BoardRequest)
++ ResponseEntity<?> selectById(int)
++ ResponseEntity<?> update(CustomMemberPrincipal,BoardRequest)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,int)
++ ResponseEntity<?> searchOrList(String,String,BoardCategory,Integer,int,int,String,String)
++ ResponseEntity<?> selectAll(int,int,BoardStatus)
++ ResponseEntity<?> getMyPosts(CustomMemberPrincipal,int,int,int)
+}
+
+
+class world.ssafy.tourtalk.service.FileUploadService {
+- String uploadPath
+- String baseUrl
+- {static} List<String> ALLOWED_EXTENSIONS
+- {static} long MAX_FILE_SIZE
++ List<String> uploadImages(List<MultipartFile>)
+- String uploadSingleImage(MultipartFile)
+- void validateFile(MultipartFile)
+- String getFileExtension(String)
+- void createUploadDirectory()
++ boolean deleteImage(String)
+}
+
+
+class world.ssafy.tourtalk.config.RestTemplateConfig {
++ RestTemplate restTemplate()
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.Role {
++  USER
++  CURATOR
++  ADMIN
+- String desc
++ String getDesc()
++ {static} Role from(String)
+}
+
+
+interface world.ssafy.tourtalk.controller.RestControllerHelper {
+~ ResponseEntity<?> handleSuccess(Object)
+~ ResponseEntity<?> handleFail(Exception)
+~ ResponseEntity<?> handleSuccess(Object,HttpStatus)
+~ ResponseEntity<?> handleFail(Exception,HttpStatus)
+}
+
+class world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler {
+- Class<E> type
++ void setNonNullParameter(PreparedStatement,int,E,JdbcType)
++ E getNullableResult(ResultSet,String)
++ E getNullableResult(ResultSet,int)
++ E getNullableResult(CallableStatement,int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.TourBookingRequest {
+- int mno
+- int productId
+- LocalTime time
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- BookingStatus status
+}
+
+class world.ssafy.tourtalk.model.dto.response.CommentResponse {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- CommentStatus status
+- String writerNickname
+- String postTitle
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.BoardCategory {
++  NOTICE
++  FREE
++  QNA
++  INQUIRY
++  REVIEW
+- String desc
++ String getDesc()
++ String getValue()
++ {static} BoardCategory from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.CommentRequest {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- CommentStatus status
+}
+
+class world.ssafy.tourtalk.model.dto.request.BoardSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String keywordType
+- BoardCategory category
+- BoardStatus status
++ void setDefaults()
++ int getOffset()
++ boolean hasSearchCondition()
+}
+
+
+class world.ssafy.tourtalk.controller.TourProductController {
+- TourProductService productService
++ ResponseEntity<?> insert(CustomMemberPrincipal,TourProductRequest)
++ ResponseEntity<?> update(CustomMemberPrincipal,int,TourProductRequest)
++ ResponseEntity<?> softDeleted(CustomMemberPrincipal,int)
++ ResponseEntity<?> getAvailbableProducts(int,int)
++ ResponseEntity<?> getMyProducts(CustomMemberPrincipal)
++ ResponseEntity<?> getProductById(int,CustomMemberPrincipal)
++ ResponseEntity<?> getLocationById(int)
+}
+
+
+class world.ssafy.tourtalk.model.service.BoardService {
+- BoardMapper boardMapper
++ boolean write(BoardRequest)
++ BoardResponse selectById(int)
++ boolean update(BoardRequest)
++ boolean softDelete(int)
++ BoardResponse findById(int)
++ PageResponse<BoardResponse> selectAll(SearchConditionRequest)
++ PageResponse<BoardResponse> searchWithConditions(SearchConditionRequest)
++ PageResponse<BoardResponse> getMyPosts(SearchConditionRequest)
+}
+
+
+class world.ssafy.tourtalk.model.dto.Comments {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- Status status
+}
+
+enum world.ssafy.tourtalk.model.dto.Status {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.PriceType {
++  TOTAL
++  PER_PERSON
+- String desc
++ String getDesc()
++ {static} PriceType from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.TourProductRequest {
+- int productId
+- int mno
+- int locationNo
+- String title
+- String description
+- int maxParticipants
+- int minParticipants
+- PriceType priceType
+- int price
+- LocalDate startDate
+- ProductStatus status
+- String thumbnailImg
+- String tags
+- String meetingPlace
+- int meetingTime
+- int duration
+- List<String> timeSlots
++ void setMno(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.attraction.AttractionCreateUpdateRequestDto {
+- String title
+- Integer contentTypeId
+- Integer areaCode
+- Integer siGunGuCode
+- Integer contentId
+- Double latitude
+- Double longitude
+- String firstImage1
+- String firstImage2
+- Integer mapLevel
+- String tel
+- String addr1
+- String addr2
+- String homepage
+- String overview
+}
+
+interface world.ssafy.tourtalk.model.mapper.AttractionMapper {
+~ List<Map<String,Object>> getContent()
+~ List<Map<String,Object>> getSido()
+~ List<Map<String,Object>> getGugun(String)
+~ Attraction getAttractionByNo(int)
+~ void updateViewCount(int)
+~ List<Map<String,Object>> allCountView()
+~ List<Attraction> getAttractionByDirectCodes(int,int,int)
+~ List<Attraction> getAttractionByDirectCodesWithPaging(int,int,int,int,int)
+~ int getTotalCountByDirectCodes(int,int,int)
+~ List<Attraction> searchAttractionsByCodes(SearchCondition)
+~ int countAttractionsByCodes(SearchCondition)
+~ List<Attraction> getRandomAttractions(int,Integer,Integer)
+~ int insertAttraction(Attraction)
+~ int updateAttraction(Attraction)
+~ int deleteAttraction(int)
+~ int countAttractionByTitle(String)
+~ int countContentTypeById(int)
+~ int countSidoByCode(int)
+~ int countGugunByCode(int)
+~ List<Map<String,Integer>> findTitlesByKeyword(String)
+}
+
+class world.ssafy.tourtalk.model.dto.SearchCondition {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
+}
+
+
+class world.ssafy.tourtalk.model.dto.Hotplace {
+- Long id
+- Integer mno
+- String title
+- double latitude
+- double longitude
+- int rating
+- int contentTypeId
+- String contentTypeName
+- String description
+- String review
+- String recommendationReason
+- List<String> imageUrls
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- boolean isOwner
+- int viewCount
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse {
+- String transId
+- List<Route> routes
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route {
+- Integer resultCode
+- String resultMsg
+- Summary summary
+- List<Section> sections
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Summary {
+- Origin origin
+- Destination destination
+- List<Waypoint> waypoints
+- String priority
+- Bound bound
+- Fare fare
+- Integer distance
+- Integer duration
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Section {
+- Integer distance
+- Integer duration
+- Bound bound
+- List<Road> roads
+- List<Guide> guides
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Road {
+- String name
+- Integer distance
+- Integer duration
+- Double trafficSpeed
+- Integer trafficState
+- List<Double> vertexes
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Guide {
+- String name
+- Double x
+- Double y
+- Integer distance
+- Integer duration
+- Integer type
+- String guidance
+- Integer roadIndex
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Origin {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Destination {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Waypoint {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Bound {
+- Double minX
+- Double minY
+- Double maxX
+- Double maxY
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Fare {
+- Integer taxi
+- Integer toll
+}
+
+class world.ssafy.tourtalk.ai.controller.AiController {
+- AiService chatService
+~ ResponseEntity<?> simpleGeneration(Map<String,String>)
+~ ResponseEntity<?> advisedGeneration(Map<String,String>)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionDetailResponseDto {
+- AttractionResponseDto attraction
+- List<AttractionResponseDto> nearbyAttractions
++ {static} AttractionDetailResponseDto from(AttractionDetail)
+}
+
+
+interface world.ssafy.tourtalk.model.service.TripPlanService {
+~ TripPlan createTripPlan(Integer,TripPlanCreateRequestDto)
+~ TripPlan getTripPlanById(Long,Integer)
+~ List<TripPlan> getUserTripPlans(Integer)
+~ List<TripPlan> getUserTripPlansByStatus(Integer,TripPlanStatus)
+~ TripPlan updateTripPlan(Long,Integer,TripPlanCreateRequestDto)
+~ boolean deleteTripPlan(Long,Integer)
+~ boolean softDeleteTripPlan(Long,Integer)
+~ Page<TripPlan> getUserTripPlansWithPaging(Integer,TripPlanStatus,int,int)
+~ boolean isOwner(Long,Integer)
+~ boolean existsTripPlan(Long)
+}
+
+class world.ssafy.tourtalk.restcontroller.AdminAttractionRestController {
+- AttractionService attractionService
++ ResponseEntity<?> createAttraction(AttractionCreateUpdateRequestDto)
++ ResponseEntity<?> updateAttraction(Integer,AttractionCreateUpdateRequestDto)
++ ResponseEntity<?> deleteAttraction(Integer)
+- Object createErrorResponse(String,String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.AdminAttractionRestController$ErrorResponse {
+- String error
+- String message
++ String getError()
++ String getMessage()
+}
+
+
+class world.ssafy.tourtalk.controller.RouteController {
+- RouteService routeService
++ ResponseEntity<?> searchRoute(RouteRequestDto)
++ ResponseEntity<?> searchSimpleRoute(Double,Double,Double,Double,String,String)
++ ResponseEntity<?> searchMultiPointRoute(List<Coordinate>)
++ ResponseEntity<?> getRouteOptions()
++ ResponseEntity<?> validateCoordinates(List<Coordinate>)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TourProductResponse {
+- int productId
+- int mno
+- int locationNo
+- String title
+- String description
+- int maxParticipants
+- int minParticipants
+- PriceType priceType
+- int price
+- LocalDate startDate
+- ProductStatus status
+- String thumbnailImg
+- String tags
+- String meetingPlace
+- int meetingTime
+- int duration
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<LocalTime> timeSlots
++ void setTimeSlots(List<LocalTime>)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.ImageController {
+- String uploadPath
++ ResponseEntity<Resource> getHotplaceImage(String)
+- String getContentType(String)
+}
+
+
+class world.ssafy.tourtalk.controller.TripPlanController {
+- TripPlanService tripPlanService
++ ResponseEntity<?> createTripPlan(CustomMemberPrincipal,TripPlanCreateRequestDto)
++ ResponseEntity<?> getTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> getUserTripPlans(CustomMemberPrincipal,TripPlanStatus,int,int)
++ ResponseEntity<?> updateTripPlan(Long,CustomMemberPrincipal,TripPlanCreateRequestDto)
++ ResponseEntity<?> deleteTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> softDeleteTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> updateTripPlanStatus(Long,TripPlanStatus,CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.model.dto.TripPlan {
+- Long id
+- Integer mno
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<TripPlanAttraction> attractions
+}
+
+class world.ssafy.tourtalk.controller.ReservationController {
+- ReservationService reservationService
++ ResponseEntity<?> reserve(CustomMemberPrincipal,ReservationRequest)
++ ResponseEntity<?> getMyReservations(CustomMemberPrincipal)
++ ResponseEntity<?> cancelReservation(int,CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto {
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- List<TripPlanAttractionRequestDto> attractions
+}
+
+class world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto$TripPlanAttractionRequestDto {
+- Integer attractionId
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
+}
+
+class world.ssafy.tourtalk.controller.ReservationIntegrationTest {
+- MockMvc mockMvc
+- ObjectMapper objectMapper
+- JwtTokenProvider jwtTokenProvider
+- String token
+~ void setup()
+~ void clearContext()
+~ void 예약_등록_성공()
+~ void 내_예약_목록_조회()
+~ void 예약_취소_성공()
+}
+
+
+class world.ssafy.tourtalk.controller.AuthController {
+- AuthService aService
+- JwtTokenProvider jwtTokenProvider
++ ResponseEntity<?> login(String,String,HttpServletResponse)
++ ResponseEntity<?> logout(HttpServletResponse)
++ ResponseEntity<?> checkLoginStatus(CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.BoardRequest {
+- int postId
+- BoardCategory category
+- int writerId
+- String title
+- String content
+- BoardStatus status
+- int viewCount
+- int commentCount
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+}
+
+class world.ssafy.tourtalk.model.dto.response.PageResponse {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ {static} PageResponse<T> from(Page<T>)
++ {static} PageResponse<T> from(Page<S>,java.util.function.Function<S,T>)
++ void calculatePageInfo(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.common.Coordinate {
+- BigDecimal longitude
+- BigDecimal latitude
+- String name
++ BigDecimal getX()
++ BigDecimal getY()
++ void setX(BigDecimal)
++ void setY(BigDecimal)
++ boolean isValid()
++ double distanceTo(Coordinate)
++ String toCoordinateString()
++ String toKakaoMapUrl()
++ {static} Coordinate of(double,double)
++ {static} Coordinate of(double,double,String)
++ {static} Coordinate fromString(String)
++ String toString()
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.AuthMapper {
+}
+class world.ssafy.tourtalk.model.dto.request.MemberSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String keywordType
+- Role role
+- MemberStatus status
++ void setDefaults()
++ int getOffset()
++ boolean hasSearchCondition()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.common.PageResponseDto {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ void calculatePageInfo(int)
++ {static} PageResponseDto<T> from(world.ssafy.tourtalk.model.dto.Page<T>)
+}
+
+
+class world.ssafy.tourtalk.model.service.AdminBoardService {
+- BoardMapper boardMapper
++ PageResponse<BoardResponse> searchBoards(BoardSearchRequest)
++ boolean updateBoardByAdmin(int,BoardRequest)
++ BoardResponse getBoardDetail(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.attraction.AttractionSearchRequestDto {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
++ world.ssafy.tourtalk.model.dto.SearchCondition toSearchCondition()
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.ReservationStatus {
++  WAITING_FOR_PAYMENT
++  RESERVED
++  CANCELLED
++  COMPLETED
+- String desc
++ String getDesc()
++ {static} ReservationStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicAttractionServiceTest {
+- AttractionMapper attractionMapper
+- BasicAttractionService attractionService
+- Attraction testAttraction
+- List<Attraction> attractionList
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+- List<Map<String,Object>> gugunList
+~ void setUp()
+~ void getAttractionByNoTest()
+~ void getRandomAttractionsTest()
+~ void getRandomAttractionsByThemeTest()
+~ void getRandomAttractionsByRegionTest()
+~ void getAttractionsByDirectCodesWithPagingTest()
+~ void searchAttractionsByCodesTest()
+~ void getContentTypeIdByNameTest()
+~ void getSidoCodeByNameTest()
+~ void getGugunCodeByNameTest()
+}
+
+
+class world.ssafy.tourtalk.ai.config.AiConfig {
+~ String systemPrompt
+~ String travelChatPrompt
+~ String attractionInfoPrompt
+~ ChatClient simpleChatClient(ChatClient.Builder)
+~ ChatClient reReadingChatClient(ChatClient.Builder)
+~ ChatMemory chatMemory()
+~ ChatClient advisedChatClient(ChatClient.Builder,ChatMemory)
+~ ChatClient travelChatClient(ChatClient.Builder)
+~ ChatClient attractionInfoClient(ChatClient.Builder)
+}
+
+
+class world.ssafy.tourtalk.model.service.MemberService {
+- MemberMapper memberMapper
+- BCryptPasswordEncoder passwordEncoder
++ boolean regist(MemberRequest)
++ MemberResponse getDetails(int)
++ MemberResponse me(int)
+- String nonNullOr(String,String)
++ boolean update(MemberRequest)
++ boolean softDelete(Integer,String)
++ boolean existsById(String)
++ boolean updateProfileImgPath(int,String)
++ String findNicknameByMno(int)
+}
+
+
+class world.ssafy.tourtalk.security.auth.CustomMemberPrincipal {
+- int mno
+- String id
+- String nickname
+- Role role
++ Collection<? extends GrantedAuthority> getAuthorities()
++ String getPassword()
++ String getUsername()
++ boolean isAccountNonExpired()
++ boolean isAccountNonLocked()
++ boolean isCredentialsNonExpired()
++ boolean isEnabled()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.MemberResponse {
+- int mno
+- String id
+- String password
+- String nickname
+- Role role
+- MemberStatus status
+- int points
+- String email
+- String phone
+- Gender gender
+- String address
+- String postalCode
+- LocalDate birthDate
+- String profileImgPath
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime lastLogin
+- String curatorNo
+- String curatorImg
+- int adGrade
+- LocalDateTime approvedAt
+}
+
+class world.ssafy.tourtalk.controller.TourBookingController {
+- TourBookingService bookingService
++ ResponseEntity<?> reserve(CustomMemberPrincipal,TourBookingRequest)
++ ResponseEntity<?> getBookingCounts(int)
++ ResponseEntity<?> getMyBookings(CustomMemberPrincipal)
++ ResponseEntity<?> cancelBooking(int,CustomMemberPrincipal)
++ ResponseEntity<?> confirmPayment(int,CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.ai.service.BasicAiService {
+- ChatModel model2
+- ChatClient simpleChatClient
+- ChatClient reReadingChatClient
+- ChatClient advisedChatClient
+- ChatClient travelChatClient
+- ChatClient attractionInfoClient
++ Object simpleGeneration(String)
++ String reReadingGeneration(String)
++ String advisedGeneration(String)
++ String travelChatGeneration(String)
++ String attractionInfoGeneration(String,String,String)
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.HotplaceMapper {
+~ int insertHotplace(Hotplace)
+~ Hotplace getHotplaceById(Long)
+~ List<Hotplace> getAllHotplaces(int,int)
+~ List<Hotplace> getHotplacesByMno(Integer,int,int)
+~ int updateHotplace(Hotplace)
+~ int deleteHotplace(Long)
+~ int updateViewCount(Long)
+~ int getTotalHotplacesCount()
+~ int getHotplacesByMnoCount(Integer)
+~ List<Hotplace> searchHotplaces(String,Integer,int,int)
+~ int searchHotplacesCount(String,Integer)
+~ List<Hotplace> getPopularHotplaces(int)
+~ int insertHotplaceImage(Long,String,int)
+~ List<String> getHotplaceImages(Long)
+~ int deleteHotplaceImages(Long)
+~ int countContentTypeById(int)
+}
+
+class world.ssafy.tourtalk.model.dto.request.MemberRequest {
+- int mno
+- String id
+- String password
+- String nickname
+- Role role
+- MemberStatus status
+- int points
+- String email
+- String phone
+- Gender gender
+- String address
+- String postalCode
+- LocalDate birthDate
+- String profileImgPath
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime lastLogin
+- String curatorNo
+- String curatorImg
+- int adGrade
+- LocalDateTime approvedAt
++ void setMno(int)
++ void setPassword(String)
++ void setPhone(String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.TripPlanStatus {
++  DRAFT
++  COMPLETED
++  DELETED
+- String desc
++ String getDesc()
++ {static} TripPlanStatus from(String)
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.TripPlanMapper {
+~ int insertTripPlan(TripPlan)
+~ TripPlan getTripPlanById(Long)
+~ List<TripPlan> getTripPlansByMno(Integer,TripPlanStatus)
+~ List<TripPlan> getAllTripPlansByMno(Integer)
+~ int updateTripPlan(TripPlan)
+~ int deleteTripPlan(Long)
+~ int softDeleteTripPlan(Long)
+~ int insertTripPlanAttraction(TripPlanAttraction)
+~ int insertTripPlanAttractions(Long,List<TripPlanAttraction>)
+~ List<TripPlanAttraction> getTripPlanAttractionsByTripPlanId(Long)
+~ int deleteTripPlanAttractionsByTripPlanId(Long)
+~ int countTripPlansByMno(Integer)
+~ boolean existsTripPlanById(Long)
+~ boolean isOwner(Long,Integer)
+~ List<TripPlan> getTripPlansWithPaging(Integer,TripPlanStatus,int,int)
+}
+
+class world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor {
+- int order
++ String getName()
++ int getOrder()
++ AdvisedResponse aroundCall(AdvisedRequest,CallAroundAdvisorChain)
+- AdvisedRequest before(AdvisedRequest)
+}
+
+
+interface world.ssafy.tourtalk.model.service.AttractionService {
+~ List<Map<String,Object>> getContent()
+~ List<Map<String,Object>> getSido()
+~ List<Map<String,Object>> getGugun(String)
+~ Attraction getAttractionByNo(int)
+~ int getContentTypeIdByName(String)
+~ int getSidoCodeByName(String)
+~ int getGugunCodeByName(String,int)
+~ List<Attraction> getRandomAttractions(int)
+~ List<Attraction> getRandomAttractionsByTheme(int,int)
+~ List<Attraction> getRandomAttractionsByRegion(int,int)
+~ void updateViewCount(int)
+~ List<Map<String,Object>> allCountView()
+~ List<Attraction> getAttractionsByDirectCodes(int,int,int)
+~ Page<Attraction> getAttractionsByDirectCodesWithPaging(int,int,int,int,int)
+~ Page<Attraction> searchAttractionsByCodes(SearchCondition)
+~ Attraction createAttraction(AttractionCreateUpdateRequestDto)
+~ Attraction updateAttraction(int,AttractionCreateUpdateRequestDto)
+~ boolean deleteAttraction(int)
+~ boolean existsAttractionByTitle(String)
+~ boolean validateReferences(int,int,int)
+~ List<Map<String,Integer>> searchByAttractionTitle(String)
+}
+
+class world.ssafy.tourtalk.model.service.BasicAttractionService {
+- AttractionMapper attractionMapper
++ List<Map<String,Object>> getContent()
++ List<Map<String,Object>> getSido()
++ List<Map<String,Object>> getGugun(String)
++ Attraction getAttractionByNo(int)
++ int getContentTypeIdByName(String)
++ int getSidoCodeByName(String)
++ int getGugunCodeByName(String,int)
++ List<Attraction> getRandomAttractions(int)
++ List<Attraction> getRandomAttractionsByTheme(int,int)
++ List<Attraction> getRandomAttractionsByRegion(int,int)
++ void updateViewCount(int)
++ List<Map<String,Object>> allCountView()
++ List<Attraction> getAttractionsByDirectCodes(int,int,int)
++ Page<Attraction> getAttractionsByDirectCodesWithPaging(int,int,int,int,int)
++ Page<Attraction> searchAttractionsByCodes(SearchCondition)
++ Attraction createAttraction(AttractionCreateUpdateRequestDto)
++ Attraction updateAttraction(int,AttractionCreateUpdateRequestDto)
++ boolean deleteAttraction(int)
++ boolean existsAttractionByTitle(String)
++ boolean validateReferences(int,int,int)
+- Page<Attraction> createPage(List<Attraction>,int,int,long)
++ List<Map<String,Integer>> searchByAttractionTitle(String)
+}
+
+
+class world.ssafy.tourtalk.controller.AdminBoardController {
+- AdminBoardService adminBoardService
++ ResponseEntity<PageResponse<BoardResponse>> getBoards(CustomMemberPrincipal,BoardSearchRequest)
++ ResponseEntity<?> updateBoardStatus(int,HttpServletRequest)
++ ResponseEntity<?> getBoardDetail(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.route.RouteValidationDto {
+- boolean valid
+- List<String> errors
++ {static} RouteValidationDto validate(RouteRequestDto)
+}
+
+
+interface world.ssafy.tourtalk.model.service.RouteService {
+~ RouteResponseDto getRoute(RouteRequestDto)
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.ProductStatus {
++  DRAFT
++  OPEN
++  CLOSED
++  CANCELLED
++  DELETED
+- String desc
++ String getDesc()
++ {static} ProductStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.Board {
+- int postId
+- int categoryId
+- int writerId
+- String title
+- String content
+- Status status
+- int viewCount
+- int commentCount
+}
+
+enum world.ssafy.tourtalk.model.dto.Status {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
+}
+
+
+class world.ssafy.tourtalk.restcontroller.AttractionRestControllerTest {
+- MockMvc mockMvc
+- AttractionService attractionService
+- Attraction sampleAttraction
+- List<Attraction> attractionList
+- Page<Attraction> attractionPage
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+~ void setUp()
+~ void getAttractionByNoTest()
+~ void getAttractionsByDirectCodesTest()
+~ void searchAttractionsTest()
+~ void getAttractionFormDataTest()
+~ void getPopularAttractionsTest()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TourBookingResponse {
+- int bookingId
+- int mno
+- int productId
+- String title
+- LocalDate startDate
+- String curatorNickname
+- LocalTime time
+- LocalDateTime reservedAt
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- BookingStatus status
+- LocalDateTime cancelledAt
+}
+
+class world.ssafy.tourtalk.model.dto.Attraction {
+- int no
+- int contentId
+- String title
+- int contentTypeId
+- String contentTypeName
+- int sidoCode
+- String sido
+- int gugunCode
+- String gugun
+- double latitude
+- double longitude
+- Integer mapLevel
+- String firstImage1
+- String firstImage2
+- String tel
+- String addr
+- String addr2
+- String homepage
+- String overview
+- int viewCnt
+- double distance
+- boolean hasImage
++ boolean isHasImage()
++ boolean matchesKeyword(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.BoardDetails {
+- int postId
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+}
+
+class world.ssafy.tourtalk.model.service.AdminMemberService {
+- MemberMapper memberMapper
++ PageResponse<MemberResponse> searchMembers(MemberSearchRequest)
++ MemberResponse getMemberById(int)
++ void updateMember(int,MemberRequest)
+}
+
+
+class world.ssafy.tourtalk.security.jwt.JwtAuthenticationFilter {
+- JwtTokenProvider jwtProvider
+# void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+}
+
+
+class world.ssafy.tourtalk.controller.FileController {
+- FileService fileService
++ ResponseEntity<?> upload(MultipartFile,String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.AttractionRestController {
+- AttractionService attractionService
+- String keySgisServiceId
+- String keySgisSecurity
+- String keyVworld
+- String keyData
++ ResponseEntity<?> getAttractionByNo(Integer)
++ ResponseEntity<?> getAttractionsByDirectCodes(Integer,Integer,Integer,int,int)
++ ResponseEntity<?> searchAttractions(AttractionSearchRequestDto)
++ ResponseEntity<?> getAttractionFormData()
++ ResponseEntity<?> getGugunList(String)
++ ResponseEntity<?> getPopularAttractions(int)
++ ResponseEntity<?> getRandomAttractionsByTheme(Integer,int)
++ ResponseEntity<?> getRandomAttractionsByRegion(Integer,int)
++ ResponseEntity<?> searchByAttractionTitle(String)
+}
+
+
+class world.ssafy.tourtalk.TourtalkApplicationTests {
+~ void contextLoads()
+}
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto {
+- RouteInfo routeInfo
+- List<RouteSection> sections
+- List<Coordinate> coordinates
+}
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteInfo {
+- Integer totalDistance
+- Integer totalTime
+- Integer tollFare
+- Integer taxiFare
+- Coordinate origin
+- Coordinate destination
+- List<Coordinate> waypoints
++ double getDistanceInKm()
++ int getTimeInMinutes()
++ String getFormattedTime()
++ String getFormattedDistance()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteSection {
+- Integer distance
+- Integer duration
+- Integer trafficState
+- List<Coordinate> roads
+- String description
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.PaymentStatus {
++  UNPAID
++  PAID
++  REFUNDED
+- String desc
++ String getDesc()
++ {static} PaymentStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto {
+- Long id
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<TripPlanAttractionResponseDto> attractions
++ {static} TripPlanResponseDto from(TripPlan)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto$TripPlanAttractionResponseDto {
+- Long id
+- Integer attractionId
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
++ {static} TripPlanAttractionResponseDto from(TripPlanAttraction)
+}
+
+
+class world.ssafy.tourtalk.model.service.ReservationService {
+- ReservationMapper reservationMapper
++ boolean reserve(ReservationRequest,int)
++ List<ReservationResponse> getReservationsByMno(int)
++ boolean cancel(int,int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.AttractionDetail {
+- Attraction attraction
+- Attraction[] nearbyAttractions
+}
+
+class world.ssafy.tourtalk.model.dto.request.PageRequest {
+- SearchConditionRequest condition
+}
+
+class world.ssafy.tourtalk.controller.BoardControllerTest {
+- BoardService boardService
+~ void 게시글_검색_제목으로_정상작동()
+}
+
+
+class world.ssafy.tourtalk.model.dto.TripPlanAttraction {
+- Long id
+- Long tripPlanId
+- Integer attractionNo
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
+- LocalDateTime createdAt
+}
+
+interface world.ssafy.tourtalk.model.mapper.CommentMapper {
+~ int insert(CommentRequest)
+~ int update(CommentRequest)
+~ int softDelete(int)
+~ int selectByWriterId(int)
+~ List<CommentResponse> selectAllByPostId(int)
+~ CommentResponse selectByCommentId(int)
+~ List<CommentResponse> selectMyComments(SearchConditionRequest,int,Integer)
+~ long countMyComments(SearchConditionRequest)
+}
+
+class world.ssafy.tourtalk.config.AdminApiKeyInterceptor {
+- String adminApiKey
++ boolean preHandle(HttpServletRequest,HttpServletResponse,Object)
+}
+
+
+class world.ssafy.tourtalk.model.dto.AttractionForm {
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+- List<Attraction> randomAttractions
+}
+
+interface world.ssafy.tourtalk.model.mapper.TourBookingMapper {
+~ int insert(TourBookingRequest)
+~ int countParticipantsByProductAndTime(int,LocalTime)
+~ List<TourBookingResponse> getBookingCountByProduct(int)
+~ List<TourBookingResponse> findByMember(int)
+~ int cancelBooking(int)
+~ TourBookingResponse getBookingById(int)
+~ int updatePaymentStatus(int,PaymentStatus,BookingStatus)
+}
+
+class world.ssafy.tourtalk.model.dto.request.SearchConditionRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- String keywordType
+- BoardCategory category
+- Integer writerId
+- BoardStatus status
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
++ SearchConditionRequest toSearchCondition()
++ {static} SearchConditionRequest from(SearchConditionRequest)
++ boolean hasSearchCondition()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionResponseDto {
+- int no
+- int contentId
+- String title
+- int contentTypeId
+- String contentTypeName
+- int sidoCode
+- String sido
+- int gugunCode
+- String gugun
+- double latitude
+- double longitude
+- Integer mapLevel
+- String firstImage1
+- String firstImage2
+- String tel
+- String addr
+- String addr2
+- String homepage
+- String overview
+- int viewCnt
++ {static} AttractionResponseDto from(Attraction)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.HotplaceRestController {
+- HotplaceService hotplaceService
++ ResponseEntity<?> createHotplace(HotplaceCreateRequestDto,CustomMemberPrincipal)
++ ResponseEntity<?> getHotplace(Long,CustomMemberPrincipal)
++ ResponseEntity<?> getAllHotplaces(int,int,CustomMemberPrincipal)
++ ResponseEntity<?> getMyHotplaces(int,int,CustomMemberPrincipal)
++ ResponseEntity<?> updateHotplace(Long,HotplaceCreateRequestDto,CustomMemberPrincipal)
++ ResponseEntity<?> deleteHotplace(Long,CustomMemberPrincipal)
++ ResponseEntity<?> searchHotplaces(String,Integer,int,int,CustomMemberPrincipal)
++ ResponseEntity<?> getPopularHotplaces(int,CustomMemberPrincipal)
+- Object createErrorResponse(String,String)
+}
+
+
+class world.ssafy.tourtalk.restcontroller.HotplaceRestController$ErrorResponse {
+- String error
+- String message
++ String getError()
++ String getMessage()
+}
+
+
+class world.ssafy.tourtalk.controller.AdminMemberController {
+- AdminMemberService adminMemberService
++ ResponseEntity<PageResponse<MemberResponse>> getMembers(CustomMemberPrincipal,MemberSearchRequest)
++ ResponseEntity<MemberResponse> getMemberDetail(int)
++ ResponseEntity<?> updateMember(int,MemberRequest)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicRouteService {
+- RestTemplate restTemplate
+- String kakaoRestApiKey
+- String kakaoMobilityBaseUrl
++ RouteResponseDto getRoute(RouteRequestDto)
+- Map<String,Object> buildRequestBody(RouteRequestDto)
+- URI buildRouteApiUri(RouteRequestDto)
+- RouteResponseDto convertToRouteResponse(KakaoRouteApiResponse,RouteRequestDto)
+- String generateSectionDescription(KakaoRouteApiResponse.Route.Section)
+- Integer getAverageTrafficState(KakaoRouteApiResponse.Route.Section)
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.BoardMapper {
+~ int writeBoard(BoardRequest)
+~ int writeBoardDetails(BoardRequest)
+~ int updateBoard(BoardRequest)
+~ int updateBoardDetails(BoardRequest)
+~ BoardResponse selectById(int)
+~ void updateViewCount(int)
+~ BoardResponse findById(int)
+~ int softDelete(int,BoardStatus)
+~ int softDeleteDetail(int)
+~ List<BoardResponse> selectAll(SearchConditionRequest,int,int)
+~ long countAll(SearchConditionRequest)
+~ List<BoardResponse> searchWithConditions(SearchConditionRequest,int,int)
+~ long countWithConditions(SearchConditionRequest)
+~ boolean updateCommentCount(int)
+~ List<BoardResponse> selectMyPosts(SearchConditionRequest,int,int)
+~ int countMyPosts(SearchConditionRequest)
+~ List<BoardResponse> findBoardsWithCondition(BoardSearchRequest,int)
+~ int countBoardsWithCondition(BoardSearchRequest)
+~ int updateBoardByAdmin(int,String,BoardCategory,BoardStatus)
+}
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionFormResponseDto {
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+- List<AttractionResponseDto> randomAttractions
++ {static} AttractionFormResponseDto from(AttractionForm)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.hotplace.HotplaceCreateRequestDto {
+- String title
+- Double latitude
+- Double longitude
+- Integer rating
+- Integer contentTypeId
+- String description
+- String review
+- String recommendationReason
+- List<MultipartFile> images
+}
+
+class world.ssafy.tourtalk.model.dto.response.ReservationResponse {
+- int reservationId
+- int productId
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- ReservationStatus reservationStatus
+- LocalDateTime reservedAt
+- LocalDateTime cancelledAt
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.BoardStatus {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDesc()
++ {static} BoardStatus from(String)
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.TourProductMapper {
+~ int insertProduct(TourProductRequest)
+~ int insertTimeSlot(int,String)
+~ TourProductResponse getById(int)
+~ int update(int,TourProductRequest,int)
+~ int softDeleted(int)
+~ List<TourProductResponse> findByCurator(int)
+~ List<LocalTime> selectTimeSlots(int)
+~ int getMaxParticipants(int)
+~ int countAvailableProducts(ProductSearchRequest)
+~ List<TourProductResponse> findAvailableProducts(ProductSearchRequest)
+~ String getLocationById(int)
+}
+
+class world.ssafy.tourtalk.controller.TourProductControllerTest {
+- MockMvc mockMvc
+- JwtTokenProvider jwtTokenProvider
+- TourProductService tourProductService
+- ObjectMapper objectMapper
+- String token
+~ void setup()
+~ void clearContext()
+~ void 상품_등록_성공()
+~ void 상품_수정_성공()
+~ void 상품_소프트삭제_성공()
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.ReservationMapper {
+~ int insert(ReservationRequest,int)
+~ List<ReservationResponse> selectAllByMno(int)
+~ int cancelReservation(int,int)
+}
+
+interface world.ssafy.tourtalk.model.service.HotplaceService {
+~ Hotplace createHotplace(Integer,HotplaceCreateRequestDto)
+~ Hotplace getHotplaceById(Long,Integer)
+~ Page<Hotplace> getAllHotplaces(int,int,Integer)
+~ Page<Hotplace> getMyHotplaces(Integer,int,int)
+~ Hotplace updateHotplace(Long,Integer,HotplaceCreateRequestDto)
+~ boolean deleteHotplace(Long,Integer)
+~ Page<Hotplace> searchHotplaces(String,Integer,int,int,Integer)
+~ List<Hotplace> getPopularHotplaces(int,Integer)
+~ boolean isValidContentType(int)
+~ boolean isOwner(Long,Integer)
+}
+
+class world.ssafy.tourtalk.security.config.SecurityConfig {
+- JwtAuthenticationFilter jwtFilter
+~ BCryptPasswordEncoder passwordEncoder()
+~ SecurityFilterChain securityFilterChain(HttpSecurity)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.PostLikesRequest {
+- int postId
+- int mno
+- LocalDateTime createdAt
+}
+
+class world.ssafy.tourtalk.model.service.TourProductService {
+- TourProductMapper productMapper
++ boolean createProduct(TourProductRequest)
++ boolean update(int,TourProductRequest,int)
++ boolean softDeleted(int,int)
++ List<TourProductResponse> getProductsByCurator(int)
++ TourProductResponse getProductById(int)
++ PageResponse<TourProductResponse> searchAvailableProducts(ProductSearchRequest)
++ String getLocationById(int)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicHotplaceService {
+- HotplaceMapper hotplaceMapper
+- FileUploadService fileUploadService
++ Hotplace createHotplace(Integer,HotplaceCreateRequestDto)
++ Hotplace getHotplaceById(Long,Integer)
++ Page<Hotplace> getAllHotplaces(int,int,Integer)
++ Page<Hotplace> getMyHotplaces(Integer,int,int)
++ Hotplace updateHotplace(Long,Integer,HotplaceCreateRequestDto)
++ boolean deleteHotplace(Long,Integer)
++ Page<Hotplace> searchHotplaces(String,Integer,int,int,Integer)
++ List<Hotplace> getPopularHotplaces(int,Integer)
++ boolean isValidContentType(int)
++ boolean isOwner(Long,Integer)
+- void setAdditionalInfo(Hotplace,Integer)
+- Page<Hotplace> createPage(List<Hotplace>,int,int,long)
+}
+
+
+class world.ssafy.tourtalk.model.service.CommentService {
+- CommentMapper commentMapper
+- BoardMapper boardMapper
++ boolean write(CommentRequest,Integer)
++ boolean update(CommentRequest,Integer)
++ boolean softDelete(int)
++ int selectByWriterId(int)
++ List<CommentResponse> selectAllByPostId(int)
++ PageResponse<CommentResponse> getMyComments(SearchConditionRequest)
+}
+
+
+class world.ssafy.tourtalk.config.WebConfig {
++ WebMvcConfigurer corsConfigurer()
++ void addResourceHandlers(ResourceHandlerRegistry)
+}
+
+class world.ssafy.tourtalk.model.mapper.AttractionMapperTest {
+- AttractionMapper attractionMapper
+~ void getContentTest()
+~ void getSidoTest()
+~ void getGugunTest()
+~ void getAttractionByNoTest()
+~ void updateViewCountTest()
+~ void getAttractionByDirectCodesTest()
+~ void getAttractionByDirectCodesWithPagingTest()
+~ void getTotalCountByDirectCodesTest()
+~ void searchAttractionsByCodesTest()
+~ void getRandomAttractionsTest()
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.Gender {
++  UNKNOWN
++  MAN
++  WOMAN
+- String desc
++ String getDesc()
++ {static} Gender from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.route.RouteRequestDto {
+- Coordinate origin
+- Coordinate destination
+- List<Coordinate> waypoints
+- String priority
+- String carFuel
+- Boolean carHipass
+- Boolean alternatives
+- Boolean roadDetails
+}
+
+class world.ssafy.tourtalk.model.service.TourBookingService {
+- TourBookingMapper bookingMapper
+- TourProductMapper productMapper
++ boolean reserve(int,TourBookingRequest)
++ List<TourBookingResponse> getBookingCounts(int)
++ List<TourBookingResponse> getBookingsByMember(int)
++ boolean cancelBooking(int,int)
++ void confirmPayment(int,int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.ProductSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String date
+- Integer participantCount
+- ProductStatus status
++ void setDefaults()
++ int getOffset()
+}
+
+
+class world.ssafy.tourtalk.model.service.AuthService {
+- MemberMapper memberMapper
+- BCryptPasswordEncoder passwordEncoder
++ MemberResponse login(String,String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.MemberStatus {
++  ACTIVE
++  SUSPENDED
++  PENDING
++  DELETED
+- String desc
++ String getDesc()
++ {static} MemberStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicTripPlanService {
+- TripPlanMapper tripPlanMapper
++ TripPlan createTripPlan(Integer,TripPlanCreateRequestDto)
++ TripPlan getTripPlanById(Long,Integer)
++ List<TripPlan> getUserTripPlans(Integer)
++ List<TripPlan> getUserTripPlansByStatus(Integer,TripPlanStatus)
++ TripPlan updateTripPlan(Long,Integer,TripPlanCreateRequestDto)
++ boolean deleteTripPlan(Long,Integer)
++ boolean softDeleteTripPlan(Long,Integer)
++ Page<TripPlan> getUserTripPlansWithPaging(Integer,TripPlanStatus,int,int)
++ boolean isOwner(Long,Integer)
++ boolean existsTripPlan(Long)
+- Page<TripPlan> createPage(List<TripPlan>,int,int,long)
+}
+
+
+class world.ssafy.tourtalk.security.jwt.JwtTokenProvider {
+- Key key
+- long validityInMs
++ String createToken(int,String,String,Role)
++ boolean validateToken(String)
++ int getUserMno(String)
++ String getUserId(String)
++ String getNickname(String)
++ Role getRole(String)
++ Authentication getAuthentication(String)
++ String resolveToken(HttpServletRequest)
+}
+
+
+interface world.ssafy.tourtalk.model.mapper.MemberMapper {
+~ int insertMember(MemberRequest)
+~ int insertMemberDetails(MemberRequest)
+~ int insertCurator(MemberRequest)
+~ MemberResponse getMemberById(String,MemberStatus)
+~ MemberResponse getMemberByMno(int,MemberStatus)
+~ MemberResponse getDetailsByMno(int)
+~ MemberResponse getCuratorByMno(int)
+~ int update(MemberRequest)
+~ int updateDetails(MemberRequest)
+~ int updateCurator(MemberRequest)
+~ int softDelete(Integer,MemberStatus)
+~ boolean existsById(String)
+~ int updateProfileImgPath(int,String)
+~ MemberResponse selectMemberByMno(Integer)
+~ String selectNicknameByMno(int)
+~ List<MemberResponse> findMembersWithCondition(MemberSearchRequest,int)
+~ int countMembersWithCondition(MemberSearchRequest)
+~ Optional<MemberResponse> findMemberDetailById(int)
+~ int updateByAdmin(int,String,Role,MemberStatus)
+}
+
+interface world.ssafy.tourtalk.ai.service.AiService {
++ Object simpleGeneration(String)
++ String reReadingGeneration(String)
++ String advisedGeneration(String)
++ String travelChatGeneration(String)
++ String attractionInfoGeneration(String,String,String)
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.BookingStatus {
++  PENDING_PAYMENT
++  RESERVED
++  CANCELLED
++  COMPLETED
+- String desc
++ String getDesc()
++ {static} BookingStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.hotplace.HotplaceResponseDto {
+- Long id
+- Integer mno
+- String title
+- double latitude
+- double longitude
+- int rating
+- int contentTypeId
+- String contentTypeName
+- String description
+- String review
+- String recommendationReason
+- List<String> imageUrls
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- boolean isOwner
+- int viewCount
++ {static} HotplaceResponseDto from(Hotplace)
+}
+
+
+class world.ssafy.tourtalk.TourtalkApplication {
++ {static} void main(String[])
+}
+
+class world.ssafy.tourtalk.model.dto.Page {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ void calculatePageInfo(int)
+}
+
+
+class world.ssafy.tourtalk.controller.MemberController {
+- MemberService memberService
++ ResponseEntity<?> regist(MemberRequest)
++ ResponseEntity<?> me(CustomMemberPrincipal)
++ ResponseEntity<?> update(MemberRequest,CustomMemberPrincipal)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,MemberRequest)
++ ResponseEntity<Map<String,Boolean>> checkId(String)
++ ResponseEntity<?> updateProfileImg(CustomMemberPrincipal,String)
++ ResponseEntity<?> getNickname(int)
+}
+
+
+class world.ssafy.tourtalk.controller.CommentController {
+- CommentService cService
++ ResponseEntity<?> write(CustomMemberPrincipal,CommentRequest)
++ ResponseEntity<?> update(CustomMemberPrincipal,CommentRequest)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,int)
++ ResponseEntity<?> selectAllByPostId(int)
++ ResponseEntity<?> getMyPosts(int,int,int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.BoardResponse {
+- int postId
+- BoardCategory category
+- int writerId
+- String title
+- String content
+- BoardStatus status
+- int viewCount
+- int commentCount
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+- String writerNickname
+}
+
+class world.ssafy.tourtalk.model.service.FileService {
+- {static} Set<String> ALLOWED_TYPES
++ String save(MultipartFile,String)
+- void validateType(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.ReservationRequest {
+- int productId
+- int participantCount
+- int totalPrice
+- String paymentMethod
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.CommentStatus {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
++ {static} CommentStatus from(String)
+}
+
+
+
+
+org.apache.ibatis.type.BaseTypeHandler <|-- world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Summary
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Section
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Road
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Guide
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Origin
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Destination
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Waypoint
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Bound
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Fare
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.ai.controller.AiController
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.AdminAttractionRestController
+world.ssafy.tourtalk.restcontroller.AdminAttractionRestController +.. world.ssafy.tourtalk.restcontroller.AdminAttractionRestController$ErrorResponse
+world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto +.. world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto$TripPlanAttractionRequestDto
+org.springframework.security.core.userdetails.UserDetails <|.. world.ssafy.tourtalk.security.auth.CustomMemberPrincipal
+world.ssafy.tourtalk.ai.service.AiService <|.. world.ssafy.tourtalk.ai.service.BasicAiService
+org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor <|.. world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor
+world.ssafy.tourtalk.model.service.AttractionService <|.. world.ssafy.tourtalk.model.service.BasicAttractionService
+org.springframework.web.filter.OncePerRequestFilter <|-- world.ssafy.tourtalk.security.jwt.JwtAuthenticationFilter
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.AttractionRestController
+world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto +.. world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteInfo
+world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto +.. world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteSection
+world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto +.. world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto$TripPlanAttractionResponseDto
+org.springframework.web.servlet.HandlerInterceptor <|.. world.ssafy.tourtalk.config.AdminApiKeyInterceptor
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.restcontroller.HotplaceRestController
+world.ssafy.tourtalk.restcontroller.HotplaceRestController +.. world.ssafy.tourtalk.restcontroller.HotplaceRestController$ErrorResponse
+world.ssafy.tourtalk.model.service.RouteService <|.. world.ssafy.tourtalk.model.service.BasicRouteService
+world.ssafy.tourtalk.model.service.HotplaceService <|.. world.ssafy.tourtalk.model.service.BasicHotplaceService
+org.springframework.web.servlet.config.annotation.WebMvcConfigurer <|.. world.ssafy.tourtalk.config.WebConfig
+world.ssafy.tourtalk.model.service.TripPlanService <|.. world.ssafy.tourtalk.model.service.BasicTripPlanService
+@enduml

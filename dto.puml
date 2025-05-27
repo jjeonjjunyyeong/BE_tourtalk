@@ -1,0 +1,922 @@
+@startuml
+class world.ssafy.tourtalk.model.dto.response.TourBookingResponse {
+- int bookingId
+- int mno
+- int productId
+- String title
+- LocalDate startDate
+- String curatorNickname
+- LocalTime time
+- LocalDateTime reservedAt
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- BookingStatus status
+- LocalDateTime cancelledAt
+}
+
+class world.ssafy.tourtalk.model.dto.Attraction {
+- int no
+- int contentId
+- String title
+- int contentTypeId
+- String contentTypeName
+- int sidoCode
+- String sido
+- int gugunCode
+- String gugun
+- double latitude
+- double longitude
+- Integer mapLevel
+- String firstImage1
+- String firstImage2
+- String tel
+- String addr
+- String addr2
+- String homepage
+- String overview
+- int viewCnt
+- double distance
+- boolean hasImage
++ boolean isHasImage()
++ boolean matchesKeyword(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.BoardDetails {
+- int postId
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.Role {
++  USER
++  CURATOR
++  ADMIN
+- String desc
++ String getDesc()
++ {static} Role from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.TourBookingRequest {
+- int mno
+- int productId
+- LocalTime time
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- BookingStatus status
+}
+
+class world.ssafy.tourtalk.model.dto.response.CommentResponse {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- CommentStatus status
+- String writerNickname
+- String postTitle
+}
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto {
+- RouteInfo routeInfo
+- List<RouteSection> sections
+- List<Coordinate> coordinates
+}
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteInfo {
+- Integer totalDistance
+- Integer totalTime
+- Integer tollFare
+- Integer taxiFare
+- Coordinate origin
+- Coordinate destination
+- List<Coordinate> waypoints
++ double getDistanceInKm()
++ int getTimeInMinutes()
++ String getFormattedTime()
++ String getFormattedDistance()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteSection {
+- Integer distance
+- Integer duration
+- Integer trafficState
+- List<Coordinate> roads
+- String description
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.PaymentStatus {
++  UNPAID
++  PAID
++  REFUNDED
+- String desc
++ String getDesc()
++ {static} PaymentStatus from(String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.BoardCategory {
++  NOTICE
++  FREE
++  QNA
++  INQUIRY
++  REVIEW
+- String desc
++ String getDesc()
++ String getValue()
++ {static} BoardCategory from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto {
+- Long id
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<TripPlanAttractionResponseDto> attractions
++ {static} TripPlanResponseDto from(TripPlan)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto$TripPlanAttractionResponseDto {
+- Long id
+- Integer attractionId
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
++ {static} TripPlanAttractionResponseDto from(TripPlanAttraction)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.CommentRequest {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- CommentStatus status
+}
+
+class world.ssafy.tourtalk.model.dto.request.BoardSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String keywordType
+- BoardCategory category
+- BoardStatus status
++ void setDefaults()
++ int getOffset()
++ boolean hasSearchCondition()
+}
+
+
+class world.ssafy.tourtalk.model.dto.AttractionDetail {
+- Attraction attraction
+- Attraction[] nearbyAttractions
+}
+
+class world.ssafy.tourtalk.model.dto.request.PageRequest {
+- SearchConditionRequest condition
+}
+
+class world.ssafy.tourtalk.model.dto.Comments {
+- int commentId
+- int postId
+- int writerId
+- String content
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- Status status
+}
+
+enum world.ssafy.tourtalk.model.dto.Status {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
+}
+
+
+class world.ssafy.tourtalk.model.dto.TripPlanAttraction {
+- Long id
+- Long tripPlanId
+- Integer attractionNo
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
+- LocalDateTime createdAt
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.PriceType {
++  TOTAL
++  PER_PERSON
+- String desc
++ String getDesc()
++ {static} PriceType from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.attraction.AttractionCreateUpdateRequestDto {
+- String title
+- Integer contentTypeId
+- Integer areaCode
+- Integer siGunGuCode
+- Integer contentId
+- Double latitude
+- Double longitude
+- String firstImage1
+- String firstImage2
+- Integer mapLevel
+- String tel
+- String addr1
+- String addr2
+- String homepage
+- String overview
+}
+
+class world.ssafy.tourtalk.model.dto.request.TourProductRequest {
+- int productId
+- int mno
+- int locationNo
+- String title
+- String description
+- int maxParticipants
+- int minParticipants
+- PriceType priceType
+- int price
+- LocalDate startDate
+- ProductStatus status
+- String thumbnailImg
+- String tags
+- String meetingPlace
+- int meetingTime
+- int duration
+- List<String> timeSlots
++ void setMno(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.AttractionForm {
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+- List<Attraction> randomAttractions
+}
+
+class world.ssafy.tourtalk.model.dto.SearchCondition {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.SearchConditionRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- String keywordType
+- BoardCategory category
+- Integer writerId
+- BoardStatus status
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
++ SearchConditionRequest toSearchCondition()
++ {static} SearchConditionRequest from(SearchConditionRequest)
++ boolean hasSearchCondition()
+}
+
+
+class world.ssafy.tourtalk.model.dto.Hotplace {
+- Long id
+- Integer mno
+- String title
+- double latitude
+- double longitude
+- int rating
+- int contentTypeId
+- String contentTypeName
+- String description
+- String review
+- String recommendationReason
+- List<String> imageUrls
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- boolean isOwner
+- int viewCount
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse {
+- String transId
+- List<Route> routes
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route {
+- Integer resultCode
+- String resultMsg
+- Summary summary
+- List<Section> sections
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Summary {
+- Origin origin
+- Destination destination
+- List<Waypoint> waypoints
+- String priority
+- Bound bound
+- Fare fare
+- Integer distance
+- Integer duration
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Section {
+- Integer distance
+- Integer duration
+- Bound bound
+- List<Road> roads
+- List<Guide> guides
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Road {
+- String name
+- Integer distance
+- Integer duration
+- Double trafficSpeed
+- Integer trafficState
+- List<Double> vertexes
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Guide {
+- String name
+- Double x
+- Double y
+- Integer distance
+- Integer duration
+- Integer type
+- String guidance
+- Integer roadIndex
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Origin {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Destination {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Waypoint {
+- String name
+- Double x
+- Double y
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Bound {
+- Double minX
+- Double minY
+- Double maxX
+- Double maxY
+}
+
+class world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Fare {
+- Integer taxi
+- Integer toll
+}
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionDetailResponseDto {
+- AttractionResponseDto attraction
+- List<AttractionResponseDto> nearbyAttractions
++ {static} AttractionDetailResponseDto from(AttractionDetail)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionResponseDto {
+- int no
+- int contentId
+- String title
+- int contentTypeId
+- String contentTypeName
+- int sidoCode
+- String sido
+- int gugunCode
+- String gugun
+- double latitude
+- double longitude
+- Integer mapLevel
+- String firstImage1
+- String firstImage2
+- String tel
+- String addr
+- String addr2
+- String homepage
+- String overview
+- int viewCnt
++ {static} AttractionResponseDto from(Attraction)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.TourProductResponse {
+- int productId
+- int mno
+- int locationNo
+- String title
+- String description
+- int maxParticipants
+- int minParticipants
+- PriceType priceType
+- int price
+- LocalDate startDate
+- ProductStatus status
+- String thumbnailImg
+- String tags
+- String meetingPlace
+- int meetingTime
+- int duration
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<LocalTime> timeSlots
++ void setTimeSlots(List<LocalTime>)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.attraction.AttractionFormResponseDto {
+- List<Map<String,Object>> contentList
+- List<Map<String,Object>> sidoList
+- List<AttractionResponseDto> randomAttractions
++ {static} AttractionFormResponseDto from(AttractionForm)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.hotplace.HotplaceCreateRequestDto {
+- String title
+- Double latitude
+- Double longitude
+- Integer rating
+- Integer contentTypeId
+- String description
+- String review
+- String recommendationReason
+- List<MultipartFile> images
+}
+
+class world.ssafy.tourtalk.model.dto.response.ReservationResponse {
+- int reservationId
+- int productId
+- int participantCount
+- int totalPrice
+- String paymentMethod
+- PaymentStatus paymentStatus
+- ReservationStatus reservationStatus
+- LocalDateTime reservedAt
+- LocalDateTime cancelledAt
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.BoardStatus {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDesc()
++ {static} BoardStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.TripPlan {
+- Long id
+- Integer mno
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- List<TripPlanAttraction> attractions
+}
+
+class world.ssafy.tourtalk.model.dto.request.PostLikesRequest {
+- int postId
+- int mno
+- LocalDateTime createdAt
+}
+
+class world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto {
+- String name
+- String description
+- LocalDate startDate
+- LocalDate endDate
+- BigDecimal totalDistance
+- Integer totalDuration
+- TripPlanStatus status
+- List<TripPlanAttractionRequestDto> attractions
+}
+
+class world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto$TripPlanAttractionRequestDto {
+- Integer attractionId
+- Integer visitOrder
+- String attractionTitle
+- BigDecimal latitude
+- BigDecimal longitude
+- String sido
+- String gugun
+- String addr
+}
+
+class world.ssafy.tourtalk.model.dto.request.BoardRequest {
+- int postId
+- BoardCategory category
+- int writerId
+- String title
+- String content
+- BoardStatus status
+- int viewCount
+- int commentCount
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+}
+
+class world.ssafy.tourtalk.model.dto.response.PageResponse {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ {static} PageResponse<T> from(Page<T>)
++ {static} PageResponse<T> from(Page<S>,java.util.function.Function<S,T>)
++ void calculatePageInfo(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.common.Coordinate {
+- BigDecimal longitude
+- BigDecimal latitude
+- String name
++ BigDecimal getX()
++ BigDecimal getY()
++ void setX(BigDecimal)
++ void setY(BigDecimal)
++ boolean isValid()
++ double distanceTo(Coordinate)
++ String toCoordinateString()
++ String toKakaoMapUrl()
++ {static} Coordinate of(double,double)
++ {static} Coordinate of(double,double,String)
++ {static} Coordinate fromString(String)
++ String toString()
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.MemberSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String keywordType
+- Role role
+- MemberStatus status
++ void setDefaults()
++ int getOffset()
++ boolean hasSearchCondition()
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.Gender {
++  UNKNOWN
++  MAN
++  WOMAN
+- String desc
++ String getDesc()
++ {static} Gender from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.common.PageResponseDto {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ void calculatePageInfo(int)
++ {static} PageResponseDto<T> from(world.ssafy.tourtalk.model.dto.Page<T>)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.attraction.AttractionSearchRequestDto {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- Integer contentTypeId
+- Integer sidoCode
+- Integer gugunCode
+- String keyword
+- Integer minViewCount
+- Boolean onlyWithImage
++ void setDefaults()
++ int getOffset()
++ world.ssafy.tourtalk.model.dto.SearchCondition toSearchCondition()
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.ReservationStatus {
++  WAITING_FOR_PAYMENT
++  RESERVED
++  CANCELLED
++  COMPLETED
+- String desc
++ String getDesc()
++ {static} ReservationStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.route.RouteRequestDto {
+- Coordinate origin
+- Coordinate destination
+- List<Coordinate> waypoints
+- String priority
+- String carFuel
+- Boolean carHipass
+- Boolean alternatives
+- Boolean roadDetails
+}
+
+class world.ssafy.tourtalk.model.dto.request.ProductSearchRequest {
+- Integer pageNumber
+- Integer pageSize
+- String orderBy
+- String orderDirection
+- String keyword
+- String date
+- Integer participantCount
+- ProductStatus status
++ void setDefaults()
++ int getOffset()
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.MemberResponse {
+- int mno
+- String id
+- String password
+- String nickname
+- Role role
+- MemberStatus status
+- int points
+- String email
+- String phone
+- Gender gender
+- String address
+- String postalCode
+- LocalDate birthDate
+- String profileImgPath
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime lastLogin
+- String curatorNo
+- String curatorImg
+- int adGrade
+- LocalDateTime approvedAt
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.MemberStatus {
++  ACTIVE
++  SUSPENDED
++  PENDING
++  DELETED
+- String desc
++ String getDesc()
++ {static} MemberStatus from(String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.BookingStatus {
++  PENDING_PAYMENT
++  RESERVED
++  CANCELLED
++  COMPLETED
+- String desc
++ String getDesc()
++ {static} BookingStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.MemberRequest {
+- int mno
+- String id
+- String password
+- String nickname
+- Role role
+- MemberStatus status
+- int points
+- String email
+- String phone
+- Gender gender
+- String address
+- String postalCode
+- LocalDate birthDate
+- String profileImgPath
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime lastLogin
+- String curatorNo
+- String curatorImg
+- int adGrade
+- LocalDateTime approvedAt
++ void setMno(int)
++ void setPassword(String)
++ void setPhone(String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.TripPlanStatus {
++  DRAFT
++  COMPLETED
++  DELETED
+- String desc
++ String getDesc()
++ {static} TripPlanStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.hotplace.HotplaceResponseDto {
+- Long id
+- Integer mno
+- String title
+- double latitude
+- double longitude
+- int rating
+- int contentTypeId
+- String contentTypeName
+- String description
+- String review
+- String recommendationReason
+- List<String> imageUrls
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- boolean isOwner
+- int viewCount
++ {static} HotplaceResponseDto from(Hotplace)
+}
+
+
+class world.ssafy.tourtalk.model.dto.Page {
+- List<T> content
+- int pageNumber
+- int pageSize
+- int totalPages
+- long totalElements
+- boolean first
+- boolean last
+- int startPage
+- int endPage
++ void calculatePageInfo(int)
+}
+
+
+class world.ssafy.tourtalk.model.dto.response.BoardResponse {
+- int postId
+- BoardCategory category
+- int writerId
+- String title
+- String content
+- BoardStatus status
+- int viewCount
+- int commentCount
+- LocalDateTime createdAt
+- LocalDateTime updatedAt
+- LocalDateTime deletedAt
+- String filePath
+- String writerNickname
+}
+
+class world.ssafy.tourtalk.model.dto.request.route.RouteValidationDto {
+- boolean valid
+- List<String> errors
++ {static} RouteValidationDto validate(RouteRequestDto)
+}
+
+
+class world.ssafy.tourtalk.model.dto.request.ReservationRequest {
+- int productId
+- int participantCount
+- int totalPrice
+- String paymentMethod
+}
+
+enum world.ssafy.tourtalk.model.dto.enums.ProductStatus {
++  DRAFT
++  OPEN
++  CLOSED
++  CANCELLED
++  DELETED
+- String desc
++ String getDesc()
++ {static} ProductStatus from(String)
+}
+
+
+enum world.ssafy.tourtalk.model.dto.enums.CommentStatus {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
++ {static} CommentStatus from(String)
+}
+
+
+class world.ssafy.tourtalk.model.dto.Board {
+- int postId
+- int categoryId
+- int writerId
+- String title
+- String content
+- Status status
+- int viewCount
+- int commentCount
+}
+
+enum world.ssafy.tourtalk.model.dto.Status {
++  ACTIVE
++  INACTIVE
++  DELETED
+- String desc
++ String getDescription()
+}
+
+
+
+
+world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto +.. world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteInfo
+world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto +.. world.ssafy.tourtalk.model.dto.response.route.RouteResponseDto$RouteSection
+world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto +.. world.ssafy.tourtalk.model.dto.response.TripPlanResponseDto$TripPlanAttractionResponseDto
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Summary
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Section
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Road
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Guide
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Origin
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Destination
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Waypoint
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Bound
+world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route +.. world.ssafy.tourtalk.model.dto.KakaoRouteApiResponse$Route$Fare
+world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto +.. world.ssafy.tourtalk.model.dto.request.tripplan.TripPlanCreateRequestDto$TripPlanAttractionRequestDto
+@enduml
