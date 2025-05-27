@@ -15,7 +15,7 @@ import java.util.List;
 public class Hotplace {
     // 기본 식별자
     private Long id;
-    private String userId;  // 임시 사용자 ID
+    private Integer mno;  // 회원 번호 (FK to member)
     
     // 기본 정보 (NOT NULL)
     private String title;           // 장소명

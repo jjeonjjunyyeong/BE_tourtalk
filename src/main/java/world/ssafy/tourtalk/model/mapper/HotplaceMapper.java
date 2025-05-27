@@ -13,7 +13,7 @@ public interface HotplaceMapper {
     int insertHotplace(Hotplace hotplace);
     Hotplace getHotplaceById(@Param("id") Long id);
     List<Hotplace> getAllHotplaces(@Param("offset") int offset, @Param("limit") int limit);
-    List<Hotplace> getHotplacesByUserId(@Param("userId") String userId, @Param("offset") int offset, @Param("limit") int limit);
+    List<Hotplace> getHotplacesByMno(@Param("mno") Integer mno, @Param("offset") int offset, @Param("limit") int limit);
     int updateHotplace(Hotplace hotplace);
     int deleteHotplace(@Param("id") Long id);
     
@@ -22,7 +22,7 @@ public interface HotplaceMapper {
     
     // 통계
     int getTotalHotplacesCount();
-    int getHotplacesByUserIdCount(@Param("userId") String userId);
+    int getHotplacesByMnoCount(@Param("mno") Integer mno);
     
     // 검색
     List<Hotplace> searchHotplaces(@Param("keyword") String keyword, @Param("contentTypeId") Integer contentTypeId, 

@@ -1,29 +1,36 @@
 package world.ssafy.tourtalk.restcontroller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import world.ssafy.tourtalk.config.TemporaryUserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import world.ssafy.tourtalk.controller.RestControllerHelper;
 import world.ssafy.tourtalk.model.dto.Hotplace;
 import world.ssafy.tourtalk.model.dto.Page;
 import world.ssafy.tourtalk.model.dto.request.hotplace.HotplaceCreateRequestDto;
-import world.ssafy.tourtalk.model.dto.response.hotplace.HotplaceResponseDto;
 import world.ssafy.tourtalk.model.dto.response.common.PageResponseDto;
+import world.ssafy.tourtalk.model.dto.response.hotplace.HotplaceResponseDto;
 import world.ssafy.tourtalk.model.service.HotplaceService;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import world.ssafy.tourtalk.security.auth.CustomMemberPrincipal;
 
 /**
  * Hotplace 관리 REST 컨트롤러
@@ -36,22 +43,24 @@ import java.util.stream.Collectors;
 public class HotplaceRestController implements RestControllerHelper {
     
     private final HotplaceService hotplaceService;
-    private final TemporaryUserService temporaryUserService;
     
     @Operation(summary="Hotplace 등록", description="새로운 Hotplace를 등록합니다.")
     @ApiResponse(responseCode="201", description="Hotplace 등록 성공")
     @ApiResponse(responseCode="400", description="잘못된 요청 데이터")
+    @ApiResponse(responseCode="401", description="인증 실패")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createHotplace(
             @Valid @ModelAttribute HotplaceCreateRequestDto requestDto,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
             
-            log.info("Hotplace 등록 요청 - 사용자: {}, 제목: {}", userId, requestDto.getTitle());
+            Integer mno = principal.getMno();
+            log.info("Hotplace 등록 요청 - 사용자: {}, 제목: {}", mno, requestDto.getTitle());
             
-            Hotplace createdHotplace = hotplaceService.createHotplace(userId, requestDto);
+            Hotplace createdHotplace = hotplaceService.createHotplace(mno, requestDto);
             HotplaceResponseDto responseDto = HotplaceResponseDto.from(createdHotplace);
             
             log.info("Hotplace 등록 완료 - ID: {}, 제목: {}", createdHotplace.getId(), createdHotplace.getTitle());
@@ -74,12 +83,11 @@ public class HotplaceRestController implements RestControllerHelper {
     @GetMapping("/{id}")
     public ResponseEntity<?> getHotplace(
             @PathVariable Long id,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
+            Integer mno = principal != null ? principal.getMno() : null;
             
-            Hotplace hotplace = hotplaceService.getHotplaceById(id, userId);
+            Hotplace hotplace = hotplaceService.getHotplaceById(id, mno);
             HotplaceResponseDto responseDto = HotplaceResponseDto.from(hotplace);
             
             return ResponseEntity.ok(responseDto);
@@ -101,12 +109,10 @@ public class HotplaceRestController implements RestControllerHelper {
     public ResponseEntity<?> getAllHotplaces(
             @RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="10") int size,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
-            
-            Page<Hotplace> pageResult = hotplaceService.getAllHotplaces(page, size, userId);
+            Integer mno = principal != null ? principal.getMno() : null;
+            Page<Hotplace> pageResult = hotplaceService.getAllHotplaces(page, size, mno);
             
             List<HotplaceResponseDto> dtoContent = pageResult.getContent().stream()
                     .map(HotplaceResponseDto::from)
@@ -139,12 +145,15 @@ public class HotplaceRestController implements RestControllerHelper {
     public ResponseEntity<?> getMyHotplaces(
             @RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="10") int size,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
             
-            Page<Hotplace> pageResult = hotplaceService.getMyHotplaces(userId, page, size);
+            Integer mno = principal.getMno();
+            
+            Page<Hotplace> pageResult = hotplaceService.getMyHotplaces(mno, page, size);
             
             List<HotplaceResponseDto> dtoContent = pageResult.getContent().stream()
                     .map(HotplaceResponseDto::from)
@@ -180,14 +189,15 @@ public class HotplaceRestController implements RestControllerHelper {
     public ResponseEntity<?> updateHotplace(
             @PathVariable Long id,
             @Valid @ModelAttribute HotplaceCreateRequestDto requestDto,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
+            Integer mno = principal.getMno();
+            log.info("Hotplace 수정 요청 - ID: {}, 사용자: {}", id, mno);
             
-            log.info("Hotplace 수정 요청 - ID: {}, 사용자: {}", id, userId);
-            
-            Hotplace updatedHotplace = hotplaceService.updateHotplace(id, userId, requestDto);
+            Hotplace updatedHotplace = hotplaceService.updateHotplace(id, mno, requestDto);
             HotplaceResponseDto responseDto = HotplaceResponseDto.from(updatedHotplace);
             
             log.info("Hotplace 수정 완료 - ID: {}", id);
@@ -220,14 +230,15 @@ public class HotplaceRestController implements RestControllerHelper {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHotplace(
             @PathVariable Long id,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
+            Integer mno = principal.getMno();
+            log.info("Hotplace 삭제 요청 - ID: {}, 사용자: {}", id, mno);
             
-            log.info("Hotplace 삭제 요청 - ID: {}, 사용자: {}", id, userId);
-            
-            boolean deleted = hotplaceService.deleteHotplace(id, userId);
+            boolean deleted = hotplaceService.deleteHotplace(id, mno);
             if (deleted) {
                 log.info("Hotplace 삭제 완료 - ID: {}", id);
                 return ResponseEntity.noContent().build();
@@ -261,12 +272,10 @@ public class HotplaceRestController implements RestControllerHelper {
             @RequestParam(required = false) Integer contentTypeId,
             @RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="10") int size,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
-            
-            Page<Hotplace> pageResult = hotplaceService.searchHotplaces(keyword, contentTypeId, page, size, userId);
+            Integer mno = principal != null ? principal.getMno() : null;
+            Page<Hotplace> pageResult = hotplaceService.searchHotplaces(keyword, contentTypeId, page, size, mno);
             
             List<HotplaceResponseDto> dtoContent = pageResult.getContent().stream()
                     .map(HotplaceResponseDto::from)
@@ -298,12 +307,10 @@ public class HotplaceRestController implements RestControllerHelper {
     @GetMapping("/popular")
     public ResponseEntity<?> getPopularHotplaces(
             @RequestParam(defaultValue="10") int limit,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @AuthenticationPrincipal CustomMemberPrincipal principal) {
         try {
-            String userId = temporaryUserService.getCurrentUserId(request, response);
-            
-            List<Hotplace> hotplaces = hotplaceService.getPopularHotplaces(limit, userId);
+            Integer mno = principal != null ? principal.getMno() : null;
+            List<Hotplace> hotplaces = hotplaceService.getPopularHotplaces(limit, mno);
             
             List<HotplaceResponseDto> responseDtos = hotplaces.stream()
                     .map(HotplaceResponseDto::from)

@@ -16,7 +16,7 @@ import java.util.List;
 public class HotplaceResponseDto {
     // 기본 식별자
     private Long id;
-    private String userId;
+    private Integer mno;  // userId에서 mno로 변경
     
     // 기본 정보
     private String title;
@@ -46,7 +46,7 @@ public class HotplaceResponseDto {
     public static HotplaceResponseDto from(Hotplace hotplace) {
         return HotplaceResponseDto.builder()
                 .id(hotplace.getId())
-                .userId(hotplace.getUserId())
+                .mno(hotplace.getMno())  
                 .title(hotplace.getTitle())
                 .latitude(hotplace.getLatitude())
                 .longitude(hotplace.getLongitude())
