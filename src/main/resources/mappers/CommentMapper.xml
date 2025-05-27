@@ -75,8 +75,36 @@
 		c.updated_at AS updatedAt,
 		c.status,
 		m.nickname AS writerNickname
-		FROM comments c
+		FROM
+		comments c
 		JOIN member m ON c.writer_id = m.mno
-		WHERE c.comment_id = #{commentId}
+		WHERE c.comment_id =
+		#{commentId}
 	</select>
+
+	<!-- 댓글 목록 조회 -->
+	<select id="selectMyComments"
+		resultType="world.ssafy.tourtalk.model.dto.response.CommentResponse">
+		SELECT
+		c.*,
+		b.title AS post_title
+		FROM comments c
+		JOIN board b ON c.post_id = b.post_id
+		WHERE c.writer_id = #{cond.writerId} AND c.status != 'DELETED'
+		ORDER BY c.created_at DESC
+		LIMIT #{offset}, #{size}
+	</select>
+
+
+	<!-- 전체 개수 -->
+	<select id="countMyComments" resultType="long">
+		SELECT COUNT(*)
+		FROM
+		comments
+		WHERE writer_id = #{cond.writerId} AND status != 'DELETED'
+	</select>
+
+
+
+
 </mapper>

@@ -159,4 +159,9 @@ public class MemberService {
 	public boolean updateProfileImgPath(int mno, String profileImgPath) {
 		return memberMapper.updateProfileImgPath(mno, profileImgPath) > 0;
 	}
+
+	// mno로 닉네임 찾기
+	public String findNicknameByMno(int mno) {
+		return memberMapper.selectNicknameByMno(mno);
+	}
 }

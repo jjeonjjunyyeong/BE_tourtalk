@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="world.ssafy.tourtalk.model.mapper.TourBookingMapper">
+
+	<!-- 현재 상품에 예약되어 있는 인원 확인 -->
+	<select id="countParticipantsByProductAndTime" resultType="int">
+		SELECT COALESCE(SUM(participant_count), 0)
+		FROM tour_booking
+		WHERE
+		product_id = #{productId}
+		AND time = #{time}
+		AND status = 'RESERVED'
+	</select>
+
+	<!-- 상품 예약 -->
+	<insert id="insert"
+		parameterType="world.ssafy.tourtalk.model.dto.request.TourBookingRequest">
+		INSERT INTO tour_booking (
+		mno, product_id, time,
+		reserved_at,
+		participant_count,
+		total_price, payment_method,
+		payment_status, status
+		) VALUES (
+		#{mno}, #{productId}, #{time}, NOW(),
+		#{participantCount},
+		#{totalPrice}, #{paymentMethod},
+		#{paymentStatus,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.PaymentStatus},
+		#{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BookingStatus}
+		)
+	</insert>
+
+	<!-- 특정 상품의 시간대별 예약 인원 집계 -->
+	<select id="getBookingCountByProduct"
+		resultType="world.ssafy.tourtalk.model.dto.response.TourBookingResponse">
+		SELECT
+		time,
+		SUM(participant_count) AS participantCount
+		FROM
+		tour_booking
+		WHERE product_id = #{productId}
+		AND status = 'RESERVED'
+		GROUP BY time
+	</select>
+
+	<!-- 현재 로그인한 회원의 예약된 상품 목록 확인 -->
+	<select id="findByMember" parameterType="int"
+		resultType="world.ssafy.tourtalk.model.dto.response.TourBookingResponse">
+		SELECT
+		b.booking_id,
+		b.product_id,
+		p.title,
+		p.start_date,
+		m.nickname AS curatorNickname,
+		b.participant_count,
+		b.total_price,
+		b.payment_method,
+		b.payment_status,
+		b.status,
+		b.time
+		FROM tour_booking b
+		JOIN tour_product p ON b.product_id = p.product_id
+		JOIN member m ON
+		p.mno = m.mno
+		WHERE b.mno = #{mno}
+		ORDER BY b.reserved_at DESC
+	</select>
+
+	<!-- 예약 취소 -->
+	<update id="cancelBooking">
+		UPDATE tour_booking
+		SET status = 'CANCELLED',
+		cancelled_at = NOW()
+		WHERE booking_id = #{bookingId}
+	</update>
+
+	<!-- BookingId를 통해 예약 정보 가져오기 -->
+	<select id="getBookingById"
+		resultType="world.ssafy.tourtalk.model.dto.response.TourBookingResponse">
+		SELECT
+		b.booking_id,
+		b.mno,
+		b.product_id,
+		b.time,
+		b.reserved_at,
+		b.participant_count,
+		b.total_price,
+		b.payment_method,
+		b.payment_status,
+		b.status,
+		b.cancelled_at
+		FROM tour_booking b
+		WHERE
+		b.booking_id = #{bookingId}
+	</select>
+
+	<!-- 결제 완료 처리: payment_status = PAID, status = RESERVED -->
+	<update id="updatePaymentStatus">
+		UPDATE tour_booking
+		SET
+		payment_status = #{paymentStatus,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.PaymentStatus},
+		status = #{status,
+		typeHandler=world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler,
+		javaType=world.ssafy.tourtalk.model.dto.enums.BookingStatus}
+		WHERE booking_id = #{bookingId}
+	</update>
+</mapper>

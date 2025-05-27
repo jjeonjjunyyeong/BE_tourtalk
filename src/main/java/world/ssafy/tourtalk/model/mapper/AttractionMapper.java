@@ -72,4 +72,7 @@ public interface AttractionMapper {
     
     // 구군 존재 여부 확인
     int countGugunByCode(@Param("siGunGuCode") int siGunGuCode);
+    
+    // 관광지명 자동완성
+	List<Map<String, Integer>> findTitlesByKeyword(String string);
 }

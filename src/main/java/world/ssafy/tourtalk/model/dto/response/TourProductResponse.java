@@ -3,6 +3,7 @@ package world.ssafy.tourtalk.model.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,8 +31,13 @@ public class TourProductResponse {
 	private String thumbnailImg;
 	private String tags;
 	private String meetingPlace;
-	private LocalTime meetingTime;
+	private int meetingTime;
 	private int duration;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private List<LocalTime> timeSlots;
+	
+	public void setTimeSlots(List<LocalTime> timeSlots) {
+		this.timeSlots = timeSlots;
+	}
 }

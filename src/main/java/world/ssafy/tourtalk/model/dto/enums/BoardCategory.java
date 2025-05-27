@@ -1,6 +1,7 @@
 package world.ssafy.tourtalk.model.dto.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum BoardCategory {
 	NOTICE("공지사항"),
@@ -17,6 +18,11 @@ public enum BoardCategory {
 
     public String getDesc() {
         return desc;
+    }
+    
+    @JsonValue  // 직렬화 시 사용할 값
+    public String getValue() {
+        return this.name();
     }
     
     @JsonCreator
