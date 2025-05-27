@@ -18,7 +18,12 @@ import world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor;
 public class AiConfig {
 	@Value("${ssafy.ai.system-prompt}")
     String systemPrompt;
-
+	@Value("${ssafy.ai.travel-chat-prompt}")
+    String travelChatPrompt;
+    
+    @Value("${ssafy.ai.attraction-info-prompt}")
+    String attractionInfoPrompt;
+    
     @Bean
     ChatClient simpleChatClient(ChatClient.Builder builder) {
         return builder.defaultSystem(systemPrompt)
@@ -44,6 +49,20 @@ public class AiConfig {
                 .defaultAdvisors(new SimpleLoggerAdvisor(Ordered.LOWEST_PRECEDENCE - 1))
                 .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory))
                 //.defaultAdvisors(new PromptChatMemoryAdvisor(chatMemory))
+                .build();
+    }
+    
+    @Bean
+    ChatClient travelChatClient(ChatClient.Builder builder) {
+        return builder.defaultSystem(travelChatPrompt)
+                .defaultAdvisors(new SimpleLoggerAdvisor(Ordered.LOWEST_PRECEDENCE - 1))
+                .build();
+    }
+    
+    @Bean
+    ChatClient attractionInfoClient(ChatClient.Builder builder) {
+        return builder.defaultSystem(attractionInfoPrompt)
+                .defaultAdvisors(new SimpleLoggerAdvisor(Ordered.LOWEST_PRECEDENCE - 1))
                 .build();
     }
 }
