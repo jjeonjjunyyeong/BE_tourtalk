@@ -1,0 +1,14 @@
+@startuml
+class world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler {
+- Class<E> type
++ void setNonNullParameter(PreparedStatement,int,E,JdbcType)
++ E getNullableResult(ResultSet,String)
++ E getNullableResult(ResultSet,int)
++ E getNullableResult(CallableStatement,int)
+}
+
+
+
+
+org.apache.ibatis.type.BaseTypeHandler <|-- world.ssafy.tourtalk.model.typehandler.GenericEnumTypeHandler
+@enduml

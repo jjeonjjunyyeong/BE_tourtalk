@@ -1,0 +1,48 @@
+@startuml
+class world.ssafy.tourtalk.security.config.SecurityConfig {
+- JwtAuthenticationFilter jwtFilter
+~ BCryptPasswordEncoder passwordEncoder()
+~ SecurityFilterChain securityFilterChain(HttpSecurity)
+}
+
+
+class world.ssafy.tourtalk.security.jwt.JwtTokenProvider {
+- Key key
+- long validityInMs
++ String createToken(int,String,String,Role)
++ boolean validateToken(String)
++ int getUserMno(String)
++ String getUserId(String)
++ String getNickname(String)
++ Role getRole(String)
++ Authentication getAuthentication(String)
++ String resolveToken(HttpServletRequest)
+}
+
+
+class world.ssafy.tourtalk.security.jwt.JwtAuthenticationFilter {
+- JwtTokenProvider jwtProvider
+# void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+}
+
+
+class world.ssafy.tourtalk.security.auth.CustomMemberPrincipal {
+- int mno
+- String id
+- String nickname
+- Role role
++ Collection<? extends GrantedAuthority> getAuthorities()
++ String getPassword()
++ String getUsername()
++ boolean isAccountNonExpired()
++ boolean isAccountNonLocked()
++ boolean isCredentialsNonExpired()
++ boolean isEnabled()
+}
+
+
+
+
+org.springframework.web.filter.OncePerRequestFilter <|-- world.ssafy.tourtalk.security.jwt.JwtAuthenticationFilter
+org.springframework.security.core.userdetails.UserDetails <|.. world.ssafy.tourtalk.security.auth.CustomMemberPrincipal
+@enduml

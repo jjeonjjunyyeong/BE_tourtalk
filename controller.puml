@@ -1,0 +1,126 @@
+@startuml
+class world.ssafy.tourtalk.controller.BoardController {
+- BoardService bService
++ ResponseEntity<?> write(CustomMemberPrincipal,BoardRequest)
++ ResponseEntity<?> selectById(int)
++ ResponseEntity<?> update(CustomMemberPrincipal,BoardRequest)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,int)
++ ResponseEntity<?> searchOrList(String,String,BoardCategory,Integer,int,int,String,String)
++ ResponseEntity<?> selectAll(int,int,BoardStatus)
++ ResponseEntity<?> getMyPosts(CustomMemberPrincipal,int,int,int)
+}
+
+
+class world.ssafy.tourtalk.controller.TourBookingController {
+- TourBookingService bookingService
++ ResponseEntity<?> reserve(CustomMemberPrincipal,TourBookingRequest)
++ ResponseEntity<?> getBookingCounts(int)
++ ResponseEntity<?> getMyBookings(CustomMemberPrincipal)
++ ResponseEntity<?> cancelBooking(int,CustomMemberPrincipal)
++ ResponseEntity<?> confirmPayment(int,CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.controller.TripPlanController {
+- TripPlanService tripPlanService
++ ResponseEntity<?> createTripPlan(CustomMemberPrincipal,TripPlanCreateRequestDto)
++ ResponseEntity<?> getTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> getUserTripPlans(CustomMemberPrincipal,TripPlanStatus,int,int)
++ ResponseEntity<?> updateTripPlan(Long,CustomMemberPrincipal,TripPlanCreateRequestDto)
++ ResponseEntity<?> deleteTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> softDeleteTripPlan(Long,CustomMemberPrincipal)
++ ResponseEntity<?> updateTripPlanStatus(Long,TripPlanStatus,CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.controller.ReservationController {
+- ReservationService reservationService
++ ResponseEntity<?> reserve(CustomMemberPrincipal,ReservationRequest)
++ ResponseEntity<?> getMyReservations(CustomMemberPrincipal)
++ ResponseEntity<?> cancelReservation(int,CustomMemberPrincipal)
+}
+
+
+interface world.ssafy.tourtalk.controller.RestControllerHelper {
+~ ResponseEntity<?> handleSuccess(Object)
+~ ResponseEntity<?> handleFail(Exception)
+~ ResponseEntity<?> handleSuccess(Object,HttpStatus)
+~ ResponseEntity<?> handleFail(Exception,HttpStatus)
+}
+
+class world.ssafy.tourtalk.controller.FileController {
+- FileService fileService
++ ResponseEntity<?> upload(MultipartFile,String)
+}
+
+
+class world.ssafy.tourtalk.controller.AuthController {
+- AuthService aService
+- JwtTokenProvider jwtTokenProvider
++ ResponseEntity<?> login(String,String,HttpServletResponse)
++ ResponseEntity<?> logout(HttpServletResponse)
++ ResponseEntity<?> checkLoginStatus(CustomMemberPrincipal)
+}
+
+
+class world.ssafy.tourtalk.controller.AdminMemberController {
+- AdminMemberService adminMemberService
++ ResponseEntity<PageResponse<MemberResponse>> getMembers(CustomMemberPrincipal,MemberSearchRequest)
++ ResponseEntity<MemberResponse> getMemberDetail(int)
++ ResponseEntity<?> updateMember(int,MemberRequest)
+}
+
+
+class world.ssafy.tourtalk.controller.RouteController {
+- RouteService routeService
++ ResponseEntity<?> searchRoute(RouteRequestDto)
++ ResponseEntity<?> searchSimpleRoute(Double,Double,Double,Double,String,String)
++ ResponseEntity<?> searchMultiPointRoute(List<Coordinate>)
++ ResponseEntity<?> getRouteOptions()
++ ResponseEntity<?> validateCoordinates(List<Coordinate>)
+}
+
+
+class world.ssafy.tourtalk.controller.MemberController {
+- MemberService memberService
++ ResponseEntity<?> regist(MemberRequest)
++ ResponseEntity<?> me(CustomMemberPrincipal)
++ ResponseEntity<?> update(MemberRequest,CustomMemberPrincipal)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,MemberRequest)
++ ResponseEntity<Map<String,Boolean>> checkId(String)
++ ResponseEntity<?> updateProfileImg(CustomMemberPrincipal,String)
++ ResponseEntity<?> getNickname(int)
+}
+
+
+class world.ssafy.tourtalk.controller.CommentController {
+- CommentService cService
++ ResponseEntity<?> write(CustomMemberPrincipal,CommentRequest)
++ ResponseEntity<?> update(CustomMemberPrincipal,CommentRequest)
++ ResponseEntity<?> softDelete(CustomMemberPrincipal,int)
++ ResponseEntity<?> selectAllByPostId(int)
++ ResponseEntity<?> getMyPosts(int,int,int)
+}
+
+
+class world.ssafy.tourtalk.controller.AdminBoardController {
+- AdminBoardService adminBoardService
++ ResponseEntity<PageResponse<BoardResponse>> getBoards(CustomMemberPrincipal,BoardSearchRequest)
++ ResponseEntity<?> updateBoardStatus(int,HttpServletRequest)
++ ResponseEntity<?> getBoardDetail(int)
+}
+
+
+class world.ssafy.tourtalk.controller.TourProductController {
+- TourProductService productService
++ ResponseEntity<?> insert(CustomMemberPrincipal,TourProductRequest)
++ ResponseEntity<?> update(CustomMemberPrincipal,int,TourProductRequest)
++ ResponseEntity<?> softDeleted(CustomMemberPrincipal,int)
++ ResponseEntity<?> getAvailbableProducts(int,int)
++ ResponseEntity<?> getMyProducts(CustomMemberPrincipal)
++ ResponseEntity<?> getProductById(int,CustomMemberPrincipal)
++ ResponseEntity<?> getLocationById(int)
+}
+
+
+@enduml

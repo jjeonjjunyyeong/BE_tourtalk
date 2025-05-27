@@ -1,0 +1,237 @@
+@startuml
+interface world.ssafy.tourtalk.model.service.HotplaceService {
+~ Hotplace createHotplace(Integer,HotplaceCreateRequestDto)
+~ Hotplace getHotplaceById(Long,Integer)
+~ Page<Hotplace> getAllHotplaces(int,int,Integer)
+~ Page<Hotplace> getMyHotplaces(Integer,int,int)
+~ Hotplace updateHotplace(Long,Integer,HotplaceCreateRequestDto)
+~ boolean deleteHotplace(Long,Integer)
+~ Page<Hotplace> searchHotplaces(String,Integer,int,int,Integer)
+~ List<Hotplace> getPopularHotplaces(int,Integer)
+~ boolean isValidContentType(int)
+~ boolean isOwner(Long,Integer)
+}
+
+class world.ssafy.tourtalk.model.service.AuthService {
+- MemberMapper memberMapper
+- BCryptPasswordEncoder passwordEncoder
++ MemberResponse login(String,String)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicTripPlanService {
+- TripPlanMapper tripPlanMapper
++ TripPlan createTripPlan(Integer,TripPlanCreateRequestDto)
++ TripPlan getTripPlanById(Long,Integer)
++ List<TripPlan> getUserTripPlans(Integer)
++ List<TripPlan> getUserTripPlansByStatus(Integer,TripPlanStatus)
++ TripPlan updateTripPlan(Long,Integer,TripPlanCreateRequestDto)
++ boolean deleteTripPlan(Long,Integer)
++ boolean softDeleteTripPlan(Long,Integer)
++ Page<TripPlan> getUserTripPlansWithPaging(Integer,TripPlanStatus,int,int)
++ boolean isOwner(Long,Integer)
++ boolean existsTripPlan(Long)
+- Page<TripPlan> createPage(List<TripPlan>,int,int,long)
+}
+
+
+class world.ssafy.tourtalk.model.service.TourProductService {
+- TourProductMapper productMapper
++ boolean createProduct(TourProductRequest)
++ boolean update(int,TourProductRequest,int)
++ boolean softDeleted(int,int)
++ List<TourProductResponse> getProductsByCurator(int)
++ TourProductResponse getProductById(int)
++ PageResponse<TourProductResponse> searchAvailableProducts(ProductSearchRequest)
++ String getLocationById(int)
+}
+
+
+class world.ssafy.tourtalk.model.service.AdminMemberService {
+- MemberMapper memberMapper
++ PageResponse<MemberResponse> searchMembers(MemberSearchRequest)
++ MemberResponse getMemberById(int)
++ void updateMember(int,MemberRequest)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicHotplaceService {
+- HotplaceMapper hotplaceMapper
+- FileUploadService fileUploadService
++ Hotplace createHotplace(Integer,HotplaceCreateRequestDto)
++ Hotplace getHotplaceById(Long,Integer)
++ Page<Hotplace> getAllHotplaces(int,int,Integer)
++ Page<Hotplace> getMyHotplaces(Integer,int,int)
++ Hotplace updateHotplace(Long,Integer,HotplaceCreateRequestDto)
++ boolean deleteHotplace(Long,Integer)
++ Page<Hotplace> searchHotplaces(String,Integer,int,int,Integer)
++ List<Hotplace> getPopularHotplaces(int,Integer)
++ boolean isValidContentType(int)
++ boolean isOwner(Long,Integer)
+- void setAdditionalInfo(Hotplace,Integer)
+- Page<Hotplace> createPage(List<Hotplace>,int,int,long)
+}
+
+
+class world.ssafy.tourtalk.model.service.CommentService {
+- CommentMapper commentMapper
+- BoardMapper boardMapper
++ boolean write(CommentRequest,Integer)
++ boolean update(CommentRequest,Integer)
++ boolean softDelete(int)
++ int selectByWriterId(int)
++ List<CommentResponse> selectAllByPostId(int)
++ PageResponse<CommentResponse> getMyComments(SearchConditionRequest)
+}
+
+
+interface world.ssafy.tourtalk.model.service.TripPlanService {
+~ TripPlan createTripPlan(Integer,TripPlanCreateRequestDto)
+~ TripPlan getTripPlanById(Long,Integer)
+~ List<TripPlan> getUserTripPlans(Integer)
+~ List<TripPlan> getUserTripPlansByStatus(Integer,TripPlanStatus)
+~ TripPlan updateTripPlan(Long,Integer,TripPlanCreateRequestDto)
+~ boolean deleteTripPlan(Long,Integer)
+~ boolean softDeleteTripPlan(Long,Integer)
+~ Page<TripPlan> getUserTripPlansWithPaging(Integer,TripPlanStatus,int,int)
+~ boolean isOwner(Long,Integer)
+~ boolean existsTripPlan(Long)
+}
+
+class world.ssafy.tourtalk.model.service.AdminBoardService {
+- BoardMapper boardMapper
++ PageResponse<BoardResponse> searchBoards(BoardSearchRequest)
++ boolean updateBoardByAdmin(int,BoardRequest)
++ BoardResponse getBoardDetail(int)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicRouteService {
+- RestTemplate restTemplate
+- String kakaoRestApiKey
+- String kakaoMobilityBaseUrl
++ RouteResponseDto getRoute(RouteRequestDto)
+- Map<String,Object> buildRequestBody(RouteRequestDto)
+- URI buildRouteApiUri(RouteRequestDto)
+- RouteResponseDto convertToRouteResponse(KakaoRouteApiResponse,RouteRequestDto)
+- String generateSectionDescription(KakaoRouteApiResponse.Route.Section)
+- Integer getAverageTrafficState(KakaoRouteApiResponse.Route.Section)
+}
+
+
+class world.ssafy.tourtalk.model.service.ReservationService {
+- ReservationMapper reservationMapper
++ boolean reserve(ReservationRequest,int)
++ List<ReservationResponse> getReservationsByMno(int)
++ boolean cancel(int,int)
+}
+
+
+interface world.ssafy.tourtalk.model.service.AttractionService {
+~ List<Map<String,Object>> getContent()
+~ List<Map<String,Object>> getSido()
+~ List<Map<String,Object>> getGugun(String)
+~ Attraction getAttractionByNo(int)
+~ int getContentTypeIdByName(String)
+~ int getSidoCodeByName(String)
+~ int getGugunCodeByName(String,int)
+~ List<Attraction> getRandomAttractions(int)
+~ List<Attraction> getRandomAttractionsByTheme(int,int)
+~ List<Attraction> getRandomAttractionsByRegion(int,int)
+~ void updateViewCount(int)
+~ List<Map<String,Object>> allCountView()
+~ List<Attraction> getAttractionsByDirectCodes(int,int,int)
+~ Page<Attraction> getAttractionsByDirectCodesWithPaging(int,int,int,int,int)
+~ Page<Attraction> searchAttractionsByCodes(SearchCondition)
+~ Attraction createAttraction(AttractionCreateUpdateRequestDto)
+~ Attraction updateAttraction(int,AttractionCreateUpdateRequestDto)
+~ boolean deleteAttraction(int)
+~ boolean existsAttractionByTitle(String)
+~ boolean validateReferences(int,int,int)
+~ List<Map<String,Integer>> searchByAttractionTitle(String)
+}
+
+class world.ssafy.tourtalk.model.service.FileService {
+- {static} Set<String> ALLOWED_TYPES
++ String save(MultipartFile,String)
+- void validateType(String)
+}
+
+
+class world.ssafy.tourtalk.model.service.BasicAttractionService {
+- AttractionMapper attractionMapper
++ List<Map<String,Object>> getContent()
++ List<Map<String,Object>> getSido()
++ List<Map<String,Object>> getGugun(String)
++ Attraction getAttractionByNo(int)
++ int getContentTypeIdByName(String)
++ int getSidoCodeByName(String)
++ int getGugunCodeByName(String,int)
++ List<Attraction> getRandomAttractions(int)
++ List<Attraction> getRandomAttractionsByTheme(int,int)
++ List<Attraction> getRandomAttractionsByRegion(int,int)
++ void updateViewCount(int)
++ List<Map<String,Object>> allCountView()
++ List<Attraction> getAttractionsByDirectCodes(int,int,int)
++ Page<Attraction> getAttractionsByDirectCodesWithPaging(int,int,int,int,int)
++ Page<Attraction> searchAttractionsByCodes(SearchCondition)
++ Attraction createAttraction(AttractionCreateUpdateRequestDto)
++ Attraction updateAttraction(int,AttractionCreateUpdateRequestDto)
++ boolean deleteAttraction(int)
++ boolean existsAttractionByTitle(String)
++ boolean validateReferences(int,int,int)
+- Page<Attraction> createPage(List<Attraction>,int,int,long)
++ List<Map<String,Integer>> searchByAttractionTitle(String)
+}
+
+
+class world.ssafy.tourtalk.model.service.TourBookingService {
+- TourBookingMapper bookingMapper
+- TourProductMapper productMapper
++ boolean reserve(int,TourBookingRequest)
++ List<TourBookingResponse> getBookingCounts(int)
++ List<TourBookingResponse> getBookingsByMember(int)
++ boolean cancelBooking(int,int)
++ void confirmPayment(int,int)
+}
+
+
+class world.ssafy.tourtalk.model.service.BoardService {
+- BoardMapper boardMapper
++ boolean write(BoardRequest)
++ BoardResponse selectById(int)
++ boolean update(BoardRequest)
++ boolean softDelete(int)
++ BoardResponse findById(int)
++ PageResponse<BoardResponse> selectAll(SearchConditionRequest)
++ PageResponse<BoardResponse> searchWithConditions(SearchConditionRequest)
++ PageResponse<BoardResponse> getMyPosts(SearchConditionRequest)
+}
+
+
+class world.ssafy.tourtalk.model.service.MemberService {
+- MemberMapper memberMapper
+- BCryptPasswordEncoder passwordEncoder
++ boolean regist(MemberRequest)
++ MemberResponse getDetails(int)
++ MemberResponse me(int)
+- String nonNullOr(String,String)
++ boolean update(MemberRequest)
++ boolean softDelete(Integer,String)
++ boolean existsById(String)
++ boolean updateProfileImgPath(int,String)
++ String findNicknameByMno(int)
+}
+
+
+interface world.ssafy.tourtalk.model.service.RouteService {
+~ RouteResponseDto getRoute(RouteRequestDto)
+}
+
+
+
+world.ssafy.tourtalk.model.service.TripPlanService <|.. world.ssafy.tourtalk.model.service.BasicTripPlanService
+world.ssafy.tourtalk.model.service.HotplaceService <|.. world.ssafy.tourtalk.model.service.BasicHotplaceService
+world.ssafy.tourtalk.model.service.RouteService <|.. world.ssafy.tourtalk.model.service.BasicRouteService
+world.ssafy.tourtalk.model.service.AttractionService <|.. world.ssafy.tourtalk.model.service.BasicAttractionService
+@enduml

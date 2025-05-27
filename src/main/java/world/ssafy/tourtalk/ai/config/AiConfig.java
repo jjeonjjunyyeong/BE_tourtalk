@@ -16,14 +16,15 @@ import world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor;
 @Configuration
 @Slf4j
 public class AiConfig {
-	@Value("${ssafy.ai.system-prompt}")
+    @Value("${ssafy.ai.system-prompt}")
     String systemPrompt;
-	@Value("${ssafy.ai.travel-chat-prompt}")
+
+    @Value("${ssafy.ai.travel-chat-prompt:You are a helpful travel assistant for South Korea. Provide friendly and informative responses about travel destinations, attractions, local culture, food, and travel tips. Always respond in Korean and keep your answers concise and helpful.}")
     String travelChatPrompt;
-    
-    @Value("${ssafy.ai.attraction-info-prompt}")
+
+    @Value("${ssafy.ai.attraction-info-prompt:You are a travel guide AI specializing in Korean attractions. Based on the provided attraction information, create an engaging and informative description in Korean. Keep the response to 5 lines or less, focusing on the most interesting and unique aspects of the location.}")
     String attractionInfoPrompt;
-    
+
     @Bean
     ChatClient simpleChatClient(ChatClient.Builder builder) {
         return builder.defaultSystem(systemPrompt)
@@ -51,14 +52,14 @@ public class AiConfig {
                 //.defaultAdvisors(new PromptChatMemoryAdvisor(chatMemory))
                 .build();
     }
-    
+
     @Bean
     ChatClient travelChatClient(ChatClient.Builder builder) {
         return builder.defaultSystem(travelChatPrompt)
                 .defaultAdvisors(new SimpleLoggerAdvisor(Ordered.LOWEST_PRECEDENCE - 1))
                 .build();
     }
-    
+
     @Bean
     ChatClient attractionInfoClient(ChatClient.Builder builder) {
         return builder.defaultSystem(attractionInfoPrompt)

@@ -1,0 +1,59 @@
+@startuml
+class world.ssafy.tourtalk.ai.service.BasicAiService {
+- ChatModel model2
+- ChatClient simpleChatClient
+- ChatClient reReadingChatClient
+- ChatClient advisedChatClient
+- ChatClient travelChatClient
+- ChatClient attractionInfoClient
++ Object simpleGeneration(String)
++ String reReadingGeneration(String)
++ String advisedGeneration(String)
++ String travelChatGeneration(String)
++ String attractionInfoGeneration(String,String,String)
+}
+
+
+interface world.ssafy.tourtalk.ai.service.AiService {
++ Object simpleGeneration(String)
++ String reReadingGeneration(String)
++ String advisedGeneration(String)
++ String travelChatGeneration(String)
++ String attractionInfoGeneration(String,String,String)
+}
+
+class world.ssafy.tourtalk.ai.config.AiConfig {
+~ String systemPrompt
+~ String travelChatPrompt
+~ String attractionInfoPrompt
+~ ChatClient simpleChatClient(ChatClient.Builder)
+~ ChatClient reReadingChatClient(ChatClient.Builder)
+~ ChatMemory chatMemory()
+~ ChatClient advisedChatClient(ChatClient.Builder,ChatMemory)
+~ ChatClient travelChatClient(ChatClient.Builder)
+~ ChatClient attractionInfoClient(ChatClient.Builder)
+}
+
+
+class world.ssafy.tourtalk.ai.controller.AiController {
+- AiService chatService
+~ ResponseEntity<?> simpleGeneration(Map<String,String>)
+~ ResponseEntity<?> advisedGeneration(Map<String,String>)
+}
+
+
+class world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor {
+- int order
++ String getName()
++ int getOrder()
++ AdvisedResponse aroundCall(AdvisedRequest,CallAroundAdvisorChain)
+- AdvisedRequest before(AdvisedRequest)
+}
+
+
+
+
+world.ssafy.tourtalk.ai.service.AiService <|.. world.ssafy.tourtalk.ai.service.BasicAiService
+world.ssafy.tourtalk.controller.RestControllerHelper <|.. world.ssafy.tourtalk.ai.controller.AiController
+org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor <|.. world.ssafy.tourtalk.ai.advisor.ReReadingAdvisor
+@enduml

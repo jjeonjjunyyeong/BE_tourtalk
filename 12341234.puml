@@ -1,0 +1,404 @@
+@startuml
+!define CONTROLLER_COLOR #E8F4FD
+!define SERVICE_COLOR #FFF2CC
+!define MAPPER_COLOR #D5E8D4
+!define DTO_COLOR #F8CECC
+!define CONFIG_COLOR #E1D5E7
+!define SECURITY_COLOR #FFE6CC
+
+package "Controller Layer" CONTROLLER_COLOR {
+    class BoardController {
+        + write()
+        + selectById()
+        + update()
+        + softDelete()
+        + searchOrList()
+    }
+
+    class TourProductController {
+        + insert()
+        + update()
+        + getAvailbableProducts()
+        + getMyProducts()
+    }
+
+    class TripPlanController {
+        + createTripPlan()
+        + getTripPlan()
+        + getUserTripPlans()
+        + updateTripPlan()
+    }
+
+    class AuthController {
+        + login()
+        + logout()
+        + checkLoginStatus()
+    }
+
+    class MemberController {
+        + regist()
+        + me()
+        + update()
+        + softDelete()
+    }
+
+    class CommentController {
+        + write()
+        + update()
+        + selectAllByPostId()
+    }
+
+    class RouteController {
+        + searchRoute()
+        + searchSimpleRoute()
+        + searchMultiPointRoute()
+    }
+
+    class ReservationController {
+        + reserve()
+        + getMyReservations()
+        + cancelReservation()
+    }
+
+    class TourBookingController {
+        + reserve()
+        + getBookingCounts()
+        + getMyBookings()
+    }
+}
+
+package "RestController Layer" CONTROLLER_COLOR {
+    class AttractionRestController {
+        + getAttractionByNo()
+        + getAttractionsByDirectCodes()
+        + searchAttractions()
+        + getPopularAttractions()
+    }
+
+    class HotplaceRestController {
+        + createHotplace()
+        + getHotplace()
+        + getAllHotplaces()
+        + searchHotplaces()
+    }
+
+    class AdminAttractionRestController {
+        + createAttraction()
+        + updateAttraction()
+        + deleteAttraction()
+    }
+}
+
+package "Service Layer" SERVICE_COLOR {
+    interface AttractionService {
+        + getAttractionByNo()
+        + getRandomAttractions()
+        + searchAttractionsByCodes()
+        + createAttraction()
+    }
+
+    class BasicAttractionService {
+        + getAttractionByNo()
+        + getRandomAttractions()
+        + searchAttractionsByCodes()
+        + createAttraction()
+    }
+
+    class BoardService {
+        + write()
+        + selectById()
+        + update()
+        + softDelete()
+        + selectAll()
+    }
+
+    class TourProductService {
+        + createProduct()
+        + update()
+        + getProductsByCurator()
+        + searchAvailableProducts()
+    }
+
+    interface TripPlanService {
+        + createTripPlan()
+        + getTripPlanById()
+        + getUserTripPlans()
+        + updateTripPlan()
+    }
+
+    class BasicTripPlanService {
+        + createTripPlan()
+        + getTripPlanById()
+        + getUserTripPlans()
+        + updateTripPlan()
+    }
+
+    class MemberService {
+        + regist()
+        + getDetails()
+        + update()
+        + softDelete()
+    }
+
+    class AuthService {
+        + login()
+    }
+
+    class CommentService {
+        + write()
+        + update()
+        + selectAllByPostId()
+    }
+
+    interface RouteService {
+        + getRoute()
+    }
+
+    class BasicRouteService {
+        + getRoute()
+    }
+
+    class ReservationService {
+        + reserve()
+        + getReservationsByMno()
+        + cancel()
+    }
+
+    class TourBookingService {
+        + reserve()
+        + getBookingCounts()
+        + getBookingsByMember()
+    }
+
+    interface HotplaceService {
+        + createHotplace()
+        + getHotplaceById()
+        + getAllHotplaces()
+        + searchHotplaces()
+    }
+
+    class BasicHotplaceService {
+        + createHotplace()
+        + getHotplaceById()
+        + getAllHotplaces()
+        + searchHotplaces()
+    }
+
+    class FileUploadService {
+        + uploadImages()
+        + deleteImage()
+    }
+}
+
+package "Mapper Layer" MAPPER_COLOR {
+    interface AttractionMapper {
+        + getAttractionByNo()
+        + getRandomAttractions()
+        + searchAttractionsByCodes()
+        + insertAttraction()
+    }
+
+    interface BoardMapper {
+        + writeBoard()
+        + selectById()
+        + updateBoard()
+        + softDelete()
+    }
+
+    interface MemberMapper {
+        + insertMember()
+        + getMemberById()
+        + update()
+        + softDelete()
+    }
+
+    interface TourProductMapper {
+        + insertProduct()
+        + getById()
+        + update()
+        + findByCurator()
+    }
+
+    interface TripPlanMapper {
+        + insertTripPlan()
+        + getTripPlanById()
+        + updateTripPlan()
+        + deleteTripPlan()
+    }
+
+    interface CommentMapper {
+        + insert()
+        + update()
+        + selectAllByPostId()
+    }
+
+    interface ReservationMapper {
+        + insert()
+        + selectAllByMno()
+        + cancelReservation()
+    }
+
+    interface TourBookingMapper {
+        + insert()
+        + getBookingCountByProduct()
+        + findByMember()
+    }
+
+    interface HotplaceMapper {
+        + insertHotplace()
+        + getHotplaceById()
+        + getAllHotplaces()
+        + searchHotplaces()
+    }
+}
+
+package "DTO Layer" DTO_COLOR {
+    package "Request DTOs" {
+        class BoardRequest
+        class MemberRequest
+        class TourProductRequest
+        class TripPlanCreateRequestDto
+        class CommentRequest
+        class ReservationRequest
+        class TourBookingRequest
+        class HotplaceCreateRequestDto
+        class RouteRequestDto
+    }
+
+    package "Response DTOs" {
+        class BoardResponse
+        class MemberResponse
+        class TourProductResponse
+        class TripPlanResponseDto
+        class CommentResponse
+        class ReservationResponse
+        class TourBookingResponse
+        class HotplaceResponseDto
+        class RouteResponseDto
+        class AttractionResponseDto
+    }
+
+    package "Entity DTOs" {
+        class Board
+        class Member
+        class Attraction
+        class TripPlan
+        class Comments
+        class Hotplace
+        class TripPlanAttraction
+    }
+
+    package "Common DTOs" {
+        class PageResponse
+        class Coordinate
+        class SearchCondition
+    }
+}
+
+package "Enum Layer" DTO_COLOR {
+    enum Role {
+        USER, CURATOR, ADMIN
+    }
+
+    enum BoardCategory {
+        NOTICE, FREE, QNA, INQUIRY, REVIEW
+    }
+
+    enum BoardStatus {
+        ACTIVE, INACTIVE, DELETED
+    }
+
+    enum ProductStatus {
+        DRAFT, OPEN, CLOSED, CANCELLED, DELETED
+    }
+
+    enum TripPlanStatus {
+        DRAFT, COMPLETED, DELETED
+    }
+
+    enum ReservationStatus {
+        WAITING_FOR_PAYMENT, RESERVED, CANCELLED, COMPLETED
+    }
+
+    enum BookingStatus {
+        PENDING_PAYMENT, RESERVED, CANCELLED, COMPLETED
+    }
+
+    enum PaymentStatus {
+        UNPAID, PAID, REFUNDED
+    }
+}
+
+package "Security Layer" SECURITY_COLOR {
+    class JwtTokenProvider {
+        + createToken()
+        + validateToken()
+        + getAuthentication()
+    }
+
+    class JwtAuthenticationFilter {
+        + doFilterInternal()
+    }
+
+    class CustomMemberPrincipal {
+        + getAuthorities()
+        + getUsername()
+    }
+
+    class SecurityConfig {
+        + securityFilterChain()
+    }
+}
+
+package "Configuration" CONFIG_COLOR {
+    class WebConfig
+    class RestTemplateConfig
+    class AiConfig
+    class AdminApiKeyInterceptor
+}
+
+package "AI Module" SERVICE_COLOR {
+    interface AiService {
+        + simpleGeneration()
+        + advisedGeneration()
+        + travelChatGeneration()
+    }
+
+    class BasicAiService {
+        + simpleGeneration()
+        + advisedGeneration()
+        + travelChatGeneration()
+    }
+
+    class AiController {
+        + simpleGeneration()
+        + advisedGeneration()
+    }
+
+    class ReReadingAdvisor
+}
+
+' 핵심 관계들
+AttractionService <|.. BasicAttractionService
+TripPlanService <|.. BasicTripPlanService
+RouteService <|.. BasicRouteService
+HotplaceService <|.. BasicHotplaceService
+AiService <|.. BasicAiService
+
+BoardController --> BoardService
+TourProductController --> TourProductService
+TripPlanController --> TripPlanService
+AttractionRestController --> AttractionService
+MemberController --> MemberService
+AuthController --> AuthService
+
+BoardService --> BoardMapper
+TourProductService --> TourProductMapper
+BasicTripPlanService --> TripPlanMapper
+BasicAttractionService --> AttractionMapper
+MemberService --> MemberMapper
+
+JwtAuthenticationFilter --> JwtTokenProvider
+SecurityConfig --> JwtAuthenticationFilter
+
+@enduml
