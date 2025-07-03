@@ -33,10 +33,17 @@ public class AuthController {
 	// 로그인
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestParam String id, @RequestParam String password, HttpServletResponse response) {
+		System.out.println("=== 로그인 시도 ===");
+		System.out.println("요청 ID: " + id);
+		System.out.println("요청 시간: " + java.time.LocalDateTime.now());
+		
 		try {
 			MemberResponse member = aService.login(id, password);
 			if(member != null) {
+				System.out.println("로그인 성공 - 사용자: " + member.getNickname());
+				
 				String jwtToken = jwtTokenProvider.createToken(member.getMno(), member.getId(), member.getNickname(), member.getRole());
+				System.out.println("JWT 토큰 생성 완료");
 				
 				Cookie token = new Cookie("token", jwtToken);
 				token.setHttpOnly(true);
@@ -46,6 +53,7 @@ public class AuthController {
 				// token.setDomain();
 				
 				response.addCookie(token);
+				System.out.println("쿠키 설정 완료");
 				
 				return ResponseEntity.ok(Map.of(
 					    "message", "로그인 성공",
@@ -54,9 +62,11 @@ public class AuthController {
 					    "id", member.getId()
 					));
 			} else {
+				System.out.println("로그인 실패 - 잘못된 인증 정보");
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다!");				
 			}
 		} catch (DataAccessException e) {
+			System.out.println("로그인 중 데이터베이스 오류 발생: " + e.getMessage());
 			log.error("로그인 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생 : " + e.getMessage());
 		}
@@ -65,6 +75,9 @@ public class AuthController {
 	// 로그아웃
 	@PostMapping("/logout")
 	public ResponseEntity<?> logout(HttpServletResponse response) {
+		System.out.println("=== 로그아웃 요청 ===");
+		System.out.println("로그아웃 시간: " + java.time.LocalDateTime.now());
+		
 		Cookie token = new Cookie("token", null);
 		token.setHttpOnly(true);
 		token.setSecure(false);
@@ -72,6 +85,7 @@ public class AuthController {
 		token.setMaxAge(0);
 		
 		response.addCookie(token);
+		System.out.println("로그아웃 완료 - 쿠키 삭제됨");
 		
 		return ResponseEntity.ok("로그아웃 완료");
 	}
@@ -79,7 +93,16 @@ public class AuthController {
 	// 로그인 상태 확인
 	@GetMapping("/check")
 	public ResponseEntity<?> checkLoginStatus(@AuthenticationPrincipal CustomMemberPrincipal principal) {
-		if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
+		System.out.println("=== 로그인 상태 확인 ===");
+		System.out.println("확인 시간: " + java.time.LocalDateTime.now());
+		
+		if (principal == null) {
+			System.out.println("로그인 상태 확인 결과: 미인증 사용자");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
+		}
+		
+		System.out.println("로그인 상태 확인 결과: 인증된 사용자 - " + principal.getNickname());
+		System.out.println("사용자 정보 - ID: " + principal.getId() + ", 역할: " + principal.getRole());
 		
 		return ResponseEntity.ok(Map.of(
 				"message", "로그인됨",
